@@ -4,7 +4,7 @@ import * as dat from 'dat.gui'
 import $ from 'jquery'
 import Stats from 'three/examples/js/libs/stats.min.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { gsap, TweenMax, TimelineMax, Power3 } from 'gsap'
+import gsap from 'gsap'
 var Flickity = require('flickity');
 
 let container, fov, controls, scene, camera, renderer, stats, gui, loadingManager, textureLoader;
@@ -67,7 +67,7 @@ function appendImgs(){
 
 			if(loaded == appendBGs.length - 1) {
 
-				TweenMax.to('.clouds_set', 1, {autoAlpha: 1, ease: Power3.easeOut, delay: 0.5, onComplete: fire})
+				gsap.to('.clouds_set', 1, {autoAlpha: 1, ease: "power3.out", delay: 0.5, onComplete: fire})
 
 			}
 
@@ -88,7 +88,7 @@ function support_format_webp(img) {
 
 function fire() {
 
-	var fireTL = new TimelineMax({delay: 0.5});
+	var fireTL = new gsap.timeline({delay: 0.5});
 
 	fireTL
 
@@ -100,11 +100,11 @@ function fire() {
 
 	})
 
-	.from('.clouds .site_button', 1, {autoAlpha: 0, y: 140, ease: Power3.easeOut}, 0.5)
+	.from('.clouds .site_button', 1, {autoAlpha: 0, y: 140, ease: "power3.out"}, 0.5)
 
 	.set('.cloud_text', {autoAlpha: 1}, 0.5)
 
-	.staggerFrom('.cloud_text p span', 1, {autoAlpha: 0, y: 140, ease: Power3.easeOut}, 0.1, 0.5)
+	.staggerFrom('.cloud_text p span', 1, {autoAlpha: 0, y: 140, ease: "power3.out"}, 0.1, 0.5)
 
 	.call(function(){
 
@@ -118,17 +118,17 @@ function fire() {
 
 	$('.clouds .site_button').click(function(){
 
-		var vanishTL = new TimelineMax();
+		var vanishTL = new gsap.timeline();
 
 		vanishTL
 
-		.staggerTo('.cloud_text p span', 1, {autoAlpha: 0, y: -100, ease: Power3.easeOut}, 0.1, 0)
+		.staggerTo('.cloud_text p span', 1, {autoAlpha: 0, y: -100, ease: "power3.out"}, 0.1, 0)
 
-		.to('.clouds .site_button', 1, {autoAlpha: 0, ease: Power3.easeOut}, 0)
+		.to('.clouds .site_button', 1, {autoAlpha: 0, ease: "power3.out"}, 0)
 
-		.to('.clouds i', 2, {autoAlpha: 0, ease: Power3.easeOut}, 1)
+		.to('.clouds i', 2, {autoAlpha: 0, ease: "power3.out"}, 1)
 
-		.from(camera.position, 2, {z: camera.position.z - 200, ease: Power3.easeOut, onStart: function(){
+		.from(camera.position, 2, {z: camera.position.z - 200, ease: "power3.out", onStart: function(){
 
 			$('body').removeClass('progress')
 
@@ -138,7 +138,7 @@ function fire() {
 
 		}}, 1)
 
-		.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: Power3.easeOut})
+		.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: "power3.out"})
 
 		.call(function(){
 
@@ -190,7 +190,7 @@ function init() {
 		contain: true
 	});
 
-	var menuTL = new TimelineMax({paused: true});
+	var menuTL = new gsap.timeline({paused: true});
 
 	menuTL
 
@@ -202,20 +202,22 @@ function init() {
 
 	})
 
-	.to('.menu_wrap > i', 0.5, {scaleY: 1, ease: Power3.easeInOut, onStart: function(){
+	.to('.menu_wrap > i', 0.5, {scaleY: 1, ease: "power3.inOut", onStart: function(){
 
 		$('header').addClass('active')
 
 	}}, 0)
 
 
+
+
 	.set('.sub_nav', {autoAlpha: 1}, 0)
 
-	.staggerFrom('.sub_nav ._ele', 0.5, {y: -30, autoAlpha: 0, ease: Power3.easeOut}, 0.05, 0.5)
+	.staggerFrom('.sub_nav ._ele', 0.5, {y: -30, autoAlpha: 0, ease: "power3.out"}, 0.05, 0.5)
 
-	.staggerFrom('.menu_items li', 1, {x: 200, autoAlpha: 0, ease: Power3.easeOut}, 0.1, 0.5)
+	.staggerFrom('.menu_items li', 1, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.5)
 
-	.staggerFrom('.menu_items li ._ele', 1, {y: 50, autoAlpha: 0, ease: Power3.easeOut}, 0.1, 0.5)
+	.staggerFrom('.menu_items li ._ele', 1, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.5)
 
 	$('.menu_button').click(function(){
 
@@ -280,7 +282,7 @@ function FXScene( clearColor, number ) {
 		} else {
 			if(!isTween) {
 				isTween = true
-				TweenMax.to(camera.position, 1, {x: 0, y: 0, ease: Power3.easeInOut})
+				gsap.to(camera.position, 1, {x: 0, y: 0, ease: "power3.inOut"})
 			}
 		}
 		camera.lookAt( new THREE.Vector3(0, 0, 0));
@@ -411,7 +413,7 @@ function initPlans() {
     }
 
 
-	var mainTL = new TimelineMax({paused: true});
+	var mainTL = new gsap.timeline({paused: true});
 
 	var next = {
 
@@ -419,7 +421,7 @@ function initPlans() {
 
 			if(mainTL) {mainTL.kill()}
 
-			mainTL = new TimelineMax();
+			mainTL = new gsap.timeline();
 
 			mainTL
 
@@ -433,7 +435,7 @@ function initPlans() {
 
 				transitionParams.transition = 1
 
-				TweenMax.to('.lb_set, .tip', 0.5, {autoAlpha: 0, ease: Power3.easeOut, onComplete: function(){
+				gsap.to('.lb_set, .tip', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
 					$('.tip').remove();
 
@@ -443,21 +445,21 @@ function initPlans() {
 
 			})
 
-			.to(transitionParams, 2, {transition: 0, ease: Power3.easeInOut}, 0)
+			.to(transitionParams, 2, {transition: 0, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[1].rotation, 2, {z: 0.1, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[1].rotation, 2, {z: 0.1, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[1].position, 2, {z: 200, x: -500, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[1].position, 2, {z: 200, x: -500, ease: "power3.inOut"}, 0)
 
-			.from(sceneGroup[2].position, 2, { x: 400, ease: Power3.easeInOut}, 0)
+			.from(sceneGroup[2].position, 2, { x: 400, ease: "power3.inOut"}, 0)
 
-			.from(sceneGroup[2].rotation, 2, {z: -0.2, ease: Power3.easeInOut}, 0)
+			.from(sceneGroup[2].rotation, 2, {z: -0.2, ease: "power3.inOut"}, 0)
 
-			.from(sceneGroup[2].position, 2, {y: 100, z: 220, ease: Power3.easeInOut}, 0.8)
+			.from(sceneGroup[2].position, 2, {y: 100, z: 220, ease: "power3.inOut"}, 0.8)
 
 			.call(function(){
 
-				TweenMax.to('.lb_set', 1, {autoAlpha: 1, ease: Power3.easeOut}, 0)
+				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
 
 				setOpacity(1, 0)
 
@@ -471,7 +473,7 @@ function initPlans() {
 
 			if(mainTL) {mainTL.kill()}
 
-			mainTL = new TimelineMax();
+			mainTL = new gsap.timeline();
 
 			mainTL
 
@@ -483,7 +485,7 @@ function initPlans() {
 
 				setVis(3, true)
 
-				TweenMax.to('.lb_set', 0.5, {autoAlpha: 0, ease: Power3.easeOut, onComplete: function(){
+				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
 					setText('Spiritual','Journey', 'scene_b', 'scene_c')
 
@@ -491,17 +493,17 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[2].position, 2, {z: 300, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[2].position, 2, {z: 300, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[2].position, 2, {y: 200, ease: Power3.easeInOut}, 1)
+			.to(sceneGroup[2].position, 2, {y: 200, ease: "power3.inOut"}, 1)
 
-			.to(sceneOpacity, 0.3, {sceneB: 0, ease: Power3.easeInOut, onUpdate: function(val){
+			.to(sceneOpacity, 0.3, {sceneB: 0, ease: "power3.inOut", onUpdate: function(val){
 
 				setOpacity(2, sceneOpacity.sceneB)
 
 			}}, 1.7)
 
-			.to(sceneOpacity, 0.3, {sceneC: 1, ease: Power3.easeInOut, onUpdate: function(val){
+			.to(sceneOpacity, 0.3, {sceneC: 1, ease: "power3.inOut", onUpdate: function(val){
 
 				setOpacity(3, sceneOpacity.sceneC)
 
@@ -516,13 +518,13 @@ function initPlans() {
 			})
 
 
-			.from(sceneGroup[3].position, 2, {y: -200, ease: Power3.easeInOut}, 1)
+			.from(sceneGroup[3].position, 2, {y: -200, ease: "power3.inOut"}, 1)
 
-			.fromTo(sceneGroup[3].position, 2, {z: 500}, {z: 5, ease: Power3.easeInOut}, 2)
+			.fromTo(sceneGroup[3].position, 2, {z: 500}, {z: 5, ease: "power3.inOut"}, 2)
 
 			.call(function(){
 
-				TweenMax.to('.lb_set', 1, {autoAlpha: 1, ease: Power3.easeOut}, 0)
+				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
 
 				setActive(3)
 
@@ -540,7 +542,7 @@ function initPlans() {
 
 			if(mainTL) {mainTL.kill()}
 
-			mainTL = new TimelineMax();
+			mainTL = new gsap.timeline();
 
 			mainTL
 
@@ -554,7 +556,7 @@ function initPlans() {
 
 				transitionParams.transition = 0
 
-				TweenMax.to('.lb_set', 0.5, {autoAlpha: 0, ease: Power3.easeOut, onComplete: function(){
+				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
 					setText('Unconventional','Monk', 'scene_b', 'scene_a')
 
@@ -562,19 +564,19 @@ function initPlans() {
 
 			})
 
-			.to(transitionParams, 2, {transition: 1, ease: Power3.easeInOut}, 0)
+			.to(transitionParams, 2, {transition: 1, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[2].position, 2, { x: 400, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[2].position, 2, { x: 400, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[2].rotation, 2, {z: -0.2, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[2].rotation, 2, {z: -0.2, ease: "power3.inOut"}, 0)
 
-			.from(sceneGroup[1].position, 2, {z: 200, x: -500, ease: Power3.easeInOut}, 0)
+			.from(sceneGroup[1].position, 2, {z: 200, x: -500, ease: "power3.inOut"}, 0)
 
-			.from(sceneGroup[1].rotation, 2, {z: -0.1, ease: Power3.easeInOut}, 0)
+			.from(sceneGroup[1].rotation, 2, {z: -0.1, ease: "power3.inOut"}, 0)
 
 			.call(function(){
 
-				TweenMax.to('.lb_set', 1, {autoAlpha: 1, ease: Power3.easeOut}, 0)
+				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
 
 				setOpacity(2, 0)
 
@@ -587,7 +589,7 @@ function initPlans() {
 
 			if(mainTL) {mainTL.kill()}
 
-			mainTL = new TimelineMax();
+			mainTL = new gsap.timeline();
 
 			mainTL
 
@@ -601,7 +603,7 @@ function initPlans() {
 
 				setVis(2, true)
 
-				TweenMax.to('.lb_set', 0.5, {autoAlpha: 0, ease: Power3.easeOut, onComplete: function(){
+				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
 					setText('Bestselling','Author', 'scene_c', 'scene_b')
 
@@ -610,19 +612,19 @@ function initPlans() {
 			})
 
 
-			.to(sceneGroup[3].position, 2, {z: 500, ease: Power3.easeInOut}, 0)
+			.to(sceneGroup[3].position, 2, {z: 500, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[3].position, 2, {y: -200, ease: Power3.easeInOut}, 1)
+			.to(sceneGroup[3].position, 2, {y: -200, ease: "power3.inOut"}, 1)
 
-			.from(sceneGroup[2].position, 2, {y: 200, ease: Power3.easeInOut}, 1)
+			.from(sceneGroup[2].position, 2, {y: 200, ease: "power3.inOut"}, 1)
 
-			.to(sceneOpacity, 0.3, {sceneB: 1, ease: Power3.easeInOut, onUpdate: function(val){
+			.to(sceneOpacity, 0.3, {sceneB: 1, ease: "power3.inOut", onUpdate: function(val){
 
 				setOpacity(2, sceneOpacity.sceneB)
 
 			}}, 1.7)
 
-			.to(sceneOpacity, 0.3, {sceneC: 0, ease: Power3.easeInOut, onUpdate: function(val){
+			.to(sceneOpacity, 0.3, {sceneC: 0, ease: "power3.inOut", onUpdate: function(val){
 
 				setOpacity(3, sceneOpacity.sceneC)
 
@@ -636,11 +638,11 @@ function initPlans() {
 				isTween = false
 			})
 
-			.from(sceneGroup[2].position, 2, {z: 300, ease: Power3.easeInOut}, 2)
+			.from(sceneGroup[2].position, 2, {z: 300, ease: "power3.inOut"}, 2)
 
 			.call(function(){
 
-				TweenMax.to('.lb_set', 1, {autoAlpha: 1, ease: Power3.easeOut}, 0)
+				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
 
 				setActive(2)
 
