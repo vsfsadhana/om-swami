@@ -444,7 +444,7 @@ function fire(){
 
     globalFunc()
 
-    gsap.set('.siteLoader', {autoAlpha: 0})
+    $('.siteLoader').remove();
 
     siteIntrvl = setInterval(function () {
 
@@ -621,6 +621,18 @@ function pageScroll(val){
 
 }
 
+function openLink(url, isMain){
+
+	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; top: 0; z-index: 99999;visibility: hidden;"></div>')
+
+	if(isMain) {
+		$('.siteLoader').css('background', '#1F1F1F')
+	}
+
+	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
+
+}
+
 function globalFunc(){
 
 	var menuCur = new Flickity( '.menu_items nav', {
@@ -657,7 +669,7 @@ function globalFunc(){
 
 		if(!$this.attr('target') && !isDragging) {
 
-			openLink(link)
+			openLink(link, $this.hasClass('main_logo'))
 
 			return false;
 		}
