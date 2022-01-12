@@ -74,6 +74,7 @@ var page = $('body').attr('id'),
     isButtonHidden = false,
     canSwitch = true,
     isClosed = true,
+    imagesLoaded = false,
     nonCarousel = [],
     contentTL,
     splitWords,
@@ -182,6 +183,11 @@ function appendImgs(val){
 				if(val) {
 
 					pageReady();
+
+				} else {
+
+					imagesLoaded = true
+
 				}
 
 			}
@@ -1091,6 +1097,8 @@ function monkPage(){
 
 	function loadContent(index, val){
 
+		imagesLoaded = false;
+
 		var activeIndex = index
 
 		if(val) {
@@ -1110,7 +1118,7 @@ function monkPage(){
 
 		$('body').addClass('wait').attr('data-id', activeIndex+1)
 
-		
+	
 		switch(activeIndex) {
 			case 0:
 			$('.getContent').html(monkContent1);
@@ -1132,47 +1140,62 @@ function monkPage(){
 
 		gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
 
-		scroll.scrollTo('.getContent', {
-			duration: val ? 0 : 400,
-			disableLerp: val ? true : false,
-			callback: function(){
+		siteIntrvl = setInterval(function () {
 
-				canScroll = false;
+			if(imagesLoaded) {
 
-				stopScroll()
+				clearInterval(siteIntrvl);
 
-				pageScroll(0)
+				excute()
+			};
 
-				if(val) {
+		}, 50);
 
-					gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
 
-				}
+		function excute() {
 
-				setTimeout(function(){
+			scroll.scrollTo('.getContent', {
+				duration: val ? 0 : 400,
+				disableLerp: val ? true : false,
+				callback: function(){
 
-					$('#monkSlides').remove();
+					canScroll = false;
 
-					scroll.scrollTo(0, {duration: 0, disableLerp: true})
+					stopScroll()
 
-					scroll.update()
+					pageScroll(0)
+
+					if(val) {
+
+						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+					}
 
 					setTimeout(function(){
 
-						startScroll()
+						$('#monkSlides').remove();
 
-						$('body').removeClass('wait')
+						scroll.scrollTo(0, {duration: 0, disableLerp: true})
 
-						canHideHeader = true
+						scroll.update()
 
-					}, 500)
+						setTimeout(function(){
 
-				}, 1000)
+							startScroll()
 
-			}
+							$('body').removeClass('wait')
 
-		})
+							canHideHeader = true
 
+						}, 500)
+
+					}, 1000)
+
+				}
+
+			})
+
+		}
 
 	}
 
