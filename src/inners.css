@@ -652,6 +652,15 @@ body[data-id='4'] .ep_sec_col h6 {
 	text-align: center;
 }
 
+.monk_text.in-action ._ele:not(.alt_h2) span {
+	overflow: hidden;
+}
+
+.monk_text ._ele span,
+.monk_text ._ele i {
+	display: block;
+}
+
 .monk_text p {
 	margin: 0 auto;
 	margin-top: 2vw;

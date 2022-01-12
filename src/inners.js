@@ -896,53 +896,63 @@ function monkPage(){
 
 		slidesTL
 
+		.call(function(){
+
+			$('.monk_text').addClass('in-action')
+
+		})
+
 		.to('.monk_nav_progress i', 1, {scaleX: ( ( (sizes.width / (slidesTotal - 1) ) * newSlideIndex) ) / sizes.width, ease: 'power3.out'}, 0)
 
-		.staggerTo(curSlide.find('.monk_text ._ele'), 0.7, {autoAlpha: 0, y: -200, ease: 'power3.in'}, 0.1, 0)
+		.to(curSlide.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
 
-		.to(curVis1, 0.7, {x: -200, autoAlpha: 0, ease: 'power3.in'}, 0)
+		.staggerTo(curSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '-150%', ease: 'power3.in'}, 0.1, 0.3)
 
-		.to(curVis2, 0.7, {
+		.to(curVis1, 1, {x: -100, autoAlpha: 0, ease: 'power3.in'}, 0)
+
+		.to(curVis2, 1, {
 			x: function(index, target){
 				let val;
-				sizes.width > 768 || newSlideIndex == 3 ? val = 200 : val = 0;
+				sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
 				return val;
 			},
 			y: function(index, target){
 				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = -200 : val = 0;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = -100 : val = 0;
 				return val;
 			},
 			autoAlpha: 0, ease: 'power3.in'
 		}, 0)
 
-		.set(newSlide.find('.monk_text ._ele'), {autoAlpha: 0}, 0)
+		.set(newSlide, {autoAlpha: 1}, 1)
 
-		.set(newSlide, {autoAlpha: 1}, 0.7)
+		.fromTo(newVis1, 1, {x: -100, autoAlpha: 1}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 1)
 
-		.fromTo(newVis1, 0.7, {x: -200, autoAlpha: 1}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 0.7)
-
-		.fromTo(newVis2, 0.7, {
+		.fromTo(newVis2, 1, {
 			x: function(index, target){
 				let val;
-				sizes.width > 768 || newSlideIndex == 3 ? val = 200 : val = 0;
+				sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
 				return val;
 			},
 			y: function(index, target){
 				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = 200 : val = 0;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = 100 : val = 0;
 				return val;
 			},
 			autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
-		}, 0.7)
+		}, 1)
 
-		.staggerFromTo(newSlide.find('.monk_text ._ele'), 0.7, {autoAlpha: 0, y: 200}, {autoAlpha: 1, y: 0, ease: 'power3.out'}, 0.1, 0.7)
+		.fromTo(newSlide.find('.monk_text ._ele.alt_h2 i'), 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'}, 1.3)
+
+		.staggerFromTo(newSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%'}, {y: '0%', ease: 'power3.out'}, 0.1, 1)
 
 		.call(function(){
 
 			$('.monk_slide.active').removeClass('active')
 
 			newSlide.addClass('active')
+
+			$('.monk_text').removeClass('in-action')
 
 			canScroll = true
 
