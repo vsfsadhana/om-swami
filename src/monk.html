@@ -210,11 +210,11 @@
 
 				<div class="container full_page"></div>
 
-				<main style="visibility: hidden;">
+				<main style="visibility: hidden;" id="fixed-bar">
 
 					<section style="position: relative;" id="monkSlides">
 
-<!-- 						<div class="explore_btn mg" data-dist="6">
+						<div class="explore_btn" style="visibility: hidden;">
 							<span class="full_bg flex align-items-center micro no-select">EXPLORE</span>
 							<i class="full_bg load_bg_alt" data-src="images/explore_texture.png"></i>
 							<div class="exp_svg full_bg">
@@ -224,8 +224,8 @@
 								</svg>
 							</div>
 						</div>
- -->
-						<div class="monk_slides full_page _eleWrap">
+
+						<div class="monk_slides full_page">
 
 							<div class="monk_slide full_page flex align-items-center active">
 
@@ -237,9 +237,9 @@
 								</div>
 
 								<div class="monk_text full_bg flex align-items-center">
-									<div class="alt_font alt_h2 _eleY">Unusual Journey</div>
-									<h2 class="_eleY" data-scroll data-scroll-direction="horizontal" data-scroll-speed="0.5">Millionaire <br>turned Monk</h2>
-									<p class="_eleY small" data-scroll data-scroll-direction="horizontal" data-scroll-speed="-0.5">On a quiet day, on 15-Mar-2010, at the age of thirty, Om Swami quietly walked away from everyone he had known and everything he had built. Giving away his wealth, he renounced his multi-million-dollar enterprise in search of his truth. It was a promise he had made to himself ten years earlier. None of his family members or friends knew where he had gone.</p>
+									<div class="alt_font alt_h2 _ele">Unusual Journey</div>
+									<h2 class="_ele" data-scroll data-scroll-direction="horizontal" data-scroll-speed="0.5">Millionaire <br>turned Monk</h2>
+									<p class="_ele small" data-scroll data-scroll-direction="horizontal" data-scroll-speed="-0.5">On a quiet day, on 15-Mar-2010, at the age of thirty, Om Swami quietly walked away from everyone he had known and everything he had built. Giving away his wealth, he renounced his multi-million-dollar enterprise in search of his truth. It was a promise he had made to himself ten years earlier. None of his family members or friends knew where he had gone.</p>
 								</div>
 
 							</div>
@@ -293,11 +293,7 @@
 
 						</div>
 
-					</section>
-
-					<section id="fixed-bar">
-
-						<div class="monk_nav_set">
+						<div class="monk_nav_set" data-scroll data-scroll-sticky data-scroll-target="#fixed-bar">
 							<div class="monk_nav">
 								<div class="monk_nav_items">
 									<div class="monk_nav_item flex">
@@ -357,8 +353,6 @@
 							<i class="full_bg bar_texture bg_texture load_bg_alt" data-src="images/bar_textures.png"></i>
 							<i class="line_texture top load_bg_alt" data-src="images/monk_nav_line.png"></i>
 						</div>
-
-						<div class="getContent"></div>
 
 					</section>
 

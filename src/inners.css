@@ -613,14 +613,13 @@ body[data-id='4'] .ep_sec_col h6 {
 }
 
 .monk_slide {
-	width: 100%;
-	justify-content: center;
 	flex-direction: column;
+	justify-content: center;
 	visibility: hidden;
-}
-
-.monk_slide.active {
-	visibility: visible;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
 }
 
 .monk_visuals i {
@@ -686,18 +685,13 @@ body[data-id='4'] .ep_sec_col h6 {
 }
 
 .monk_nav_set {
-	position: relative;
 	height: 100px;
-	z-index: 699
-}
-
-.monk_nav {
-	position: absolute;
 	left: 0;
-	bottom: 0;
-	height: 100px;
+	position: absolute;
 	right: 0;
-	display: flex;
+	top: calc(100% - 100px);
+	z-index: 699;
+	background: #c0b5a0;
 }
 
 .monk_cover {
@@ -787,12 +781,14 @@ body[data-id='4'] .ep_sec_col h6 {
 }
 
 .monk_nav_arrows {
-	width: 300px;
-	justify-content: center;
 	background: inherit;
 	border-bottom: 1px solid;
-	position: relative;
+	justify-content: center;
 	overflow: hidden;
+	position: absolute;
+	width: 300px;
+	top: 0;
+	right: 0;
 }
 
 .arrow {
@@ -889,24 +885,21 @@ body[data-id='4'] .ep_sec_col h6 {
 	width: 25%;
 }
 
-section#fixed-bar {
-	margin-top: -100px;
-}
-
 .explore_btn {
-	position: absolute;
-	width: 100px;
-	height: 100px;
+	background: #c6bba6;
 	border-radius: 50%;
-	letter-spacing: 1px;
-	right: 25vw;
-	bottom: 20vw;
-	z-index: 799;
+	top: 0;
 	cursor: pointer;
+	letter-spacing: 1px;
 	overflow: hidden;
-	background: #C6BBA6;
+	position: absolute;
+	left: 0;
+	width: 6.77083vw;
+	height: 6.77083vw;
+	min-height: 100px;
+	min-width: 100px;
+	z-index: 2999;
 }
-
 .explore_btn > i {
 	background-size: cover;
 	background-position: center;
@@ -1322,7 +1315,7 @@ section#fixed-bar {
 		position: relative;
 	}
 	.monk_slide:not(:last-child) .monk_visuals i:first-child {
-		visibility: hidden;
+		visibility: hidden !important;
 	}
 	.monk_slide:not(:last-child) .monk_visuals i:last-child {
 		left: 0;
@@ -1393,7 +1386,7 @@ section#fixed-bar {
 		width: 200px;
 	}
 	.monk_nav_progress {
-		right: 200px;
+		visibility: hidden;
 	}
 	.arrow {
 		padding-right: 20px;
@@ -1409,13 +1402,7 @@ section#fixed-bar {
 		margin: 60px 0;
 	}
 	.explore_btn {
-		right: auto;
-		bottom: auto;
-		top: 50%;
-		left: 50%;
-		margin-top: -190px;
-		margin-left: 120px;
-		transform: none !important;
+		visibility: hidden;
 	}
 
 }
@@ -1469,17 +1456,13 @@ section#fixed-bar {
 	.monk_nav_items {
 		width: 100%;
 	}
-	.monk_nav_progress {
-		right: 0;
-	}
 	.explore_btn {
 		margin-top: -150px;
 		margin-left: 50px;
 	}
-	section#fixed-bar {
-		margin-top: -80px;
+	.monk_nav_set {
+		top: calc(100% - 80px);
 	}
-	.monk_nav,
 	.monk_nav_set,
 	.monk_nav_item {
 		height: 80px;

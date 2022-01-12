@@ -60,16 +60,19 @@ var page = $('body').attr('id'),
     isPageReady = false,
     isColsFlickity = false,
     isDragging = false,
+    canScroll = false,
     canSwitch = true,
     isClosed = true,
     nonCarousel = [],
     contentTL,
     splitWords,
     splitLines,
+    ts,
     curX,
     curY,
     scroll,
     isScroll,
+    scrollStopped,
     siteIntrvl,
     vh,
     isMobile;
@@ -96,16 +99,35 @@ $(window).on('load', function(){
 
         appendImgs();
 
-
     });
 
 })
 
+$.fn.isInViewport = function() {
+	var elementTop = $(this).offset().top;
+	var elementBottom = elementTop + $(this).outerHeight();
+	var viewportTop = $(window).scrollTop();
+	var viewportBottom = viewportTop + $(window).height();
+	return elementBottom > viewportTop && elementTop < viewportBottom;
+}
+
 function appendImgs(){
 
-    var appendBGs = $('body').find('.load_bg'),
+	var appendBGs = $('body').find('.load_bg'),
+		altBGs = $('body').find('.load_bg_alt'),
 		iMGs = $('body').find('.load_img'),
-        loaded = 0;
+		loaded = 0;
+
+	altBGs.each(function(i){
+
+		var t = $(this),
+			s = t.attr('data-src');
+
+		t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
+
+		t.removeClass('load_bg')
+
+	});
 
 	iMGs.each(function(i){
 
@@ -130,22 +152,22 @@ function appendImgs(){
 
 	});
 
-    appendBGs.each(function(i){
+	appendBGs.each(function(i){
 
-        var t = $(this),
-            s = t.attr('data-src');
+		var t = $(this),
+		s = t.attr('data-src');
 
-        t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
+		t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
 
-        $('<img src="'+ support_format_webp(s) +'">').on('load',function(){
+		$('<img src="'+ support_format_webp(s) +'">').on('load',function(){
 
-            if(loaded == appendBGs.length - 1) {
+			if(loaded == appendBGs.length - 1) {
 
-                gsap.to(transitionParams, 2, {transition2: 0, ease: "power3.inOut"}, 0)
+				gsap.to(transitionParams, 2, {transition2: 0, ease: "power3.inOut"}, 0)
 
-                $('body').addClass('loaded')
+				$('body').addClass('loaded')
 
-                fire()
+				fire()
 
 				clearTimeout(window.scrollUpdate);
 
@@ -155,199 +177,147 @@ function appendImgs(){
 
 				}, 500);
 
-            }
+			}
 
-            loaded ++
+			loaded ++
 
-        })
+		})
 
-    });
+	});
 
-}
-
-function init() {
-
-    loadingManager = new THREE.LoadingManager()
-    textureLoader = new THREE.TextureLoader(loadingManager)
-
-    container = document.querySelector( '.container' );
-
-    renderer2 = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-    renderer2.setPixelRatio( window.devicePixelRatio );
-    renderer2.setSize( ratio.width, ratio.height );
-    container.appendChild( renderer2.domElement );
-
-    fov = (180 * (2 * Math.atan(ratio.height / 2 / perspective))) / Math.PI
-
-    const sceneEmpty = new FXScene2( 0x000000, '1' );
-    const sceneMenu = new FXScene2( 0x000000, '2' );
-    transition2 = new Transition2( sceneEmpty, sceneMenu );
-
-    onWindowResize()
-
-    window.addEventListener( 'resize', onWindowResize );
-	window.addEventListener( 'orientationchange', onOrientationChange);
-
-    var menuTL = new gsap.timeline({paused: true});
-
-    menuTL
-
-    .set('.menu_wrap', {autoAlpha: 1}, 0)
-
-    .to(transitionParams, 2, {transition2: 1, ease: "power3.inOut", onStart: function(){
-
-    }, onUpdate:function(val){
-
-        if(this.progress() <= 0.5 ) {
-
-            $('header').removeClass('active')
-
-        } else {
-
-            $('header').addClass('active')
-
-        }
-
-    }}, 0)
-
-    .set('.sub_nav', {autoAlpha: 1}, 0)
-
-    .staggerFrom('.sub_nav ._ele', 0.5, {y: 30, autoAlpha: 0, ease: "power3.out"}, 0.05, 1)
-
-    .staggerFrom('.menu_items li a', 0.8, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
-
-    .staggerFrom('.menu_items li ._ele', 0.8, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
-
-
-    $('.menu_button').click(function(){
-
-        if(!isMenu) {
-
-            isMenu = true
-            menuTL.timeScale(1).play()
-            if(scroll) { scroll.stop() }
-            $('header').addClass('opened')
-            $('body').addClass('hidden')
-
-        } else {
-
-            isMenu = false
-            menuTL.timeScale(1.3).reverse()
-            if(scroll) { scroll.start() }
-            $('header').removeClass('opened')
-            $('body').removeClass('hidden')
-
-        }
-
-    })
 }
 
 function support_format_webp(img) {
 
-    var elem = document.createElement('canvas')
+	var elem = document.createElement('canvas')
 
-    if (!!(elem.getContext && elem.getContext('2d'))) { return img.substr(0, img.lastIndexOf(".")) + ".webp" } else { return img}
+	if (!!(elem.getContext && elem.getContext('2d'))) { return img.substr(0, img.lastIndexOf(".")) + ".webp" } else { return img}
+}
+
+function init() {
+
+	loadingManager = new THREE.LoadingManager()
+	textureLoader = new THREE.TextureLoader(loadingManager)
+
+	container = document.querySelector( '.container' );
+
+	renderer2 = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+	renderer2.setPixelRatio( window.devicePixelRatio );
+	renderer2.setSize( ratio.width, ratio.height );
+	container.appendChild( renderer2.domElement );
+
+	fov = (180 * (2 * Math.atan(ratio.height / 2 / perspective))) / Math.PI
+
+	const sceneEmpty = new FXScene2( 0x000000, '1' );
+	const sceneMenu = new FXScene2( 0x000000, '2' );
+	transition2 = new Transition2( sceneEmpty, sceneMenu );
+
+	onWindowResize()
+
+	window.addEventListener( 'resize', onWindowResize );
+	window.addEventListener( 'orientationchange', onOrientationChange);
+
 }
 
 function FXScene2( clearColor, number ) {
 
-    const scene = new THREE.Scene();
-    camera2 = new THREE.PerspectiveCamera( fov, ratio.width / ratio.height, 10, 10000 );
-    camera2.position.set( 0, 0, perspective );
+	const scene = new THREE.Scene();
+	camera2 = new THREE.PerspectiveCamera( fov, ratio.width / ratio.height, 10, 10000 );
+	camera2.position.set( 0, 0, perspective );
 
-    const renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
-    this.fbo = new THREE.WebGLRenderTarget( ratio.width, ratio.height, renderTargetParameters );
+	const renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+	this.fbo = new THREE.WebGLRenderTarget( ratio.width, ratio.height, renderTargetParameters );
 
-    this.render = function ( delta, rtt ) {
+	this.render = function ( delta, rtt ) {
 
-        if ( rtt ) {
+		if ( rtt ) {
 
-            renderer2.setRenderTarget( this.fbo );
-            renderer2.clear();
-            renderer2.render( scene, camera2 );
+			renderer2.setRenderTarget( this.fbo );
+			renderer2.clear();
+			renderer2.render( scene, camera2 );
 
-        } else {
+		} else {
 
-            renderer2.setRenderTarget( null );
-            renderer2.render( scene, camera2 );
+			renderer2.setRenderTarget( null );
+			renderer2.render( scene, camera2 );
 
-        }
+		}
 
-    };
+	};
 
-    if(number == 1){
+	if(number == 1){
 
-        scene.add( new THREE.Mesh( new THREE.PlaneGeometry( 1920 , 1080 ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
+		scene.add( new THREE.Mesh( new THREE.PlaneGeometry( 1920 , 1080 ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
 
-    }
+	}
 }
 
 function Transition2( sceneEmpty, sceneMenu ) {
 
-    const scene = new THREE.Scene();
+	const scene = new THREE.Scene();
 
-    const textures = textureLoader.load( support_format_webp('images/transition2.png') );
+	const textures = textureLoader.load( support_format_webp('images/transition2.png') );
 
-    const material = new THREE.ShaderMaterial(
-        {
-            uniforms: {tDiffuse1: {value: null},
-            tDiffuse2: {value: null},
-            mixRatio: {value: 0.0},
-            threshold: {value: 0.3},
-            useTexture: {value: 1},
-            tMixTexture: {value: textures}
-        },
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-    });
+	const material = new THREE.ShaderMaterial(
+	{
+		uniforms: {tDiffuse1: {value: null},
+		tDiffuse2: {value: null},
+		mixRatio: {value: 0.0},
+		threshold: {value: 0.3},
+		useTexture: {value: 1},
+		tMixTexture: {value: textures}
+	},
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader
+	});
 
-    const mesh = new THREE.Mesh( new THREE.PlaneGeometry( ratio.width, ratio.height ), material );
+	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( ratio.width, ratio.height ), material );
 
-    scene.add( mesh );
-
-
-    material.uniforms.tDiffuse1.value = sceneEmpty.fbo.texture;
-    material.uniforms.tDiffuse2.value = sceneMenu.fbo.texture;
-
-    this.needsTextureChange = false;
-
-    this.render = function ( delta ) {
-
-        material.uniforms.mixRatio.value = transitionParams.transition2;
-
-        if ( transitionParams.transition2 == 0 ) {
-
-            sceneMenu.render( delta, false );
-
-        } else {
-
-            sceneEmpty.render( delta, true );
-            sceneMenu.render( delta, false );
-            renderer2.setRenderTarget( null );
-            renderer2.clear();
-            renderer2.render( scene, camera2 );
+	scene.add( mesh );
 
 
-        }
+	material.uniforms.tDiffuse1.value = sceneEmpty.fbo.texture;
+	material.uniforms.tDiffuse2.value = sceneMenu.fbo.texture;
 
-    };
+	this.needsTextureChange = false;
+
+	this.render = function ( delta ) {
+
+		material.uniforms.mixRatio.value = transitionParams.transition2;
+
+		if ( transitionParams.transition2 == 0 ) {
+
+			sceneMenu.render( delta, false );
+
+		} else {
+
+			sceneEmpty.render( delta, true );
+			sceneMenu.render( delta, false );
+			renderer2.setRenderTarget( null );
+			renderer2.clear();
+			renderer2.render( scene, camera2 );
+
+
+		}
+
+	};
 
 }
 
 function onWindowResize() {
 
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
+	sizes.width = window.innerWidth
+	sizes.height = window.innerHeight
 
-    if((sizes.width / sizes.height) > (ratio.width/ratio.height)){
-        renderer2.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
-        camera2.aspect = sizes.width/ (sizes.width / (ratio.width/ratio.height));
-    } else {
-        renderer2.setSize( sizes.width, sizes.height );
-        camera2.aspect = sizes.width/ sizes.height;
-    }
+	if((sizes.width / sizes.height) > (ratio.width/ratio.height)){
+		renderer2.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
+		camera2.aspect = sizes.width/ (sizes.width / (ratio.width/ratio.height));
+	} else {
+		renderer2.setSize( sizes.width, sizes.height );
+		camera2.aspect = sizes.width/ sizes.height;
+	}
 
-    camera2.updateProjectionMatrix();
+	camera2.updateProjectionMatrix();
 
 	if(splitWords) { splitWords.revert() }
 
@@ -373,7 +343,7 @@ function onWindowResize() {
 
 	}
 
-	lastWindowWidth = width
+	lastWindowWidth = sizes.width
 
 	clearTimeout(window.scrollUpdate);
 
@@ -416,85 +386,89 @@ function onOrientationChange(){
 function animate() {
 
 
-    requestAnimationFrame( animate );
+	requestAnimationFrame( animate );
 
-    // stats.update();
+	// stats.update();
 
-    render();
+	render();
 
 }
 
 function render() {
 
-    transition2.render( clock.getDelta() );
+	transition2.render( clock.getDelta() );
 
-}
-
-$.fn.isInViewport = function() {
-	var elementTop = $(this).offset().top;
-	var elementBottom = elementTop + $(this).outerHeight();
-	var viewportTop = $(window).scrollTop();
-	var viewportBottom = viewportTop + $(window).height();
-	return elementBottom > viewportTop && elementTop < viewportBottom;
 }
 
 function fire(){
 
-    buildScroll(false);
+	buildScroll(false);
 
-    globalFunc()
+	globalFunc()
 
-    $('.siteLoader').remove();
+	$('.siteLoader').remove();
 
-    siteIntrvl = setInterval(function () {
+	siteIntrvl = setInterval(function () {
 
-        if($('body').hasClass('loaded')) {
+		if($('body').hasClass('loaded')) {
 
-            clearInterval(siteIntrvl);
+			clearInterval(siteIntrvl);
 
-            gsap.set('main, header', {autoAlpha: 1})
+			gsap.set('main, header', {autoAlpha: 1})
 
-            gsap.set('header', {className: '+=loaded', delay: 2})
+			gsap.set('header', {className: '+=loaded', delay: 2})
 
-            pageScroll(0);
+			pageScroll(0);
 
-        };
+		};
 
-    }, 50);
+	}, 50);
+
+}
+
+function openLink(url, isMain){
+
+	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; top: 0; z-index: 99999;visibility: hidden;"></div>')
+
+	if(isMain) {
+		$('.siteLoader').css('background', '#1F1F1F')
+	}
+
+	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
 
 }
 
 function buildScroll(val){
 
-    scroll = new LocomotiveScroll({
-        el: document.querySelector('[data-scroll-container]'),
-        smooth: true,
-        scrollFromAnywhere: true,
-        getDirection: true,
-        smartphone: {
-            smooth: true,
-            lerp: 0
-        },
-        tablet: {
-            smooth: true,
-            lerp: 0
-        }
-    });
+	scroll = new LocomotiveScroll(
+	{
+		el: document.querySelector('[data-scroll-container]'),
+		smooth: true,
+		scrollFromAnywhere: true,
+		getDirection: true,
+		smartphone: {
+		smooth: true,
+		lerp: 0
+	},
+		tablet: {
+			smooth: true,
+			lerp: 0
+		}
+	});
 
-    isScroll = true;
+	isScroll = true;
 
-    if(val) {
+	if(val) {
 
-        scroll.on('scroll', (func, speed) => {
+		scroll.on('scroll', (func, speed) => {
 
-            pageScroll(func);
+			pageScroll(func);
 
-        });
+		});
 
-    }
+	}
 
 };
-
 
 function pageScroll(val){
 
@@ -596,44 +570,66 @@ function pageScroll(val){
 
 	}
 
-	if(page == 'author') {
-
-		if($('.au_grid_box.moved').length != 0) {
-
-			$('.au_grid_box').each(function(){
-
-				var $this = $(this)
-
-				if(!$this.hasClass('active')) {
-
-					if(width > 1100) {
-						matchBoxes($this, true);
-					}
-
-				} else {
-					setActive(false)
-				}
-
-			})
-
-		}
-	}
-
-}
-
-function openLink(url, isMain){
-
-	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; top: 0; z-index: 99999;visibility: hidden;"></div>')
-
-	if(isMain) {
-		$('.siteLoader').css('background', '#1F1F1F')
-	}
-
-	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
-
 }
 
 function globalFunc(){
+
+	// Menu
+
+	var menuTL = new gsap.timeline({paused: true});
+
+	menuTL
+
+	.set('.menu_wrap', {autoAlpha: 1}, 0)
+
+	.to(transitionParams, 2, {transition2: 1, ease: "power3.inOut", onStart: function(){
+
+	}, onUpdate:function(val){
+
+		if(this.progress() <= 0.5 ) {
+
+			$('header').removeClass('active')
+
+		} else {
+
+			$('header').addClass('active')
+
+		}
+
+	}}, 0)
+
+	.set('.sub_nav', {autoAlpha: 1}, 0)
+
+	.staggerFrom('.sub_nav ._ele', 0.5, {y: 30, autoAlpha: 0, ease: "power3.out"}, 0.05, 1)
+
+	.staggerFrom('.menu_items li a', 0.8, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+
+	.staggerFrom('.menu_items li ._ele', 0.8, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+
+
+	$('.menu_button').click(function(){
+
+	if(!isMenu) {
+
+			isMenu = true
+			menuTL.timeScale(1).play()
+			if(scroll) { scroll.stop() }
+			$('header').addClass('opened')
+			$('body').addClass('hidden')
+
+		} else {
+
+			isMenu = false
+			menuTL.timeScale(1.3).reverse()
+			if(!scrollStopped) {
+				if(scroll) { scroll.start() }
+				$('body').removeClass('hidden')
+			}
+			$('header').removeClass('opened')
+
+		}
+
+	})
 
 	var menuCur = new Flickity( '.menu_items nav', {
 		prevNextButtons: false,
@@ -676,43 +672,176 @@ function globalFunc(){
 
 	})
 
+	if(page == 'monk') {
 
-	// Pages
+		monkPage()
 
-	if(page == 'author') {
+	}
 
-	} else if(page == 'monk') {
+};
 
-		var prxIntrvl,
-			monkCarousel,
-			flkty,
-			bgs = $('body').find('.load_bg_alt'),
-			$imgs1 = $('.monk_visuals i.a'),
-			$imgs2 = $('.monk_visuals i.b');
+function stopScroll(){
 
-		$('body').attr('data-id', '1')
+	scrollStopped = true;
 
-		bgs.each(function(i){
+	$('body').addClass('hidden')
 
-			var t = $(this),
-				s = t.attr('data-src');
+	scroll.stop()
 
-			t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
+}
 
-			t.removeClass('load_bg')
+function startScroll(){
+
+	scrollStopped = false;
+
+	$('body').addClass('hidden')
+
+	scroll.stop()
+
+}
+
+
+function monkPage(){
+
+	var $imgs1 = $('.monk_visuals i.a'),
+		$imgs2 = $('.monk_visuals i.b'),
+		slidesTotal = $('.monk_slide').length,
+		slidesTL,
+		activeSection = 0;
+
+	gsap.set($('.monk_slide').eq(0), {autoAlpha: 1})
+
+	stopScroll()
+
+	canScroll = true
+
+	var navCarousel = new Flickity( '.monk_nav_items', {
+		prevNextButtons: false,
+		accessibility: true,
+		pageDots: false,
+		contain: true,
+		cellAlign: 'left',
+		selectedAttraction: 0.08,
+		friction:  1
+	});
+
+	$('.explore_btn').click(function(){
+
+		if(!$('body').hasClass('hidden')) {
+
+			let $this = $(this);
+
+			gsap.to($this, 0.5, {autoAlpha: 0, ease: "power3.out"})
+
+			stopScroll()
+
+			// $('.getContent').show().html('').load($('body').attr('data-page') + '?id=' + $('body').attr('data-id'), function(){
+
+			// 	appendImgs()
+
+			// 	$('body').removeClass('hidden')
+
+			// 	scroll.update()
+
+			// 	scroll.scrollTo('.getContent', {
+			// 		duration: 400,
+			// 		offset: 2,
+			// 		callback: function(){
+
+			// 			pageScroll(0);
+
+			// 			setTimeout(function(){
+
+			// 				$('#monkSlides').remove();
+
+			// 				scroll.scrollTo(0, {duration: 0, disableLerp: true})
+
+			// 				if(isScroll){ scroll.destroy() }
+
+			// 				gsap.set('header', {autoAlpha: 0})
+
+			// 				gsap.to('header', 1, {autoAlpha: 1, delay: 0.5, ease: "power3.out"})
+
+			// 				if(isScroll){ buildScroll(true); }
+
+			// 			}, 700)
+
+			// 		}
+
+			// 	})
+
+			// })
+		}
+
+	})
+
+	$('.arrow').on( 'click', function() {
+
+		if($(this).hasClass('next')) {
+
+			nextSlide()
+
+		} else {
+
+			prevSlide()
+
+		}
+
+	});
+
+	$('.monk_nav_item').click(function(){
+
+		var index = $(this).index()
+
+		setSlide(index)
+
+	})
+
+	if(!isMobile) {
+
+		$(window).on('mousewheel DOMMouseScroll', function (e) {
+
+			if(canScroll) {
+
+				var direction = (function () {
+
+					var delta = (e.type === 'DOMMouseScroll' ? e.originalEvent.detail * -40 : e.originalEvent.wheelDelta);
+
+					return delta > 0 ? 0 : 1;
+
+				}());
+
+				direction == 1 ? nextSlide() : prevSlide()
+
+			}
 
 		});
 
-		var navCarousel = new Flickity( '.monk_nav_items', {
-			prevNextButtons: false,
-			accessibility: true,
-			pageDots: false,
-			contain: true,
-			cellAlign: 'left',
-			selectedAttraction: 0.08,
-			friction:  1,
-			on: {
-				ready: function() {
+	} else {
+
+		$(window).on('touchstart', function (e){
+
+			if(canScroll) {
+
+				ts = e.originalEvent.touches[0].clientX;
+
+			}
+
+		});
+
+		$(window).on('touchend', function (e){
+
+			if(canScroll) {
+
+				var te = e.originalEvent.changedTouches[0].clientX;
+
+				if(ts > te + 25){
+
+					nextSlide()
+
+				} else if(ts < te - 25){
+
+					prevSlide()
 
 				}
 
@@ -720,74 +849,145 @@ function globalFunc(){
 
 		});
 
-		$('.explore_btn').click(function(){
+	}
 
-			if(!$('body').hasClass('hidden')) {
+	function nextSlide(){
 
-				let $this = $(this);
+		let currentSlide = $('.monk_slide.active').index(),
+			newSlide;
 
-				gsap.to($this, 0.5, {autoAlpha: 0, ease: "power3.out"})
+		currentSlide == slidesTotal - 1 ? newSlide = 0 : newSlide = currentSlide + 1
 
-				scroll.stop()
-
-				$('body').addClass('hidden')
-
-				// $('.getContent').show().html('').load($('body').attr('data-page') + '?id=' + $('body').attr('data-id'), function(){
-
-				// 	appendImgs()
-
-				// 	$('body').removeClass('hidden')
-
-				// 	scroll.update()
-
-				// 	scroll.scrollTo('.getContent', {
-				// 		duration: 400,
-				// 		offset: 2,
-				// 		callback: function(){
-
-				// 			pageScroll(0);
-
-				// 			setTimeout(function(){
-
-				// 				$('#monkSlides').remove();
-
-				// 				scroll.scrollTo(0, {duration: 0, disableLerp: true})
-
-				// 				if(isScroll){ scroll.destroy() }
-
-				// 				gsap.set('header', {autoAlpha: 0})
-
-				// 				gsap.to('header', 1, {autoAlpha: 1, delay: 0.5, ease: "power3.out"})
-
-				// 				if(isScroll){ buildScroll(true); }
-
-				// 			}, 700)
-
-				// 		}
-
-				// 	})
-
-				// })
-			}
-
-		})
-
-		$('.arrow').on( 'click', function() {
-			if($(this).hasClass('next')) {
-
-			} else {
-
-			}
-
-		});
-
-		$('.monk_nav_item').click(function(){
-
-			var index = $(this).index()
-
-		})
+		setSlide(newSlide)
 
 	}
 
+	function prevSlide(){
 
-};
+		let currentSlide = $('.monk_slide.active').index(),
+			newSlide;
+
+		currentSlide == 0 ? newSlide = slidesTotal - 1 : newSlide = currentSlide - 1
+
+		setSlide(newSlide)
+
+	}
+
+	function setSlide(newSlideIndex){
+
+		let curSlide = $('.monk_slide.active'),
+			curVis1 = curSlide.find($imgs1),
+			curVis2 = curSlide.find($imgs2),
+			newSlide = $('.monk_slide').eq(newSlideIndex),
+			newVis1 = newSlide.find($imgs1),
+			newVis2 = newSlide.find($imgs2);
+
+		canScroll = false
+
+		navCarousel.select(newSlideIndex);
+
+		$('.monk_nav_item.is-selected').removeClass('is-selected')
+
+		$('.monk_nav_item').eq(newSlideIndex).addClass('is-selected')
+
+		if(slidesTL) { slidesTL.kill() }
+
+		slidesTL = new gsap.timeline()
+
+		slidesTL
+
+		.to('.monk_nav_progress i', 1, {scaleX: ( ( (sizes.width / (slidesTotal - 1) ) * newSlideIndex) ) / sizes.width, ease: 'power3.out'}, 0)
+
+		.staggerTo(curSlide.find('.monk_text ._ele'), 0.7, {autoAlpha: 0, y: -200, ease: 'power3.in'}, 0.1, 0)
+
+		.to(curVis1, 0.7, {x: -200, autoAlpha: 0, ease: 'power3.in'}, 0)
+
+		.to(curVis2, 0.7, {
+			x: function(index, target){
+				let val;
+				sizes.width > 768 || newSlideIndex == 3 ? val = 200 : val = 0;
+				return val;
+			},
+			y: function(index, target){
+				let val;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = -200 : val = 0;
+				return val;
+			},
+			autoAlpha: 0, ease: 'power3.in'
+		}, 0)
+
+		.set(newSlide.find('.monk_text ._ele'), {autoAlpha: 0}, 0)
+
+		.set(newSlide, {autoAlpha: 1}, 0.7)
+
+		.fromTo(newVis1, 0.7, {x: -200, autoAlpha: 1}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 0.7)
+
+		.fromTo(newVis2, 0.7, {
+			x: function(index, target){
+				let val;
+				sizes.width > 768 || newSlideIndex == 3 ? val = 200 : val = 0;
+				return val;
+			},
+			y: function(index, target){
+				let val;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = 200 : val = 0;
+				return val;
+			},
+			autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
+		}, 0.7)
+
+		.staggerFromTo(newSlide.find('.monk_text ._ele'), 0.7, {autoAlpha: 0, y: 200}, {autoAlpha: 1, y: 0, ease: 'power3.out'}, 0.1, 0.7)
+
+		.call(function(){
+
+			$('.monk_slide.active').removeClass('active')
+
+			newSlide.addClass('active')
+
+			canScroll = true
+
+		})
+
+		.set('.monk_slide.active', {autoAlpha: 0})
+
+
+		// .to(newSlide, 0.5, {autoAlpha: 1, ease: 'power3.out'})
+
+		// .call(function(){
+
+
+		// 	canScroll = true
+
+		// })
+
+
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

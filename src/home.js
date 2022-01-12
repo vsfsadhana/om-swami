@@ -28,6 +28,8 @@ let transition2;
 let ts;
 let isMobile;
 let sceneGroup = [];
+let clock;
+let perspective = 800
 let ratio = {
 	width: 1680,
 	height: 946
@@ -38,8 +40,6 @@ let transitionParams = {
 	'transition': 0,
 	'transition2': 0,
 }
-let clock = new THREE.Clock();
-let perspective = 800
 let sizes = {
 	width: window.innerWidth,
 	height: window.innerHeight
@@ -268,6 +268,7 @@ function init() {
 
 	// initGUI();
 
+	clock = new THREE.Clock();
 	loadingManager = new THREE.LoadingManager()
 	textureLoader = new THREE.TextureLoader(loadingManager)
 
@@ -585,7 +586,6 @@ function initPlans() {
 	setMesh(opacityMesh, 550, 'pos')
 	setMesh(opacityMesh, 0.4, 'scale')
 	sceneGroup[1].add(opacityMesh)
-
 
 	var mainTL = new gsap.timeline({paused: true});
 
