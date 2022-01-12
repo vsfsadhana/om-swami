@@ -1,5 +1,5 @@
 /*!
-	* Om Swami - Global Stylesheet (c) 2022 <bahaasamir.me>
+	* Om Swami - Inners Stylesheet (c) 2022 <bahaasamir.me>
 */
 
 /*! locomotive-scroll v4.1.3 | MIT License | https://github.com/locomotivemtl/locomotive-scroll */
@@ -33,7 +33,15 @@ body {
 
 .bg_texture {
 	z-index: -99;
-	background-position: center;
+	background-position: 0 0;
+	background-size: auto calc(var(--vh, 1vh) * 100);
+	background-repeat: repeat;
+}
+
+body:not(.wait) .monk_slide,
+body:not(.wait) .arrow,
+body:not(.wait) .monk_nav_item {
+	cursor: pointer;
 }
 
 /* Transitions */
@@ -78,6 +86,17 @@ body:not(.progress) .monk_nav_line {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+
+header.invisble .header_set {
+	transform: translateY(-100%);
+}
+
+body:not(.progress) .header_set {
+	-webkit-transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+	-moz-transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+	-ms-transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+	transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* Home */
@@ -652,8 +671,20 @@ body[data-id='4'] .ep_sec_col h6 {
 	text-align: center;
 }
 
-.monk_text.in-action ._ele:not(.alt_h2) span {
+.monk_text h2 {
+	line-height: 12vw;
+}
+
+.monk_text ._ele:not(.alt_h2) span {
 	overflow: hidden;
+}
+
+.monk_text h2._ele span:first-child {
+	margin-top: -2vw;
+}
+
+.monk_text h2._ele span:last-child {
+	margin-top: -3vw;
 }
 
 .monk_text ._ele span,
@@ -663,7 +694,6 @@ body[data-id='4'] .ep_sec_col h6 {
 
 .monk_text p {
 	margin: 0 auto;
-	margin-top: 2vw;
 	max-width: 30vw;
 }
 
@@ -672,10 +702,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	top: 50%;
 	transform: translateY(-50%);
 	height: 100%;
-}
-
-.is-selected .monk_visuals i,
-.is-selected .monk_text {
 }
 
 .monk_section .ep_img_caption span:first-child {
@@ -699,7 +725,7 @@ body[data-id='4'] .ep_sec_col h6 {
 	position: absolute;
 	right: 0;
 	top: calc(100% - 100px);
-	z-index: 699;
+	z-index: 1200;
 	background: #c0b5a0;
 }
 
@@ -802,7 +828,6 @@ body[data-id='4'] .ep_sec_col h6 {
 
 .arrow {
 	padding: 38px 30px;
-	cursor: pointer;
 }
 
 .arrow svg {
@@ -814,7 +839,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	height: 100px;
 	padding: 20px;
 	width: 25%;
-	cursor: pointer;
 	align-items: center;
 	justify-content: center;
 }
@@ -836,7 +860,7 @@ body[data-id='4'] .ep_sec_col h6 {
 	transform: scaleX(0);
 }
 
-.monk_nav_item.is-selected .monk_nav_line {
+.monk_nav_item.active .monk_nav_line {
 	transform: scaleX(1);
 }
 
@@ -898,7 +922,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	background: #c6bba6;
 	border-radius: 50%;
 	top: 0;
-	cursor: pointer;
 	letter-spacing: 1px;
 	overflow: hidden;
 	position: absolute;
@@ -907,8 +930,10 @@ body[data-id='4'] .ep_sec_col h6 {
 	height: 6.77083vw;
 	min-height: 100px;
 	min-width: 100px;
-	z-index: 2999;
+	z-index: 999;
+	pointer-events: none;
 }
+
 .explore_btn > i {
 	background-size: cover;
 	background-position: center;
@@ -927,9 +952,13 @@ body[data-id='4'] .ep_sec_col h6 {
 	display: none;
 }
 
+#monk .getContent {
+	margin-bottom: 5vw;
+}
+
 #entrepreneur .getContent {
 	color: #E0D6C3;
-	/*display: none;*/
+	display: none;
 }
 
 
@@ -1292,13 +1321,17 @@ body[data-id='4'] .ep_sec_col h6 {
 		margin-top: 25vw;
 	}
 	.monk_text p {
-		margin-top: 3vw;
+		margin-top: 1vw;
 		max-width: 100%;
 	}
 	.monk_text {
 		padding: 0 14vw;
 		max-width: 100%;
 		margin-top: 0;
+		margin-bottom: 12vw;
+	}
+	.monk_text h2 {
+		line-height: 18vw;
 	}
 	.monk_visuals i {
 		width: 150vw;
@@ -1411,7 +1444,7 @@ body[data-id='4'] .ep_sec_col h6 {
 		margin: 60px 0;
 	}
 	.explore_btn {
-		visibility: hidden;
+		visibility: hidden !important;
 	}
 
 }
@@ -1464,10 +1497,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	}
 	.monk_nav_items {
 		width: 100%;
-	}
-	.explore_btn {
-		margin-top: -150px;
-		margin-left: 50px;
 	}
 	.monk_nav_set {
 		top: calc(100% - 80px);

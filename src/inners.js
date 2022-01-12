@@ -4,13 +4,20 @@ import * as THREE from 'three'
 import $ from 'jquery'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import LocomotiveScroll from 'locomotive-scroll';
-import gsap from 'gsap'
+import {gsap} from 'gsap'
+import { SplitText } from "gsap/dist/SplitText";
+import monkContent1 from './monk1.html'
+import monkContent2 from './monk2.html'
+import monkContent3 from './monk3.html'
+import monkContent4 from './monk4.html'
 
 var Flickity = require('flickity');
 
 gsap.config({
     nullTargetWarn: false,
 })
+
+gsap.registerPlugin(SplitText);
 
 let container, fov, controls, scene, camera2, renderer2, loadingManager, textureLoader;
 let transition2;
@@ -61,6 +68,10 @@ var page = $('body').attr('id'),
     isColsFlickity = false,
     isDragging = false,
     canScroll = false,
+    isClicked = false,
+    canHideHeader = false,
+    isButtonLoaded = false,
+    isButtonHidden = false,
     canSwitch = true,
     isClosed = true,
     nonCarousel = [],
@@ -72,6 +83,7 @@ var page = $('body').attr('id'),
     curY,
     scroll,
     isScroll,
+    scrollVal,
     scrollStopped,
     siteIntrvl,
     vh,
@@ -93,11 +105,13 @@ $(window).on('load', function(){
 
         };
 
+		$('body').addClass('wait')
+
         init();
 
         animate();
 
-        appendImgs();
+        appendImgs(true);
 
     });
 
@@ -111,7 +125,7 @@ $.fn.isInViewport = function() {
 	return elementBottom > viewportTop && elementTop < viewportBottom;
 }
 
-function appendImgs(){
+function appendImgs(val){
 
 	var appendBGs = $('body').find('.load_bg'),
 		altBGs = $('body').find('.load_bg_alt'),
@@ -125,7 +139,7 @@ function appendImgs(){
 
 		t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
 
-		t.removeClass('load_bg')
+		t.removeClass('load_bg_alt')
 
 	});
 
@@ -163,19 +177,12 @@ function appendImgs(){
 
 			if(loaded == appendBGs.length - 1) {
 
-				gsap.to(transitionParams, 2, {transition2: 0, ease: "power3.inOut"}, 0)
+				appendBGs.removeClass('load_bg')
 
-				$('body').addClass('loaded')
+				if(val) {
 
-				fire()
-
-				clearTimeout(window.scrollUpdate);
-
-				window.scrollUpdate = setTimeout(function(){
-
-					if(isScroll) { scroll.update(); };
-
-				}, 500);
+					pageReady();
+				}
 
 			}
 
@@ -184,6 +191,30 @@ function appendImgs(){
 		})
 
 	});
+
+	if(appendBGs.length == 0 && val) {
+
+		pageReady()
+
+		console.log('ii')
+
+	}
+
+}
+
+function pageReady() {
+
+	gsap.to(transitionParams, 2, {transition2: 0, ease: "power3.inOut", onComplete: function(){
+
+		isPageReady = true
+
+		$('body').removeClass('wait')
+
+		gsap.set('header', {className: '+=loaded'})
+
+	}}, 0)
+
+	fire()
 
 }
 
@@ -214,9 +245,9 @@ function init() {
 
 	onWindowResize()
 
+	document.addEventListener( 'mousemove', onDocumentMouseMove );
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
-
 }
 
 function FXScene2( clearColor, number ) {
@@ -301,6 +332,13 @@ function Transition2( sceneEmpty, sceneMenu ) {
 		}
 
 	};
+
+}
+
+function onDocumentMouseMove( event ) {
+
+	curX = event.clientX
+	curY = event.clientY
 
 }
 
@@ -398,31 +436,41 @@ function render() {
 
 	transition2.render( clock.getDelta() );
 
+	if(page == 'monk' && isPageReady) {
+
+		if(!isClicked) {
+
+			if(!isButtonLoaded) {
+
+				isButtonLoaded = true;
+
+				gsap.to('.explore_btn', 0.5, { x: sizes.width/2, y: sizes.height/2, autoAlpha: 1})
+
+			}
+			gsap.to('.explore_btn', 0.3, {
+				x:function(index, target) {
+					return curX - (target.offsetWidth/2);
+				},
+				y:function(index, target) {
+					return curY - (target.offsetHeight/2);
+				}
+			})
+
+		}
+
+	}
+
 }
 
 function fire(){
 
-	buildScroll(false);
+	buildScroll(true);
 
 	globalFunc()
 
 	$('.siteLoader').remove();
 
-	siteIntrvl = setInterval(function () {
-
-		if($('body').hasClass('loaded')) {
-
-			clearInterval(siteIntrvl);
-
-			gsap.set('main, header', {autoAlpha: 1})
-
-			gsap.set('header', {className: '+=loaded', delay: 2})
-
-			pageScroll(0);
-
-		};
-
-	}, 50);
+	gsap.set('main, header', {autoAlpha: 1})
 
 }
 
@@ -462,7 +510,9 @@ function buildScroll(val){
 
 		scroll.on('scroll', (func, speed) => {
 
-			pageScroll(func);
+			if(canHideHeader) {
+				pageScroll(func);
+			}
 
 		});
 
@@ -472,35 +522,13 @@ function buildScroll(val){
 
 function pageScroll(val){
 
-	let eleWrap = $('._eleWrap'),
-		lazy = $('.lazy');
+	let eleWrap = $('._eleWrap');
 
-	if(lazy.length != 0) {
+	scrollVal = 0
 
-		lazy.each(function(){
+	if(val != 0 ) {
 
-			var $this = $(this),
-				src = $this.attr('data-src');
-
-			if($this.isInViewport() && !$this.hasClass('inview')) {
-
-				$this.addClass('inview');
-
-				gsap.set($this.find('.spinner'), {autoAlpha: 1, ease: "power3.out"});
-
-				$this.removeClass('lazy').css({ 'background-image': 'url('+ src +')' });
-
-				$('<img src="'+ src +'">').on('load', function() {
-
-					gsap.to($this.find('._temp'), 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
-						$this.find('._temp').remove()
-					}})
-
-				});
-
-			}
-
-		})
+		scrollVal = val.scroll.y;
 
 	}
 
@@ -519,13 +547,14 @@ function pageScroll(val){
 				gsap.set($this, {autoAlpha: 1}, 0)
 
 				if(eleY.length != 0) {
-
-					// gsap.staggerFrom(eleY, 1, { y: 100, autoAlpha: 0, ease: "power3.out", delay: 0.4 }, 0.15)
+					gsap.set(eleY, { y: 100, autoAlpha: 0})
+					gsap.to(eleY, 1, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
 				}
 
 				if(eleX.length != 0) {
 
-					// gsap.staggerFrom(eleX, 1, { x: 100, autoAlpha: 0, ease: "power3.out", delay: 0.4 }, 0.15)
+					gsap.set(eleX, { x: 100, autoAlpha: 0})
+					gsap.to(eleX, 1, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
 				}
 
 			}
@@ -544,6 +573,7 @@ function pageScroll(val){
 				getWords = $this.find('._splitWords'),
 				getLines = $this.find('._splitLines');
 
+
 			if($this.isInViewport() && !$this.hasClass('inview') ) {
 
 				$this.addClass('inview');
@@ -552,21 +582,36 @@ function pageScroll(val){
 
 				if(getWords.length != 0) {
 					splitWords = new SplitText(getWords, {type:"words", wordsClass:"SplitClass"});
-
-					gsap.staggerFrom(splitWords.words, 0.5, { y: 20, autoAlpha: 0, ease: "power3.out", delay: 0.2 }, 0.1, function(){
-					})
+					gsap.set(splitWords.words, { y: 20, autoAlpha: 0})
+					gsap.to(splitWords.words, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.2, stagger: 0.1 })
 				}
 
 				if(getLines.length != 0) {
 					splitLines = new SplitText(getLines, {type:"lines", linesClass:"SplitClass"});
-
-					gsap.staggerFrom(splitLines.lines, 0.5, { y: 20, autoAlpha: 0, ease: "power3.out", delay: 0.5 }, 0.1, function(){
-					})
+					gsap.set(splitLines.lines, { y: 20, autoAlpha: 0})
+					gsap.to(splitLines.lines, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.5, stagger: 0.1 })
 				}
 
 			}
 
 		})
+
+	}
+
+	if(scrollVal > 100) {
+
+		if(canHideHeader) {
+
+			if(val.direction == 'down') {
+
+				$('header').addClass('invisble')
+
+			} else {
+
+				$('header').removeClass('invisble')
+
+			}
+		}
 
 	}
 
@@ -606,10 +651,9 @@ function globalFunc(){
 
 	.staggerFrom('.menu_items li ._ele', 0.8, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
 
-
 	$('.menu_button').click(function(){
 
-	if(!isMenu) {
+		if(!isMenu && !$('body').hasClass('wait')) {
 
 			isMenu = true
 			menuTL.timeScale(1).play()
@@ -663,11 +707,21 @@ function globalFunc(){
 		let $this = $(this),
 			link = $this.attr('href');
 
-		if(!$this.attr('target') && !isDragging) {
+		if(!$('body').hasClass('wait')) {
 
-			openLink(link, $this.hasClass('main_logo'))
+			$('body').addClass('wait')
+
+			if(!$this.attr('target') && !isDragging) {
+
+				openLink(link, $this.hasClass('main_logo'))
+
+				return false;
+			}
+
+		} else {
 
 			return false;
+
 		}
 
 	})
@@ -694,12 +748,11 @@ function startScroll(){
 
 	scrollStopped = false;
 
-	$('body').addClass('hidden')
+	$('body').removeClass('hidden')
 
-	scroll.stop()
+	scroll.start()
 
 }
-
 
 function monkPage(){
 
@@ -707,11 +760,32 @@ function monkPage(){
 		$imgs2 = $('.monk_visuals i.b'),
 		slidesTotal = $('.monk_slide').length,
 		slidesTL,
-		activeSection = 0;
-
-	gsap.set($('.monk_slide').eq(0), {autoAlpha: 1})
+		activeSection = 0,
+		getActive = $('.monk_slide').eq(0);
 
 	stopScroll()
+
+	gsap.set(getActive, {autoAlpha: 1})
+
+	gsap.from(getActive.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in', delay: 1})
+
+	gsap.from(getActive.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%', ease: 'power3.out', delay: 1, stagger: 0.1})
+
+	gsap.fromTo(getActive.find($imgs1), 1, {x: -100, autoAlpha: 1}, {x: 0, autoAlpha: 1, ease: 'power3.out', delay: 1})
+
+	gsap.fromTo(getActive.find($imgs2), 1, {
+		x: function(index, target){
+			let val;
+			sizes.width > 768 ? val = 100 : val = 0;
+			return val;
+		},
+		y: function(index, target){
+			let val;
+			sizes.width <= 768 ? val = 100 : val = 0;
+			return val;
+		},
+		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out', delay: 1
+	})
 
 	canScroll = true
 
@@ -725,66 +799,52 @@ function monkPage(){
 		friction:  1
 	});
 
-	$('.explore_btn').click(function(){
+	navCarousel.on( 'scroll', function( event, progress ) {
 
-		if(!$('body').hasClass('hidden')) {
+		isDragging = true;
 
-			let $this = $(this);
+	});
 
-			gsap.to($this, 0.5, {autoAlpha: 0, ease: "power3.out"})
+	navCarousel.on( 'dragStart', function( event, pointer ) {
 
-			stopScroll()
+		isDragging = true;
 
-			// $('.getContent').show().html('').load($('body').attr('data-page') + '?id=' + $('body').attr('data-id'), function(){
+	});
 
-			// 	appendImgs()
+	navCarousel.on( 'settle', function( event, index ) {
 
-			// 	$('body').removeClass('hidden')
-
-			// 	scroll.update()
-
-			// 	scroll.scrollTo('.getContent', {
-			// 		duration: 400,
-			// 		offset: 2,
-			// 		callback: function(){
-
-			// 			pageScroll(0);
-
-			// 			setTimeout(function(){
-
-			// 				$('#monkSlides').remove();
-
-			// 				scroll.scrollTo(0, {duration: 0, disableLerp: true})
-
-			// 				if(isScroll){ scroll.destroy() }
-
-			// 				gsap.set('header', {autoAlpha: 0})
-
-			// 				gsap.to('header', 1, {autoAlpha: 1, delay: 0.5, ease: "power3.out"})
-
-			// 				if(isScroll){ buildScroll(true); }
-
-			// 			}, 700)
-
-			// 		}
-
-			// 	})
-
-			// })
-		}
+		isDragging = false;
 
 	})
 
 	$('.arrow').on( 'click', function() {
 
-		if($(this).hasClass('next')) {
+		if(canScroll) {
 
-			nextSlide()
+			if($(this).hasClass('next')) {
 
-		} else {
+				nextSlide()
 
-			prevSlide()
+			} else {
 
+				prevSlide()
+
+			}
+		}
+
+		if(isClicked && canHideHeader) {
+
+			canHideHeader = false;
+
+			if($(this).hasClass('next')) {
+
+				nextSlide(isClicked)
+
+			} else {
+
+				prevSlide(isClicked)
+
+			}
 		}
 
 	});
@@ -793,7 +853,31 @@ function monkPage(){
 
 		var index = $(this).index()
 
-		setSlide(index)
+		if(!$(this).hasClass('active') && !isDragging) {
+
+			if(canScroll) {
+
+				setSlide(index, -1)
+
+			}
+
+			if(isClicked && canHideHeader) {
+
+				canHideHeader = false;
+
+				gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(index, true) } })
+				
+				navCarousel.select(index);
+
+			}
+
+		}
+
+	})
+
+	$('a, .menu_button, .monk_nav_set').click(function(e){
+
+		e.stopPropagation();
 
 	})
 
@@ -851,29 +935,37 @@ function monkPage(){
 
 	}
 
-	function nextSlide(){
+	function nextSlide(val){
 
-		let currentSlide = $('.monk_slide.active').index(),
+		let currentSlide = $('.monk_nav_item.active').index(),
 			newSlide;
 
 		currentSlide == slidesTotal - 1 ? newSlide = 0 : newSlide = currentSlide + 1
 
-		setSlide(newSlide)
+		if(!val) {
+			setSlide(newSlide, -1)
+		} else {
+			gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
+		}
 
 	}
 
-	function prevSlide(){
+	function prevSlide(val){
 
-		let currentSlide = $('.monk_slide.active').index(),
+		let currentSlide = $('.monk_nav_item.active').index(),
 			newSlide;
 
 		currentSlide == 0 ? newSlide = slidesTotal - 1 : newSlide = currentSlide - 1
 
-		setSlide(newSlide)
+		if(!val) {
+			setSlide(newSlide, 1)
+		} else {
+			gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
+		}
 
 	}
 
-	function setSlide(newSlideIndex){
+	function setSlide(newSlideIndex, dir){
 
 		let curSlide = $('.monk_slide.active'),
 			curVis1 = curSlide.find($imgs1),
@@ -886,9 +978,9 @@ function monkPage(){
 
 		navCarousel.select(newSlideIndex);
 
-		$('.monk_nav_item.is-selected').removeClass('is-selected')
+		$('.monk_nav_item.active').removeClass('active')
 
-		$('.monk_nav_item').eq(newSlideIndex).addClass('is-selected')
+		$('.monk_nav_item').eq(newSlideIndex).addClass('active')
 
 		if(slidesTL) { slidesTL.kill() }
 
@@ -896,17 +988,11 @@ function monkPage(){
 
 		slidesTL
 
-		.call(function(){
-
-			$('.monk_text').addClass('in-action')
-
-		})
-
 		.to('.monk_nav_progress i', 1, {scaleX: ( ( (sizes.width / (slidesTotal - 1) ) * newSlideIndex) ) / sizes.width, ease: 'power3.out'}, 0)
 
 		.to(curSlide.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
 
-		.staggerTo(curSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '-150%', ease: 'power3.in'}, 0.1, 0.3)
+		.staggerTo(curSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * dir + '%', ease: 'power3.in'}, 0.1 * -dir, 0.3)
 
 		.to(curVis1, 1, {x: -100, autoAlpha: 0, ease: 'power3.in'}, 0)
 
@@ -918,7 +1004,7 @@ function monkPage(){
 			},
 			y: function(index, target){
 				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = -100 : val = 0;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = 100 * dir : val = 0;
 				return val;
 			},
 			autoAlpha: 0, ease: 'power3.in'
@@ -926,7 +1012,7 @@ function monkPage(){
 
 		.set(newSlide, {autoAlpha: 1}, 1)
 
-		.fromTo(newVis1, 1, {x: -100, autoAlpha: 1}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 1)
+		.fromTo(newVis1, 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 1)
 
 		.fromTo(newVis2, 1, {
 			x: function(index, target){
@@ -936,7 +1022,7 @@ function monkPage(){
 			},
 			y: function(index, target){
 				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = 100 : val = 0;
+				sizes.width <= 768 && newSlideIndex != 3 ? val = -100 * dir : val = 0;
 				return val;
 			},
 			autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
@@ -944,7 +1030,7 @@ function monkPage(){
 
 		.fromTo(newSlide.find('.monk_text ._ele.alt_h2 i'), 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'}, 1.3)
 
-		.staggerFromTo(newSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%'}, {y: '0%', ease: 'power3.out'}, 0.1, 1)
+		.staggerFromTo(newSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * -dir + '%'}, {y: '0%', ease: 'power3.out'}, 0.1 * -dir, 1)
 
 		.call(function(){
 
@@ -952,24 +1038,140 @@ function monkPage(){
 
 			newSlide.addClass('active')
 
-			$('.monk_text').removeClass('in-action')
-
 			canScroll = true
 
 		})
 
 		.set('.monk_slide.active', {autoAlpha: 0})
 
+	}
 
-		// .to(newSlide, 0.5, {autoAlpha: 1, ease: 'power3.out'})
+	$(document).on('click', function(){
 
-		// .call(function(){
+		if(!isMobile && !isClicked && !isMenu) {
+
+			canScroll = false;
+
+			isClicked = true;
+
+			gsap.to('.explore_btn', 0.3, { autoAlpha: 0})
+
+			$('.getContent').show()
+
+			startScroll()
+
+			loadContent();
+
+		}
+
+	})
+
+	$('a, .menu_button, .monk_nav_set').on('mouseenter', function(){
+
+		if(!isButtonHidden && !isClicked && !isMenu) {
+
+			isButtonHidden = true;
+
+			gsap.to('.explore_btn', 0.3, { autoAlpha: 0})
+		}
+
+	}).on('mouseleave', function(){
+
+		if(isButtonHidden && !isClicked && !isMenu) {
+
+			isButtonHidden = false;
+
+			gsap.to('.explore_btn', 0.3, { autoAlpha: 1})
+		}
+
+	})
 
 
-		// 	canScroll = true
 
-		// })
 
+	function loadContent(index, val){
+
+		var activeIndex = index
+
+		if(val) {
+
+			$('.monk_nav_item.active').removeClass('active')
+
+			$('.monk_nav_item').eq(index).addClass('active')
+
+
+		}
+
+		if(!index) {
+
+			activeIndex = $('.monk_nav_item.active').index()
+
+		}
+
+		$('body').addClass('wait').attr('data-id', activeIndex+1)
+
+		
+		switch(activeIndex) {
+			case 0:
+			$('.getContent').html(monkContent1);
+			break;
+			case 1:
+			$('.getContent').html(monkContent2);
+			break;
+			case 2:
+			$('.getContent').html(monkContent3);
+			break;
+			case 3:
+			$('.getContent').html(monkContent4);
+			break;
+		}
+
+		appendImgs(false)
+
+		scroll.update()
+
+		gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
+
+		scroll.scrollTo('.getContent', {
+			duration: val ? 0 : 400,
+			disableLerp: val ? true : false,
+			callback: function(){
+
+				canScroll = false;
+
+				stopScroll()
+
+				pageScroll(0)
+
+				if(val) {
+
+					gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+				}
+
+				setTimeout(function(){
+
+					$('#monkSlides').remove();
+
+					scroll.scrollTo(0, {duration: 0, disableLerp: true})
+
+					scroll.update()
+
+					setTimeout(function(){
+
+						startScroll()
+
+						$('body').removeClass('wait')
+
+						canHideHeader = true
+
+					}, 500)
+
+				}, 1000)
+
+			}
+
+		})
 
 
 	}

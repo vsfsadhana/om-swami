@@ -1,3 +1,7 @@
+/*!
+	* Om Swami - Global Stylesheet (c) 2022 <bahaasamir.me>
+*/
+
 /* Normalize */
 * {-moz-osx-font-smoothing: grayscale;-webkit-font-smoothing: antialiased;}.html{-webkit-text-size-adjust:none;-webkit-font-smoothing:subpixel-antialiased;-webkit-font-smoothing:antialiased}i{font-style:normal;}a,body,div,footer,h1,h2,h3,h4,h5,h6,header,html,img,li,nav,p,span,textarea,ul{margin:0;padding:0;border:0;outline: 0;}li,ul{list-style:none;}a{color:inherit;text-decoration:none;}a,img,picture,svg,video{display:block;}iframe, svg{width:100%;max-width: 100%;}html{-ms-text-size-adjust:100%;-webkit-overflow-scrolling: touch;-webkit-tap-highlight-color:transparent;}*, :after, :before {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
 /* Flickity */
@@ -56,8 +60,16 @@ body.hidden {
 	overflow: hidden;
 }
 
-body.wait {
+body.wait,
+body.wait a {
 	cursor: wait;
+}
+
+body:not(.wait) a,
+body:not(.wait) .menu_button,
+body:not(.wait) .site_button,
+body:not(.wait) .equalizer {
+	cursor: pointer;
 }
 
 /* Assists */
@@ -151,6 +163,7 @@ h1 {
 
 h2 {
 	font-size: 12vw;
+	letter-spacing: -0.2vw;
 }
 
 h3 {
@@ -262,6 +275,7 @@ header {
 	left: 0;
 	right: 0;
 	top: 0;
+	z-index: 99;
 }
 
 header.loaded {
@@ -278,7 +292,6 @@ header.loaded {
 .menu_button {
 	position: relative;
 	color: #EBE5DE;
-	cursor: pointer;
 }
 
 .site_button {
@@ -286,7 +299,6 @@ header.loaded {
 	display: inline-block;
 	position: relative;
 	z-index: 99;
-	cursor: pointer;
 }
 
 .menu_layer {
@@ -482,7 +494,6 @@ header.opened .menu_label span:first-child {
 	position: relative;
 	display: flex;
 	align-items: flex-end;
-	cursor: pointer;
 }
 
 .bar {
@@ -530,6 +541,7 @@ header.opened .menu_label span:first-child {
 @media (max-width: 768px){
 	h2 {
 		font-size: 20vw;
+		letter-spacing: -0.4vw;
 	}
 	h6,
 	.alt_h2 {
@@ -578,9 +590,6 @@ header.opened .menu_label span:first-child {
 }
 
 @media (max-width: 500px){
-	h2 {
-		font-size: 20vw;
-	}
 	h5 {
 		font-size: 16vw;
 	}
