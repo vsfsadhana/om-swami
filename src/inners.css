@@ -358,6 +358,7 @@ body:not(.progress) .ep_col:not(.ready) .ep_shape {
 
 .monk_section.inner_section:first-child {
 	padding-top: 0 !important;
+	min-height: calc(var(--vh, 1vh) * 100);
 }
 
 .ep_section {
@@ -716,7 +717,7 @@ body[data-id='4'] .ep_sec_col h6 {
 .monk_layers {
 	position: relative;
 	height: 43vw;
-	top: -9vw;
+	top: -0.5vw;
 }
 
 .monk_nav_set {
@@ -726,7 +727,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	right: 0;
 	top: calc(100% - 100px);
 	z-index: 1200;
-	background: #c0b5a0;
 }
 
 .monk_cover {
@@ -1199,7 +1199,6 @@ body[data-id='4'] .ep_sec_col h6 {
 	}
 	.monk_layers {
 		height: 97vw;
-		top: -18vw;
 	}
 	.monk_section .ep_sec_col:nth-child(1) {
 		left: -50vw;
@@ -1209,6 +1208,9 @@ body[data-id='4'] .ep_sec_col h6 {
 	}
 	.inner_section {
 		padding: 50px;
+	}
+	.monk_section.inner_section:last-child {
+		padding-bottom: 100px;
 	}
 	.ep_sec_col {
 		align-items: center;

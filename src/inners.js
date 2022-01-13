@@ -411,6 +411,8 @@ function onWindowResize() {
 
 		setH();
 
+		isDragging = false;
+
 	}, 500);
 
 }
@@ -866,7 +868,6 @@ function monkPage(){
 				setSlide(index, -1)
 
 			}
-
 			if(isClicked && canHideHeader) {
 
 				canHideHeader = false;
@@ -1165,13 +1166,13 @@ function monkPage(){
 
 					pageScroll(0)
 
-					if(val) {
-
-						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
-
-					}
-
 					setTimeout(function(){
+
+						if(val) {
+
+							gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+						}
 
 						$('#monkSlides').remove();
 
