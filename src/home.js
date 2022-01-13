@@ -32,6 +32,8 @@ let audioLevel = {
 let opacityMesh;
 let transition;
 let transition2;
+let siteIntrvl;
+let imagesLoaded = false;
 let ts;
 let isMobile;
 let sceneGroup = [];
@@ -160,6 +162,7 @@ function support_format_webp(img) {
 function fire() {
 
 	var fireTL = new gsap.timeline();
+	var loadedTL = new gsap.timeline({paused: true});
 
 	fireTL
 
@@ -199,11 +202,22 @@ function fire() {
 
 		onWindowResize()
 
+		siteIntrvl = setInterval(function () {
+
+			if(imagesLoaded) {
+
+				clearInterval(siteIntrvl);
+
+				loadedTL.play()
+			};
+
+		}, 50);
+
 	})
 
-	.to('.spinner', 0.5, {autoAlpha: 0, ease: "power3.out"}, 4)
+	loadedTL.to('.spinner', 0.5, {autoAlpha: 0, ease: "power3.out"}, 0)
 
-	.from('.clouds .site_button', 1, {autoAlpha: 0, y: 140, ease: "power3.out"}, 4.5)
+	.from('.clouds .site_button', 1, {autoAlpha: 0, y: 140, ease: "power3.out"}, 0.5)
 
 	.call(function(){
 
@@ -289,6 +303,12 @@ function init() {
 	clock = new THREE.Clock();
 	loadingManager = new THREE.LoadingManager()
 	textureLoader = new THREE.TextureLoader(loadingManager)
+
+	loadingManager.onLoad = function ( ) {
+
+		imagesLoaded = true
+
+	};
 
 	container = document.querySelector( '.container' );
 
