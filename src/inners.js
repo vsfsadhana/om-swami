@@ -31,6 +31,14 @@ let transitionParams = {
 };
 let clock = new THREE.Clock();
 let perspective = 800
+let isMuted = true;
+let isAudio = false;
+let isFocus;
+let audio;
+let foucsTO;
+let audioLevel = {
+	val: 1
+}
 let sizes = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -254,6 +262,34 @@ function init() {
 	document.addEventListener( 'mousemove', onDocumentMouseMove );
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
+
+	music()
+
+	window.onblur = function(){
+
+		if(foucsTO) { clearTimeout(foucsTO) }
+
+		foucsTO = setTimeout(function () {
+
+			isFocus = false;
+
+		}, 250)
+
+		if(isAudio && !isMuted) {
+			audio.pause();
+		}
+	}
+
+	window.onfocus = function(){
+
+		if(foucsTO) { clearTimeout(foucsTO) }
+
+		isFocus = true;
+	
+		if(isAudio && !isMuted) {
+			audio.play();
+		}
+	}
 }
 
 function FXScene2( clearColor, number ) {
@@ -482,6 +518,51 @@ function render() {
 
 }
 
+function music(){
+
+	audio = new Audio('music/music.mp3');
+	audio.loop = true;
+
+	const promise = audio.play();
+
+	if(promise !== undefined){
+
+		promise.then(() => {
+
+			isAudio = true;
+
+			isMuted = false;
+
+			$('.equalizer').addClass('active')
+
+		}).catch(error => {
+
+		});
+	}
+
+	$('.equalizer').click(function(){
+
+		if(!isMuted) {
+
+			isMuted = true
+
+			audio.pause();
+	
+			$(this).removeClass('active')
+
+		} else {
+
+			isMuted = false
+
+			audio.play();
+
+			$(this).addClass('active')
+
+		}
+
+	})
+}
+
 function fire(){
 
 	buildScroll(true);
@@ -501,6 +582,12 @@ function openLink(url, isMain){
 	if(isMain) {
 		$('.siteLoader').css('background', '#1F1F1F')
 	}
+
+	gsap.to(audioLevel, 0.5, {val: 0, onUpdate: function(){
+		if(isAudio && !isMuted) {
+			audio.volume = audioLevel.val
+		}
+	} });
 
 	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
 
@@ -896,7 +983,7 @@ function monkPage(){
 
 	})
 
-	$('a, .menu_button, .monk_nav_set').click(function(e){
+	$('a, .header_side, .monk_nav_set').click(function(e){
 
 		e.stopPropagation();
 
@@ -1087,7 +1174,7 @@ function monkPage(){
 
 	})
 
-	$('a, .menu_button, .monk_nav_set').on('mouseenter', function(){
+	$('a, .header_side, .monk_nav_set').on('mouseenter', function(){
 
 		if(!isButtonHidden && !isClicked && !isMenu) {
 

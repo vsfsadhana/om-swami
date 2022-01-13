@@ -17,11 +17,18 @@ let isReady = false;
 let isMenuClosed = true;
 let isMenu = false;
 let isDragging = false;
-let isMusic = true;
 let canScroll = false;
 let canRenderD = true;
 let canRenderC = true;
 let canRenderB = true;
+let isMuted = false;
+let isAudio = false;
+let isFocus;
+let audio;
+let foucsTO;
+let audioLevel = {
+	val: 1
+}
 let opacityMesh;
 let transition;
 let transition2;
@@ -188,7 +195,7 @@ function fire() {
 
 		setOpacity(4, 0)
 
-		animate();
+		animate()
 
 		onWindowResize()
 
@@ -208,6 +215,8 @@ function fire() {
 	$('.clouds .site_button').click(function(){
 
 		if(!$('body').hasClass('wait')) {
+
+			music()
 
 			var vanishTL = new gsap.timeline();
 
@@ -392,25 +401,33 @@ function init() {
 
 	})
 
-	$('.equalizer').click(function(){
-
-		if(!isMusic) {
-
-			isMusic = true
-
-			$(this).addClass('active')
-
-		} else {
-
-			isMusic = false
-	
-			$(this).removeClass('active')
-
-		}
-
-	})
-
 	isInit = true;
+
+	window.onblur = function(){
+
+		if(foucsTO) { clearTimeout(foucsTO) }
+
+		foucsTO = setTimeout(function () {
+
+			isFocus = false;
+
+		}, 250)
+
+		if(isAudio && !isMuted) {
+			audio.pause();
+		}
+	}
+
+	window.onfocus = function(){
+
+		if(foucsTO) { clearTimeout(foucsTO) }
+
+		isFocus = true;
+	
+		if(isAudio && !isMuted) {
+			audio.play();
+		}
+	}
 }
 
 function FXScene( clearColor, number ) {
@@ -1233,6 +1250,12 @@ function openLink(url){
 
 	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; z-index: 99999;visibility: hidden;"></div>')
 
+	gsap.to(audioLevel, 0.5, {val: 0, onUpdate: function(){
+		if(isAudio && !isMuted) {
+			audio.volume = audioLevel.val
+		}
+	} });
+
 	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
 
 }
@@ -1315,4 +1338,49 @@ function render() {
 		transition2.render( clock.getDelta() );
 	}
 
+}
+
+function music(){
+
+	audio = new Audio('music/music.mp3');
+	audio.loop = true;
+
+	const promise = audio.play();
+
+	if(promise !== undefined){
+
+		promise.then(() => {
+
+			isAudio = true;
+
+			isMuted = false;
+
+			$('.equalizer').addClass('active')
+
+		}).catch(error => {
+
+		});
+	}
+
+	$('.equalizer').click(function(){
+
+		if(!isMuted) {
+
+			isMuted = true
+
+			audio.pause();
+	
+			$(this).removeClass('active')
+
+		} else {
+
+			isMuted = false
+
+			audio.play();
+
+			$(this).addClass('active')
+
+		}
+
+	})
 }
