@@ -230,6 +230,8 @@ function fire() {
 
 		if(!$('body').hasClass('wait')) {
 
+			$(this).addClass('active')
+
 			music()
 
 			var vanishTL = new gsap.timeline();
