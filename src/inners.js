@@ -1339,8 +1339,6 @@ function monkPage(){
 
 		var activeIndex = index
 
-		$('.monk_nav').addClass('has_close transition')
-
 		if(val) {
 
 			$('.monk_nav_item.active').removeClass('active')
@@ -1400,6 +1398,8 @@ function monkPage(){
 
 		function excute() {
 
+			$('.monk_nav').addClass('has_close transition')
+
 			scroll.scrollTo('.getContent', {
 				duration: val ? 0 : 400,
 				disableLerp: val ? true : false,
@@ -1411,8 +1411,6 @@ function monkPage(){
 
 					pageScroll(0)
 
-					navCarousel.resize();
-
 					if(val) {
 
 						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
@@ -1420,6 +1418,8 @@ function monkPage(){
 					}
 
 					setTimeout(function(){
+
+						navCarousel.resize();
 
 						$('#monkSlides').hide();
 
