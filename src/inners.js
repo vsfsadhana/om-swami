@@ -444,6 +444,18 @@ function render() {
 
 	transition2.render( clock.getDelta() );
 
+	let prx = $(document).find('.prx')
+
+	if(prx.length != 0) {
+
+		let rect = $('.prx')[0].getBoundingClientRect();
+		let xPos = ((curX - rect.left) - rect.width / 2) / rect.width * -0.01;
+		let yPos = ((curY - rect.top) - rect.height / 2) / rect.height * -0.01;
+		gsap.to('.prx', 0.6, {transform: `rotateX(${yPos}deg) rotateY(${xPos}deg)`, ease: 'power3.out', transformPerspective:800, transformOrigin:"center"});
+
+	}
+
+
 	if(page == 'monk' && isPageReady) {
 
 		if(!isClicked) {
@@ -773,6 +785,8 @@ function monkPage(){
 
 	stopScroll()
 
+	getActive.find('.monk_text').addClass('prx')
+
 	gsap.set(getActive, {autoAlpha: 1})
 
 	gsap.from(getActive.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in', delay: 1})
@@ -1041,9 +1055,9 @@ function monkPage(){
 
 		.call(function(){
 
-			$('.monk_slide.active').removeClass('active')
+			$('.monk_slide.active').removeClass('active').find('.monk_text').removeClass('prx')
 
-			newSlide.addClass('active')
+			newSlide.addClass('active').find('.monk_text').addClass('prx')
 
 			canScroll = true
 
@@ -1093,9 +1107,6 @@ function monkPage(){
 
 	})
 
-
-
-
 	function loadContent(index, val){
 
 		imagesLoaded = false;
@@ -1108,7 +1119,6 @@ function monkPage(){
 
 			$('.monk_nav_item').eq(index).addClass('active')
 
-
 		}
 
 		if(!index) {
@@ -1119,7 +1129,6 @@ function monkPage(){
 
 		$('body').addClass('wait').attr('data-id', activeIndex+1)
 
-	
 		switch(activeIndex) {
 			case 0:
 			$('.getContent').html(monkContent1);
