@@ -216,15 +216,6 @@ body:not(.progress) .header_set {
 	position: relative;
 }
 
-.monk_section.inner_section:first-child {
-	padding-top: 0 !important;
-	min-height: calc(var(--vh, 1vh) * 100);
-}
-
-.entrepreneur_section .inner_section:nth-child(2) {
-	min-height: calc(var(--vh, 1vh) * 100);
-}
-
 .en_section {
 	overflow: hidden;
 }
@@ -1452,6 +1443,16 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	}
 	.explore_btn {
 		visibility: hidden !important;
+	}
+}
+
+@media (min-width: 1300px){
+	.monk_section.inner_section:first-child {
+		padding-top: 0 !important;
+		min-height: calc(var(--vh, 1vh) * 100);
+	}
+	.entrepreneur_section .inner_section:nth-child(2) {
+		min-height: calc(var(--vh, 1vh) * 100);
 	}
 }
 
