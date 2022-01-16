@@ -215,7 +215,7 @@ p {
 
 .medium {
 	font-size: 2vw;
-	font-size: 2.5vw;
+	font-size: 2.2vw;
 }
 
 .large {
@@ -322,7 +322,8 @@ svg.fill {
 	z-index: -199;
 }
 
-header.active {
+header.active,
+header.light {
 	color: #EBE5DE;
 }
 
@@ -617,7 +618,7 @@ header.opened .menu_label span:first-child {
 		font-size: 16vw;
 	}
 	.header_set {
-		padding: 25px;
+		padding: 15px 25px;
 	}
 	.menu_items li {
 		min-height: 775px;

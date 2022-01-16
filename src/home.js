@@ -88,6 +88,16 @@ $(window).on('load', function(){
 
 		$('body').addClass('progress wait')
 
+		if (isMobile == true) {
+
+			$('body').addClass('isMobile');
+
+		} else {
+
+			$('body').addClass('isDesktop');
+
+		};
+
 		onWindowResize()
 
 		appendImgs();
