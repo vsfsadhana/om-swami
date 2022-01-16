@@ -1040,38 +1040,6 @@ function monkPage(){
 
 		});
 
-	} else {
-
-		$(window).on('touchstart', function (e){
-
-			if(canScroll) {
-
-				ts = e.originalEvent.touches[0].clientX;
-
-			}
-
-		});
-
-		$(window).on('touchend', function (e){
-
-			if(canScroll) {
-
-				var te = e.originalEvent.changedTouches[0].clientX;
-
-				if(ts > te + 25){
-
-					nextSlide()
-
-				} else if(ts < te - 25){
-
-					prevSlide()
-
-				}
-
-			}
-
-		});
-
 	}
 
 	function nextSlide(val){

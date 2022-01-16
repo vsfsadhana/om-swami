@@ -261,6 +261,10 @@ body#monk .en_sec_col:not(:nth-child(2)) {
 	margin-top: 6.77vw;
 }
 
+.monk_section.inner_section:first-child {
+	padding-top: 0 !important;
+}
+
 .en_next h2 {
 	text-align: center;
 }
@@ -1446,12 +1450,9 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	}
 }
 
-@media (min-width: 1300px){
-	.monk_section.inner_section:first-child {
-		padding-top: 0 !important;
-		min-height: calc(var(--vh, 1vh) * 100);
-	}
-	.entrepreneur_section .inner_section:nth-child(2) {
+@media (min-width: 1300px) {
+	.monk_section.inner_section:first-child,
+	.en_section.inner_section:nth-child(2) {
 		min-height: calc(var(--vh, 1vh) * 100);
 	}
 }
@@ -1479,6 +1480,10 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 }
 
 @media (max-width: 500px){
+	.monk_section.inner_section:first-child,
+	.en_section.inner_section:nth-child(2) {
+		min-height: calc(var(--vh, 1vh) * 100);
+	}
 	.en_shape img {
 		width: 70%;
 	}
