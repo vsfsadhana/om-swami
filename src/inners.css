@@ -460,7 +460,7 @@ body[data-id='4'] .en_sec_col h6 {
 	position: absolute;
 	left: 0;
 	right: 0;
-	z-index: 199;
+	z-index: 999;
 	background-repeat: repeat-x;
 	height: 3px;
 }
@@ -1198,7 +1198,8 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 		right: -50vw;
 	}
 	.inner_section {
-		padding: 50px;
+		padding: 50px 25px;
+		margin-top: 0 !important;
 	}
 	.monk_section.inner_section:last-child {
 		padding-bottom: 100px;
@@ -1388,6 +1389,7 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	}
 	.monk_cover {
 		height: 38.4vw;
+		min-height: 300px;
 	}
 	.ssays_line:first-child {
 		flex-direction: column;
@@ -1536,7 +1538,12 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	.en_wrap {
 		padding: 0 20px;
 	}
-
+	.ssays_svg {
+		margin-bottom: 0;
+	}
+	main *[data-scroll] {
+		transform: translateY(0) !important;
+	}
 }
 
 

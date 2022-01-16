@@ -350,6 +350,10 @@ header.light {
 	visibility: hidden;
 }
 
+.sub_nav svg {
+	width: 30px;
+}
+
 .sub_nav a {
 	padding: 10px 20px;
 }

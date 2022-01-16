@@ -284,20 +284,21 @@ function fire() {
 		let $this = $(this),
 			link = $this.attr('href');
 
-		if(!$('body').hasClass('wait')) {
+		if($('body').hasClass('wait')) {
 
-			$('body').addClass('wait')
+			return false;
 
-			if(!$this.attr('target') && !isDragging) {
+		} else {
+
+			if(!$this.attr('target')) {
+
+				$('body').addClass('wait')
 
 				openLink(link)
 
 				return false;
+
 			}
-
-		} else {
-
-			return false;
 
 		}
 

@@ -825,20 +825,24 @@ function globalFunc(){
 		let $this = $(this),
 			link = $this.attr('href');
 
-		if(!$('body').hasClass('wait')) {
+		if($('body').hasClass('wait')) {
 
-			$('body').addClass('wait')
-
-			if(!$this.attr('target') && !isDragging) {
-
-				openLink(link, $this.hasClass('main_logo'))
-
-				return false;
-			}
+			return false;
 
 		} else {
 
-			return false;
+			if(!$this.attr('target')) {
+
+				if(!isDragging) {
+
+					$('body').addClass('wait')
+
+					openLink(link, $this.hasClass('main_logo'))
+				}
+
+				return false;
+
+			}
 
 		}
 
