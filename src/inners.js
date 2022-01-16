@@ -2,7 +2,7 @@ import './global.css'
 import './inners.css'
 import * as THREE from 'three'
 import $ from 'jquery'
-import Stats from 'three/examples/js/libs/stats.min.js'
+// import Stats from 'three/examples/js/libs/stats.min.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import LocomotiveScroll from 'locomotive-scroll';
 import {gsap} from 'gsap'
@@ -259,8 +259,8 @@ function init() {
 	const sceneMenu = new FXScene2( 0x000000, '2' );
 	transition2 = new Transition2( sceneEmpty, sceneMenu );
 
-	stats = new Stats();
-	document.body.appendChild( stats.dom );
+	// stats = new Stats();
+	// document.body.appendChild( stats.dom );
 
 	onWindowResize()
 
@@ -481,7 +481,7 @@ function animate() {
 
 	requestAnimationFrame( animate );
 
-	stats.update();
+	// stats.update();
 
 	render();
 
