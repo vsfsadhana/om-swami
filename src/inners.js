@@ -1460,6 +1460,8 @@ function monkPage(){
 
 function entrepreneurPage(){
 
+	stopScroll()
+
 	if(!isEntrepreneurActive){
 		if(!isSafari && !isMobile) {
 			$('.en_col_set').find('.en_col').append('<div class="en_mask has-svg full_bg"><svg viewBox="0 0 264 652" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs><clipPath id="maskRect1" clipPathUnits="objectBoundingBox" transform="scale(0.003787878787879, 0.001533742331288)"><path fill="none" stroke="#373636" stroke-width="1.9845" d="M260.6,616.6v-45.3v-64.2v-30.2v-73.6l-2.4-73.6l-1.4-99.8 c-0.8-34.6-2-104.8-2-106.3c0-1.9,1-31.8,1-52.6c0-20.8-2.4-30.2-2.4-41.5c0-9.1,2.7-21.4,1.1-26.4c-6.4,0-27.4,0-37,0 c-12,0-33.5,1.9-35.9,1.9c-2.4,0-7.2-1.9-12-1.9h-33.5c-4.8,0-38.3,1.9-50.3,0c-12-1.9-12,0-14.4,0h-24c-3.8,0-30.3-1.3-43.1-1.9 v28.3l2.4,56.6V102v25.7l2.8,37.2l-2.8,99.7v10.3l-2.4,17L1.9,393.9L0.5,510.5v12.9v21.4l1,33.2c-0.8,10.1,0.4,22,0.4,31.1 s1.6,32.1,0,37.8c4.8-0.6,7.2,0,16.8,0c9.6,0,25.9,0.3,33.1,0.9c3.2,0.6,9.5,1,12.4,1c2.4,0,18.4,0.6,26.4,1.9 c4.8,0,17.7-0.4,31.1-1.9c13.4-1.5,32.7-0.6,40.7,0l19.2,1.9l19.2-1.9l43.1,1.9l16.9-0.1L260.6,616.6z"/></clipPath></defs></svg></div>')
@@ -1643,9 +1645,11 @@ function entrepreneurPage(){
 
 			$('body').removeClass('add-transit');
 
-			// split1.revert()
+			startScroll()
 
-			// split2.revert()
+			split1.revert()
+
+			split2.revert()
 
 			if(isScroll) {
 				scroll.update()
