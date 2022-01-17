@@ -550,28 +550,27 @@ header.opened .menu_label span:first-child {
 	background: currentColor;
 	transform-origin: bottom;
 	transform: scaleY(0.5);
-	animation: bar 0.4s 0s both alternate ease infinite;
 	opacity: 0.5;
 }
 
 .equalizer.active .bar {
+	animation: bar 0.4s 0s both alternate ease infinite;
 	opacity: 1;
 }
 
 .equalizer:not(.active) .bar {
-	animation-play-state: paused;
 	transform: scaleY(0.5) !important;
 }
 
-.equalizer .bar-1 {
+.equalizer.active .bar-1 {
 	animation-delay: 0.2s;
 }
 
-.equalizer .bar-2 {
+.equalizer.active .bar-2 {
 	animation-delay: 0.4s;
 }
 
-.equalizer .bar-3 {
+.equalizer.active .bar-3 {
 	animation-delay: 0.6s;
 }
 
