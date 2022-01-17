@@ -392,6 +392,8 @@ function init() {
 
 		isMenuClosed = true
 
+		$('.menu_items').removeClass('ready')
+
 	})
 
 	.call(function(){
@@ -408,9 +410,16 @@ function init() {
 
     .staggerFrom('.sub_nav ._ele', 0.5, {y: 30, autoAlpha: 0, ease: "power3.out"}, 0.05, 1)
 
-    .staggerFrom('.menu_items li a', 0.8, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+	.call(function(){
 
-    .staggerFrom('.menu_items li ._ele', 0.8, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+		$('.menu_items').addClass('ready')
+
+	})
+
+    .staggerFrom('.menu_items li a', 0.7, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+
+    .staggerFrom('.menu_items li ._ele', 0.7, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+
 
 	$('.menu_button').click(function(){
 

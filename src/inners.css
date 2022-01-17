@@ -120,7 +120,7 @@ body:not(.progress) .header_set {
 
 .en_section > i {
 	z-index: -99;
-	mix-blend-mode: multiply;
+	mix-blend-mode: color;
 }
 
 .en_shape {
@@ -1020,6 +1020,11 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	position: relative;
 }
 
+.isMobile .en_col {
+	border: 2px solid;
+	overflow: hidden;
+}
+
 .en_mask {
 	pointer-events: none;
 }
@@ -1048,11 +1053,12 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 
 .en_bg {
 	z-index: -99;
-	mix-blend-mode: multiply;
+	mix-blend-mode: color;
 }
 
 .en_head_set {
 	justify-content: center;
+	flex-direction: column;
 }
 
 .en_head_wrap {
@@ -1136,7 +1142,6 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 		position: relative;
 		width: 100%;
 		height: auto;
-		transform: translate(0) !important;
 	}
 	.en_shape.shape_b,
 	.en_scroll span,
@@ -1146,6 +1151,9 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	.en_shape img {
 		height: auto;
 		width: 60%;
+	}
+	.en_shape.shape_a {
+		left: 0;
 	}
 	.en_head {
 		position: relative;
@@ -1169,7 +1177,7 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 		left: 0;
 		transform: translate(0);
 		width: 100%;
-		padding: 0 50px;
+		padding: 0 25px;
 	}
 	.en_scroll i:first-child {
 		position: relative;
@@ -1201,7 +1209,10 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 		padding: 50px 25px;
 		margin-top: 0 !important;
 	}
-	.monk_section.inner_section:last-child {
+	.en_section.inner_section:last-of-type {
+		padding: 80px 50px;
+	}
+	.monk_section.inner_section:last-of-type {
 		padding-bottom: 100px;
 	}
 	.en_sec_col {
@@ -1478,6 +1489,9 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 	.sub_nav li:last-child {
 		margin-left: auto
 	}
+	main *[data-scroll] {
+		transform: translateY(0) !important;
+	}
 
 }
 
@@ -1535,14 +1549,12 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 		width: 90vw;
 		height: 102.2vw;
 	}
-	.en_wrap {
+	.en_wrap,
+	.en_head {
 		padding: 0 20px;
 	}
 	.ssays_svg {
 		margin-bottom: 0;
-	}
-	main *[data-scroll] {
-		transform: translateY(0) !important;
 	}
 }
 
