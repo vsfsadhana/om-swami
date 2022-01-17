@@ -609,6 +609,7 @@ header.opened .menu_label span:first-child {
 	}
 	.menu_items li {
 		width: 100%;
+		min-width: auto;
 		padding-top: 0;
 		padding-bottom: 100px;
 	}

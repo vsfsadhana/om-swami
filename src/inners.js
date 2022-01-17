@@ -1727,6 +1727,7 @@ function enColsFlic() {
 			gsap.to(selected, 0.3, {width: parseFloat(40 * sizes.height) / 100, ease: 'power3.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
 				$('.en_col_set').removeClass('bigger').css('width', '')
 				selected.addClass('bigger')
+				enCarousel.resize()
 			} })
 
 			
