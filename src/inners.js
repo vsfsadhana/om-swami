@@ -270,7 +270,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -615,13 +615,11 @@ function buildScroll(val){
 		scrollFromAnywhere: true,
 		getDirection: true,
 		smartphone: {
-		smooth: true,
-		lerp: 0
-	},
+			smooth: false
+		},
 		tablet: {
-			smooth: true,
-			lerp: 0
-		}
+			smooth: false
+		},
 	});
 
 	isScroll = true;
@@ -1458,6 +1456,10 @@ function monkPage(){
 
 }
 
+let lastActive,
+	isFirstHover = true,
+	labTL;
+
 function entrepreneurPage(){
 
 	stopScroll()
@@ -1479,6 +1481,10 @@ function entrepreneurPage(){
 
 				$('.en_col_set').removeClass('hover')
 
+				lastActive = -1
+
+				gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
+
 			}
 
 		}
@@ -1493,9 +1499,21 @@ function entrepreneurPage(){
 
 	})
 
-	$('.en_col_set').on('mousemove', function(){
 
-		if(!isColsFlickity && !isEntrepreneurActive && !$('body').hasClass('wait')) {
+	$('.en_col_set').on('mouseenter', function(){
+
+		if(!isColsFlickity && !isEntrepreneurActive) {
+
+			let title = $(this).attr('data-title'),
+				index = $(this).index();
+
+			if(lastActive != index) {
+
+				lastActive = index
+
+				updateLab(title, index)
+
+			}
 
 			$('.en_wrap').addClass('mouseenter')	
 
@@ -1528,6 +1546,8 @@ function entrepreneurPage(){
 
 			})
 
+			gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out" })
+
 			gsap.to('.hide', 0.5, {opacity: 0, ease: 'power3.out', onComplete: function(){
 
 				let $this = $('.target'),
@@ -1542,7 +1562,6 @@ function entrepreneurPage(){
 					enCarousel.destroy();
 
 				}
-
 
 				$('.hide').remove();
 
@@ -1612,6 +1631,15 @@ function entrepreneurPage(){
 
 		// }, 50);
 
+		$('.en_scroll').click(function(){
+
+			scroll.scrollTo('.scroll_to', {
+				duration: 400,
+				disableLerp: false,
+			})
+
+		})
+
 		$('#epSection').remove();
 
 		$('.getContent').show();
@@ -1661,6 +1689,42 @@ function entrepreneurPage(){
 
 }
 
+function updateLab(title, index){
+
+	if(labTL) {
+		labTL.kill()
+		labTL = new gsap.timeline()
+	} else {
+		labTL = new gsap.timeline()
+	}
+
+	var labWords = new SplitText('.en_lab > span', {type:"words", wordsClass:"SplitClass"});
+
+	labTL
+
+	.to(labWords.words, 0.5, { y: '-110%', ease: "power3.in", stagger: 0.06 })
+
+	.call(function(){
+
+		$('.en_lab > span').html(title)
+
+		labWords = new SplitText('.en_lab > span', {type:"words", wordsClass:"SplitClass"});
+
+		if(isFirstHover){
+
+			isFirstHover = false;
+
+			gsap.to('.en_lab_set', 1, { autoAlpha: 1, ease: "power3.out" })
+
+		}
+
+		gsap.from(labWords.words, 0.5, { y: '110%', ease: "power3.out", stagger: 0.06 })
+
+	})
+
+}
+
+
 function enColsFlic() {
 
 	if((sizes.width / sizes.height) < (3/2)){
@@ -1675,7 +1739,11 @@ function enColsFlic() {
 
 		if ( isColsFlickity == true ) {
 
+			lastActive = -1
+
 			$('.en_col_set').removeClass('bigger').css('width', '')
+
+			gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
 
 			isColsFlickity = false;
 
@@ -1690,6 +1758,8 @@ function enColsFlic() {
 
 		isColsFlickity = true;
 
+		lastActive = -1;
+
 		enCarousel = new Flickity('.en_wrap', {
 			prevNextButtons: false,
 			accessibility: true,
@@ -1702,24 +1772,31 @@ function enColsFlic() {
 			friction: 0.8
 		});
 
+		gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
+
+		$('.en_col_set').removeClass('hover')
+
 		enCarousel.on( 'dragStart', function( event, pointer ) {
 
 			isDragging = true;
 
 		});
 
-		enCarousel.on( 'settle', function( event, index ) {
-
-			isDragging = false;
-
-		})
-
-
-		$('.en_col_set').removeClass('hover')
 
 		enCarousel.on( 'settle', function( index ) {
 
-			let selected = $('.en_col_set').eq(index);
+			let selected = $('.en_col_set').eq(index),
+				title = selected.attr('data-title');
+
+			isDragging = false;
+
+			if(lastActive != index) {
+
+				lastActive = index
+
+				updateLab(title, index)
+
+			}
 
 			$('.en_col_set').each(function(i){
 				let $this = $(this);

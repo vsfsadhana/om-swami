@@ -24,11 +24,6 @@ div[data-scroll-section],
 	will-change: transform;
 }
 
-* {
-	-moz-osx-font-smoothing: grayscale;
-	-webkit-font-smoothing: antialiased;
-}
-
 body:not(.no-color) {
 	background: #C0B5A0;
 }
@@ -46,7 +41,8 @@ body.isDesktop:not(.wait) .monk_slide,
 body.isDesktop:not(.wait) .arrow,
 body.isDesktop:not(.wait) .monk_nav_item,
 body.isDesktop:not(.wait) .monk_nav_close,
-body.isDesktop:not(.wait) .en_col {
+body.isDesktop:not(.wait) .en_col,
+body.isDesktop:not(.wait) .en_scroll {
 	cursor: pointer;
 }
 
@@ -988,6 +984,7 @@ body[data-id='4'] .en_sec_col h6 {
 	width: 100%;
 	padding: 0 25px;
 	position: relative;
+	top: -1.5vh;
 }
 
 .en_col_set {
@@ -1097,13 +1094,19 @@ body:not(.progress) .en_col_set:not(.no-tranist) {
 .en_lab_set {
 	flex-direction: column;
 	position: fixed;
-	bottom: 3.7vh;
+	bottom: 2.7vh;
 	left: 0;
 	right: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.en_lab_set > span,
+.en_lab > span {
+	display: block;
 }
 
 .en_lab_set > span {
-	display: block;
 	font-size: 15px;
 	letter-spacing: 0.5px;
 }
