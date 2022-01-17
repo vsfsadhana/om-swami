@@ -311,7 +311,7 @@ header.loaded {
 .menu_layer {
 	z-index: -99;
 	opacity: 0.4;
-	height: 51px;
+	height: calc(100% - 2px);
 	background-size: cover;
 	background-position: center;
 }
@@ -379,6 +379,10 @@ header.light {
 	display: flex;
 }
 
+.sb_inner svg {
+	height: 100%;
+}
+
 body.isDesktop .site_button:hover .sb_inner,
 body.isDesktop.site_button.active .sb_inner {
 	transform: scaleX(1.3);
@@ -414,7 +418,7 @@ header.opened .fill path {
 	fill: #272929;
 }
 
-header.opened .menu_button i:nth-child(2) {
+header.opened .menu_lines i:nth-child(2) {
 	opacity: 0;
 }
 
