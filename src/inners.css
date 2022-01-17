@@ -15,7 +15,8 @@ div[data-scroll-section],
 .en_shape,
 .en_col_set,
 .en_col,
-.monk_visuals i {
+.monk_visuals i,
+.line_texture {
 	-webkit-transform: translateZ(0);
 	transform: translateZ(0);
 	backface-visibility: hidden;
@@ -573,7 +574,7 @@ body[data-id='4'] .en_sec_col h6 {
 .monk_nav_set {
 	height: 100px;
 	left: 0;
-	position: absolute;
+	position: fixed;
 	right: 0;
 	top: calc(100% - 100px);
 	z-index: 1200;
