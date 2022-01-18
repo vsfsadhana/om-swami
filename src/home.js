@@ -292,9 +292,12 @@ function fire() {
 
 			if(!$this.attr('target')) {
 
-				$('body').addClass('wait')
+				if(!isDragging) {
 
-				openLink(link)
+					$('body').addClass('wait')
+
+					openLink(link, $this.hasClass('main_logo'))
+				}
 
 				return false;
 
@@ -307,6 +310,23 @@ function fire() {
 	if(isMobile) {
 		$('.tip').html('Swipe to navigate')
 	}
+}
+
+function flickity_handle_wheel_event(e, flickity_instance) {
+
+	var direction = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+
+	if (direction > 0) {
+
+		flickity_instance.next();
+
+	} else {
+
+		flickity_instance.previous();
+
+	}
+
+	isDragging = false;
 }
 
 function init() {
@@ -363,6 +383,12 @@ function init() {
 		contain: true
 	});
 
+
+	document.onwheel = function(e) {
+		if(isMenu) {
+			flickity_handle_wheel_event(e, menuCur);
+		}
+	}
 
 	menuCur.on( 'scroll', function( event, progress ) {
 
@@ -456,6 +482,7 @@ function init() {
 		$('.menu_items, .menu_items li').removeClass('active')
 
 	})
+
 
 	$('.menu_button').click(function(){
 

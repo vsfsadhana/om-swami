@@ -735,6 +735,23 @@ function pageScroll(val){
 
 }
 
+function flickity_handle_wheel_event(e, flickity_instance) {
+
+	var direction = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+
+	if (direction > 0) {
+
+		flickity_instance.next();
+
+	} else {
+
+		flickity_instance.previous();
+
+	}
+
+	isDragging = false;
+}
+
 function globalFunc(){
 
 	// Menu
@@ -780,7 +797,6 @@ function globalFunc(){
 	.staggerFrom('.menu_items li a', 0.7, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
 
 	.staggerFrom('.menu_items li ._ele', 0.7, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
-
 
 	$('.isDesktop .menu_items a').on('mousemove', function(){
 
@@ -851,6 +867,12 @@ function globalFunc(){
 		cellAlign: 'left',
 		contain: true
 	});
+
+	document.onwheel = function(e) {
+		if(isMenu) {
+			flickity_handle_wheel_event(e, menuCur);
+		}
+	}
 
 	menuCur.on( 'dragStart', function( event, pointer ) {
 
