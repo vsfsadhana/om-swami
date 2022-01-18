@@ -186,10 +186,17 @@ h6,
 
 .alt_h1 {
 	font-size: 3.6vw;
+	letter-spacing: -0.36vw;
+}
+
+.alt_h2 {
+	font-size: 3vw;
+	letter-spacing: -0.3vw;
 }
 
 .alt_h3 {
 	font-size: 2vw;
+	letter-spacing: -0.2vw;
 }
 
 p,
@@ -645,11 +652,21 @@ header.opened .menu_label span:first-child {
 }
 
 @media (max-width: 500px){
+	h2 {
+		font-size: 18vw;
+		letter-spacing: -.5vw;
+	}
 	h5 {
 		font-size: 16vw;
 	}
+	.small {
+		font-size: 3.7vw;
+	}
 	.header_set {
 		padding: 15px 25px;
+	}
+	.equalizer {
+		margin-left: 20px;
 	}
 	.menu_items li {
 		min-height: 775px;
