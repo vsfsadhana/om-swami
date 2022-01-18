@@ -560,6 +560,7 @@ body[data-id='4'] .en_sec_col h6 {
 .monk_section .en_sec_para {
 	left: 12vw;
 	bottom: 1vw;
+	min-width: 27vw;
 }
 
 .monk_layers {
