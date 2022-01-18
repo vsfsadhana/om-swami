@@ -420,6 +420,42 @@ function init() {
 
     .staggerFrom('.menu_items li ._ele', 0.7, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
 
+	$('.isDesktop .menu_items a').on('mousemove', function(){
+
+		if($('.menu_items').hasClass('ready')) {
+
+			$('.menu_items, .menu_items li').removeClass('hover')
+
+			$(this).closest('li').addClass('hover active')
+
+			$('.menu_items').addClass('hover active')
+		}
+
+	}).on('mouseleave', function(){
+
+		let $this = $(this);
+
+		clearTimeout(window.menuTimer);
+
+		window.menuTimer = setTimeout(function(){
+
+			if(!$this.hasClass('active')) {
+
+				$this.closest('li').removeClass('hover')
+
+			}
+
+			if( $('li.active').length == 0 ) {
+
+				$('.menu_items').removeClass('hover')
+
+			}
+
+		}, 300);
+
+		$('.menu_items, .menu_items li').removeClass('active')
+
+	})
 
 	$('.menu_button').click(function(){
 
