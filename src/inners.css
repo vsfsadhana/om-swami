@@ -451,6 +451,8 @@ body[data-id='4'] .en_sec_col h6 {
 /* Monk */
 .bar_texture {
 	background-size: cover;
+	background-position: center;
+	min-height: auto;
 }
 
 .line_texture {
@@ -517,7 +519,6 @@ body[data-id='4'] .en_sec_col h6 {
 	justify-content: center;
 	max-width: 62vw;
 	margin: 0 auto;
-	margin-top: -50px;
 	text-align: center;
 }
 
@@ -574,7 +575,6 @@ body[data-id='4'] .en_sec_col h6 {
 	right: 0;
 	top: calc(100% - 100px);
 	z-index: 1200;
-	background: #c9c2b6;
 }
 
 .monk_cover {
