@@ -2,7 +2,7 @@ import './global.css'
 import './inners.css'
 import * as THREE from 'three'
 import $ from 'jquery'
-// import Stats from 'three/examples/js/libs/stats.min.js'
+import Stats from 'three/examples/js/libs/stats.min.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import LocomotiveScroll from 'locomotive-scroll';
 import {gsap} from 'gsap'
@@ -96,7 +96,7 @@ var page = $('body').attr('id'),
 	curY,
 	scroll,
 	isScroll,
-	scrollVal,
+	scrollVal = 0,
 	scrollStopped,
 	siteIntrvl,
 	vh,
@@ -261,8 +261,8 @@ function init() {
 	const sceneMenu = new FXScene2( 0x000000, '2' );
 	transition2 = new Transition2( sceneEmpty, sceneMenu );
 
-	// stats = new Stats();
-	// document.body.appendChild( stats.dom );
+	stats = new Stats();
+	document.body.appendChild( stats.dom );
 
 	onWindowResize()
 
@@ -463,6 +463,10 @@ function onWindowResize() {
 		if(!isEntrepreneurActive){
 			enColsFlic()
 		}
+
+	} else if(page == 'journey') {
+
+		journeyScroll()
 	}
 
 }
@@ -483,7 +487,7 @@ function animate() {
 
 	requestAnimationFrame( animate );
 
-	// stats.update();
+	stats.update();
 
 	render();
 
@@ -578,7 +582,7 @@ function music(){
 
 function fire(){
 
-	buildScroll(true);
+	if(page != 'journey') { buildScroll(true); }
 
 	globalFunc()
 
@@ -737,19 +741,24 @@ function pageScroll(val){
 
 function flickity_handle_wheel_event(e, flickity_instance) {
 
-	var direction = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+	var normalized;
 
-	if (direction > 0) {
+	if (event.wheelDelta) {
 
-		flickity_instance.next();
+		normalized = (event.wheelDelta % 120 - 0) == -0 ? event.wheelDelta / 120 : event.wheelDelta / 12;
 
 	} else {
 
-		flickity_instance.previous();
+		var rawAmmount = event.deltaY ? event.deltaY : event.detail;
+
+		normalized = -(rawAmmount % 3 ? rawAmmount * 10 : rawAmmount / 3);
 
 	}
 
+	normalized < 0 ? flickity_instance.next() : flickity_instance.previous();
+
 	isDragging = false;
+
 }
 
 function globalFunc(){
@@ -921,6 +930,10 @@ function globalFunc(){
 	} else if(page == 'entrepreneur') {
 
 		entrepreneurPage()
+
+	} else if(page == 'journey') {
+
+		journeyPage()
 
 	}
 
@@ -1105,7 +1118,6 @@ function monkPage(){
 		});
 
 	} else {
-
 
 		$(window).on('touchstart', function (e){
 
@@ -1912,7 +1924,116 @@ function enColsFlic() {
 
 };
 
+var isHorizontal = -1,
+	isFirstBuild = true;
 
+function journeyScroll(){
+
+	if(sizes.width > 768) {
+
+		if(isHorizontal == false || isFirstBuild) {
+
+			isHorizontal = true
+
+			if(scroll) { 
+				scroll.stop();
+				scroll.destroy();
+			}
+
+			scroll = new LocomotiveScroll(
+			{
+				el: document.querySelector('[data-scroll-container]'),
+				smooth: true,
+				direction: 'horizontal',
+				scrollFromAnywhere: true,
+				lerp: 0.08,
+				smartphone: {
+					breakpoint: 0,
+					smooth: true
+				},
+				tablet: {
+					breakpoint: 0,
+					smooth: true
+				},
+			});
+
+			scroll.on('scroll', (func, speed) => {
+
+				scrollVal = func.scroll.x
+
+			});
+
+
+		}
+
+	} else {
+
+		if(isHorizontal == true || isFirstBuild) {
+
+			isHorizontal = false
+
+			if(scroll) { 
+				scroll.stop();
+				scroll.destroy();
+			}
+
+			scroll = new LocomotiveScroll(
+			{
+				el: document.querySelector('[data-scroll-container]'),
+				smooth: true,
+				scrollFromAnywhere: true,
+				direction: 'vertical',
+				smartphone: {
+					smooth: false
+				},
+				tablet: {
+					smooth: false
+				}
+			});
+
+		}
+
+	}
+
+	isFirstBuild = false
+
+}
+
+function journeyPage(){
+
+	let pos = { left: 0, x: 0 };
+
+	const mouseDownHandler = function (e) {
+
+		pos = { left: scrollVal, x: (e.clientX * 1.5) }
+
+		document.addEventListener('mousemove', mouseMoveHandler)
+		document.addEventListener('mouseup', mouseUpHandler)
+
+    }
+
+	const mouseMoveHandler = function (e) {
+
+		if(isHorizontal && !isMenu) {
+
+			const dx = pos.left - ( (e.clientX * 1.5) - pos.x)
+
+			scroll.scrollTo(dx, { duration: 1 })
+
+		}
+
+	}
+
+    const mouseUpHandler = function () {
+		if(isHorizontal && !isMenu) {
+			document.removeEventListener('mousemove', mouseMoveHandler)
+			document.removeEventListener('mouseup', mouseUpHandler)
+		}
+    }
+
+    document.addEventListener('mousedown', mouseDownHandler);
+
+}
 
 
 

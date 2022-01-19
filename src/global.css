@@ -167,11 +167,7 @@ h2 {
 }
 
 h3 {
-	font-size: 12.5vw;
-}
-
-h4 {
-	font-size: 9.8vw;
+	font-size: 9.79vw;
 }
 
 h5 {
@@ -179,24 +175,23 @@ h5 {
 	font-size: 5.2vw;
 }
 
-h6,
-.alt_h2 {
-	font-size: 3vw;
+h6 {
+	font-size: 3.1vw;
 }
 
 .alt_h1 {
 	font-size: 3.6vw;
-	letter-spacing: -0.36vw;
+	letter-spacing: -0.26vw;
 }
 
 .alt_h2 {
 	font-size: 3vw;
-	letter-spacing: -0.3vw;
+	letter-spacing: -.13vw;
 }
 
 .alt_h3 {
 	font-size: 2vw;
-	letter-spacing: -0.2vw;
+	letter-spacing: -0.1vw;
 }
 
 p,
@@ -216,8 +211,9 @@ p {
 }
 
 .small {
-	font-size: 1.1vw;
-	
+	font-size: 1.2vw;
+	line-height: 1.35vw;
+	letter-spacing: -0.01vw;
 }
 
 .medium {
@@ -604,6 +600,9 @@ header.opened .menu_label span:first-child {
 		font-size: 20vw;
 		letter-spacing: -0.4vw;
 	}
+	h3 {
+		font-size: 22vw;
+	}
 	h6,
 	.alt_h2 {
 		font-size: 7vw;
@@ -614,8 +613,14 @@ header.opened .menu_label span:first-child {
 	p {
 		font-size: 3.4vw;
 	}
+	.alt_h3 {
+		font-size: 3.5vw;
+		letter-spacing: -.2vw;
+	}
+
 	.small {
 		font-size: 2.7vw;
+		line-height: 2.8vw;
 	}
 	.medium {
 		font-size: 5vw;
@@ -656,11 +661,23 @@ header.opened .menu_label span:first-child {
 		font-size: 18vw;
 		letter-spacing: -.5vw;
 	}
+	h3 {
+		font-size: 26vw;
+	}
 	h5 {
 		font-size: 16vw;
 	}
+	.alt_h2,
+	h6 {
+		font-size: 8vw;
+	}
+	.alt_h3 {
+		font-size: 7vw;
+		letter-spacing: -.3vw;
+	}
 	.small {
 		font-size: 3.7vw;
+		line-height: 3.8vw;
 	}
 	.header_set {
 		padding: 15px 25px;

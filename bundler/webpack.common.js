@@ -42,6 +42,12 @@ module.exports = {
             chunks: ['inners'],
             minify: true
         }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/journey.html'),
+            filename: 'journey.html',
+            chunks: ['inners'],
+            minify: true
+        }),
         new MiniCSSExtractPlugin()
     ],
     module:

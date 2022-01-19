@@ -314,19 +314,24 @@ function fire() {
 
 function flickity_handle_wheel_event(e, flickity_instance) {
 
-	var direction = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+	var normalized;
 
-	if (direction > 0) {
+	if (event.wheelDelta) {
 
-		flickity_instance.next();
+		normalized = (event.wheelDelta % 120 - 0) == -0 ? event.wheelDelta / 120 : event.wheelDelta / 12;
 
 	} else {
 
-		flickity_instance.previous();
+		var rawAmmount = event.deltaY ? event.deltaY : event.detail;
+
+		normalized = -(rawAmmount % 3 ? rawAmmount * 10 : rawAmmount / 3);
 
 	}
 
+	normalized < 0 ? flickity_instance.next() : flickity_instance.previous();
+
 	isDragging = false;
+
 }
 
 function init() {
