@@ -836,7 +836,12 @@ body[data-id='4'] .en_sec_col h6 {
 	-webkit-user-select:none;
 	-moz-user-select:none;
 	-ms-user-select:none;
-	user-select:none
+	user-select:none;
+	cursor: grab;
+}
+
+.ju_wrap:active {
+	cursor: grabbing;
 }
 
 .ju_slider,

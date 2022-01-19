@@ -614,10 +614,9 @@ header.opened .menu_label span:first-child {
 		font-size: 3.4vw;
 	}
 	.alt_h3 {
-		font-size: 3.5vw;
-		letter-spacing: -.2vw;
+		font-size: 4.5vw;
+		letter-spacing: -.25vw;
 	}
-
 	.small {
 		font-size: 2.7vw;
 		line-height: 2.8vw;
