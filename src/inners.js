@@ -2029,7 +2029,7 @@ function journeyScroll(){
 
 				scrollVal = func.scroll.x
 
-				gsap.to('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $('.ju_wrap').innerWidth() - sizes.width ) )) })
+				gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $('.ju_wrap').innerWidth() - sizes.width ) )) })
 
 				if(!isClicked) {tagsAdj()}
 
@@ -2087,7 +2087,7 @@ function journeyScroll(){
 
 				scrollVal = func.scroll.y
 
-				gsap.to('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $(document).height - sizes.height ) )) })
+				gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $(document).height() - sizes.height ) )) })
 
 				if(!isClicked) {tagsAdj()}
 
