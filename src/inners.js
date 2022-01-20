@@ -85,8 +85,8 @@ var page = $('body').attr('id'),
 	isClosed = true,
 	imagesLoaded = false,
 	nonCarousel = [],
-	splitWords,
-	splitLines,
+	splitWords = [],
+	splitLines = [],
 
 	enCarousel,
 	isEntrepreneurActive = false,
@@ -142,9 +142,9 @@ $.fn.isInViewport = function() {
 
 $.fn.isInViewportH = function() {
 	var elementTop = $(this).offset().left;
-	var elementBottom = elementTop + $(this).outerHeight();
+	var elementBottom = elementTop + $(this).outerWidth();
 	var viewportTop = $(window).scrollTop();
-	var viewportBottom = viewportTop + $(window).height();
+	var viewportBottom = viewportTop + $(window).width();
 	return elementBottom > viewportTop && elementTop < viewportBottom;
 }
 
@@ -278,7 +278,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -414,10 +414,6 @@ function onWindowResize() {
 
 	camera2.updateProjectionMatrix();
 
-	if(splitWords) { splitWords.revert() }
-
-	if(splitLines) { splitLines.revert() }
-
 	vh = sizes.height * 0.01;
 
 	if(isMobile) {
@@ -427,8 +423,6 @@ function onWindowResize() {
 			$('body').addClass('progress');
 
 			setH();
-
-			console.log('hhh')
 
 		}
 
@@ -656,14 +650,6 @@ function pageScroll(val){
 
 	let eleWrap = $('._eleWrap');
 
-	scrollVal = 0
-
-	if(val != 0 ) {
-
-		scrollVal = val.scroll.y;
-
-	}
-
 	if( eleWrap.length != 0 ) {
 
 		eleWrap.each(function(i){
@@ -672,23 +658,14 @@ function pageScroll(val){
 				eleY = $this.find('._eleY'),
 				eleX = $this.find('._eleX');
 
-			if($this.isInViewport() && !$this.hasClass('inview') ) {
-
-				$this.addClass('inview');
-
-				gsap.set($this, {autoAlpha: 1}, 0)
-
-				if(eleY.length != 0) {
-					gsap.set(eleY, { y: 100, autoAlpha: 0})
-					gsap.to(eleY, 1, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+			if(isHorizontal == false) {
+				if($this.isInViewport()) {
+					animateEle($this, eleY, eleX)
 				}
-
-				if(eleX.length != 0) {
-
-					gsap.set(eleX, { x: 100, autoAlpha: 0})
-					gsap.to(eleX, 1, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+			} else {
+				if($this.isInViewportH()) {
+					animateEle($this, eleY, eleX)
 				}
-
 			}
 
 		})
@@ -705,28 +682,42 @@ function pageScroll(val){
 				getWords = $this.find('._splitWords'),
 				getLines = $this.find('._splitLines');
 
-
-			if($this.isInViewport() && !$this.hasClass('inview') ) {
-
-				$this.addClass('inview');
-
-				gsap.set($this, {autoAlpha: 1}, 0)
-
-				if(getWords.length != 0) {
-					splitWords = new SplitText(getWords, {type:"words", wordsClass:"SplitClass"});
-					gsap.set(splitWords.words, { y: 20, autoAlpha: 0})
-					gsap.to(splitWords.words, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.2, stagger: 0.1 })
+			if(isHorizontal == false) {
+				if($this.isInViewport()) {
+					split($this, getWords, getLines, i)
 				}
-
-				if(getLines.length != 0) {
-					splitLines = new SplitText(getLines, {type:"lines", linesClass:"SplitClass"});
-					gsap.set(splitLines.lines, { y: 20, autoAlpha: 0})
-					gsap.to(splitLines.lines, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.5, stagger: 0.1 })
+			} else {
+				if($this.isInViewportH()) {
+					split($this, getWords, getLines, i)
 				}
-
 			}
 
 		})
+
+	}
+
+	if(page == 'journey') {
+
+		if(isHorizontal == false) {
+
+			scrollVal = 0
+
+			if(val != 0 ) {
+
+				scrollVal = val.scroll.y;
+
+			}
+		}
+
+	} else {
+
+		scrollVal = 0
+
+		if(val != 0 ) {
+
+			scrollVal = val.scroll.y;
+
+		}
 
 	}
 
@@ -745,6 +736,62 @@ function pageScroll(val){
 			}
 		}
 
+	}
+
+}
+
+function split($this, getWords, getLines, i) {
+
+	if(!$this.hasClass('inview') ) {
+
+		$this.addClass('inview');
+
+		if(getWords.length != 0) {
+			splitWords[i] = new SplitText(getWords, {type:"words", wordsClass:"SplitClass"});
+			gsap.set(getWords, {autoAlpha: 1, delay: 0.3})
+			if(getWords.hasClass('dirX')) {
+				gsap.set(splitWords[i].words, { x: 20, autoAlpha: 0})
+				gsap.to(splitWords[i].words, 0.5, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.3, stagger: 0.1, onComplete: function(){
+					splitWords[i].revert()
+				} })
+			} else {
+				gsap.set(splitWords.words, { y: 20, autoAlpha: 0})
+				gsap.to(splitWords.words, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.3, stagger: 0.1, onComplete: function(){
+					splitWords[i].revert()
+				} })
+			}
+		}
+
+		if(getLines.length != 0) {
+			gsap.set(getLines, {autoAlpha: 1, delay: 0.5})
+			splitLines[i] = new SplitText(getLines, {type:"lines", linesClass:"SplitClass"});
+			gsap.set(splitLines[i].lines, { y: 20, autoAlpha: 0})
+			gsap.to(splitLines[i].lines, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.5, stagger: 0.1, onComplete: function(){
+				splitLines[i].revert()
+			} })
+		}
+
+	}
+}
+
+function animateEle($this, eleY, eleX) {
+
+	if(!$this.hasClass('inview') ) {
+
+		$this.addClass('inview');
+
+		gsap.set($this, {autoAlpha: 1}, 0)
+
+		if(eleY.length != 0) {
+			gsap.set(eleY, { y: 100, autoAlpha: 0})
+			gsap.to(eleY, 1, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+		}
+
+		if(eleX.length != 0) {
+
+			gsap.set(eleX, { x: 100, autoAlpha: 0})
+			gsap.to(eleX, 1, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+		}
 	}
 
 }
@@ -1945,10 +1992,16 @@ function journeyScroll(){
 
 			isHorizontal = true
 
+			canHideHeader = false
+
+			$('.jus_text ._splitWords').addClass('dirX')
+
 			if(scroll) { 
 				scroll.stop();
 				scroll.destroy();
 			}
+
+			$('.journey_bg').attr('data-scroll-direction', 'horizontal')
 
 			scroll = new LocomotiveScroll(
 			{
@@ -1967,13 +2020,20 @@ function journeyScroll(){
 				},
 			});
 
+			if(isFirstBuild) {
+
+				pageScroll(0);
+			}
+
 			scroll.on('scroll', (func, speed) => {
 
 				scrollVal = func.scroll.x
 
 				gsap.to('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $('.ju_wrap').innerWidth() - sizes.width ) )) })
 
-				tagsAdj()
+				if(!isClicked) {tagsAdj()}
+
+				pageScroll(func);
 
 			});
 
@@ -1985,9 +2045,27 @@ function journeyScroll(){
 
 			isHorizontal = false
 
+			canHideHeader = true
+
+			$('.jus_text ._splitWords').removeClass('dirX')
+
 			if(scroll) { 
 				scroll.stop();
 				scroll.destroy();
+			}
+
+			$('.journey_bg').attr('data-scroll-direction', 'vertical')
+
+			if(isFirstBuild) {
+
+				clearTimeout(window.menuTimer);
+
+				window.menuTimer = setTimeout(function(){
+
+					pageScroll(0);
+
+				}, 1000);
+
 			}
 
 			scroll = new LocomotiveScroll(
@@ -1996,6 +2074,7 @@ function journeyScroll(){
 				smooth: true,
 				scrollFromAnywhere: true,
 				direction: 'vertical',
+				getDirection: true,
 				smartphone: {
 					smooth: false
 				},
@@ -2010,7 +2089,9 @@ function journeyScroll(){
 
 				gsap.to('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $(document).height - sizes.height ) )) })
 
-				tagsAdj()
+				if(!isClicked) {tagsAdj()}
+
+				pageScroll(func);
 
 			});
 
@@ -2036,7 +2117,7 @@ function tagsAdj() {
 
 		if(isHorizontal) {
 
-			if($this.isInViewportH()) {
+			if($this.offset().left <= 300) {
 
 				$this.addClass('active')
 
@@ -2066,31 +2147,46 @@ function tagsAdj() {
 
 	})
 
-	let id = current.attr('id');
+	if(current) {
+		let id = current.attr('id');
 
-	if($('.monk_nav_item:not([data-id='+id+'])').hasClass('active')) {
-		$('.monk_nav_item:not([data-id='+id+'])').removeClass('active')
-	}
+		if($('.monk_nav_item:not([data-id='+id+'])').hasClass('active')) {
+			$('.monk_nav_item:not([data-id='+id+'])').removeClass('active')
+		}
 
-	if(!$('.monk_nav_item[data-id='+id+']').hasClass('active')) {
-		$('.monk_nav_item[data-id='+id+']').addClass('active')
+		if(!$('.monk_nav_item[data-id='+id+']').hasClass('active')) {
+			$('.monk_nav_item[data-id='+id+']').addClass('active')
+		}
 	}
 
 	if(tabsCarousel) { tabsCarousel.select( $('.monk_nav_item.active:last').index(), false) }
 
 }
 
+var isMouseDown = false;
 
 function journeyPage(){
 
+	if(sizes.width > 768) {
+
+		$('.jus_text ._splitWords').addClass('dirX')
+
+	}
+
 	let pos = { left: 0, x: 0 };
+
+	gsap.from('._in', 1, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.2, delay: 1})
 
 	const mouseDownHandler = function (e) {
 
-		pos = { left: scrollVal, x: (e.clientX * 1.5) }
+		if(isHorizontal && !isMenu) {
 
-		document.addEventListener('mousemove', mouseMoveHandler)
-		document.addEventListener('mouseup', mouseUpHandler)
+			pos = { left: scrollVal, x: (e.clientX * 1.5) }
+
+			isMouseDown = true
+
+		}
+
 
     }
 
@@ -2098,22 +2194,25 @@ function journeyPage(){
 
 		if(isHorizontal && !isMenu) {
 
-			const dx = pos.left - ( (e.clientX * 1.5) - pos.x)
+			if(isMouseDown) {
+				const dx = pos.left - ( (e.clientX * 1.5) - pos.x)
 
-			scroll.scrollTo(dx, { duration: 1 })
+				scroll.scrollTo(dx, { duration: 1 })
+			}
 
 		}
 
 	}
 
     const mouseUpHandler = function () {
-		if(isHorizontal && !isMenu) {
-			document.removeEventListener('mousemove', mouseMoveHandler)
-			document.removeEventListener('mouseup', mouseUpHandler)
-		}
+
+		isMouseDown = false
+
     }
 
+	document.addEventListener('mousemove', mouseMoveHandler)
     document.addEventListener('mousedown', mouseDownHandler);
+	document.addEventListener('mouseup', mouseUpHandler)
 
 	tabsCarousel = new Flickity( '.monk_nav_items', {
 		prevNextButtons: false,
