@@ -54,7 +54,7 @@ let sizes = {
 	height: window.innerHeight
 }
 let vh = sizes.height * 0.01;
-let lastWindowWidth;
+let lastWindowWidth = 0;
 let vertexShader = `
 	varying vec2 vUv;
 	void main() {
