@@ -279,7 +279,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	// music()
+	music()
 
 	window.onblur = function(){
 
@@ -435,7 +435,6 @@ function onWindowResize() {
 
 	}
 
-	lastWindowWidth = sizes.width
 
 	clearTimeout(window.scrollUpdate);
 
@@ -475,6 +474,8 @@ function onWindowResize() {
 
 		// $('.scroll_fix').css({width: (sizes.width / 2) - ($('.jus_col:last').innerWidth() / 2) + 5})
 	}
+
+	lastWindowWidth = sizes.width
 
 }
 
@@ -2032,7 +2033,8 @@ function enColsFlic() {
 };
 
 var isHorizontal = -1,
-	isFirstBuild = true;
+	isFirstBuild = true,
+	resizing = false;
 
 function journeyScroll(){
 
@@ -2086,6 +2088,13 @@ function journeyScroll(){
 				pageScroll(func);
 
 			});
+
+		}
+
+		if(sizes.width == lastWindowWidth) {
+			
+			resizing = true
+			$('.monk_nav_item.active').click()
 
 		}
 
@@ -2323,7 +2332,9 @@ function journeyPage(){
 
 		$(this).addClass('active')
 
-		scroll.scrollTo(offset, { duration: 200 })
+		scroll.scrollTo(offset, { duration: resizing ? 0 : 200, disableLerp: resizing ? true : false })
+
+		resizing = false
 
 	})
 
