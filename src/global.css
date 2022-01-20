@@ -603,9 +603,15 @@ header.opened .menu_label span:first-child {
 	h3 {
 		font-size: 22vw;
 	}
+	.ju_head h3 {
+		font-size: 22vw !important;
+	}
 	h6,
 	.alt_h2 {
 		font-size: 7vw;
+	}
+	.ju_head .alt_h2 {
+		font-size: 7vw !important;
 	}
 	h5 {
 		font-size: 8vw;
@@ -620,6 +626,10 @@ header.opened .menu_label span:first-child {
 	.small {
 		font-size: 2.7vw;
 		line-height: 2.8vw;
+	}
+	.ju_text .small {
+		font-size: 2.7vw !important;
+		line-height: 2.8vw !important;
 	}
 	.medium {
 		font-size: 5vw;
@@ -663,6 +673,9 @@ header.opened .menu_label span:first-child {
 	h3 {
 		font-size: 26vw;
 	}
+	.ju_head h3 {
+		font-size: 26vw !!important;
+	}
 	h5 {
 		font-size: 16vw;
 	}
@@ -670,13 +683,20 @@ header.opened .menu_label span:first-child {
 	h6 {
 		font-size: 8vw;
 	}
+	.ju_head .alt_h2 {
+		font-size: 8vw !important;
+	}
 	.alt_h3 {
 		font-size: 7vw;
 		letter-spacing: -.3vw;
 	}
 	.small {
 		font-size: 3.7vw;
-		line-height: 3.8vw;
+		line-height: 4.1vw;
+	}
+	.ju_text .small {
+		font-size: 3.7vw !important;
+		line-height: 3.8vw !important;
 	}
 	.header_set {
 		padding: 15px 25px;
