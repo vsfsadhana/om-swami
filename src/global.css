@@ -170,6 +170,7 @@ h2 {
 
 h3 {
 	font-size: 9.79vw;
+	letter-spacing: -0.15vw;
 }
 
 h5 {
@@ -607,6 +608,7 @@ header.opened .menu_label span:first-child {
 	}
 	.ju_head h3 {
 		font-size: 22vw !important;
+		letter-spacing: -0.7vw !important;
 	}
 	h6,
 	.alt_h2 {
@@ -676,7 +678,7 @@ header.opened .menu_label span:first-child {
 		font-size: 26vw;
 	}
 	.ju_head h3 {
-		font-size: 26vw !!important;
+		font-size: 26vw !important;
 	}
 	h5 {
 		font-size: 16vw;
@@ -697,8 +699,9 @@ header.opened .menu_label span:first-child {
 		line-height: 4.1vw;
 	}
 	.ju_text .small {
-		font-size: 3.7vw !important;
-		line-height: 3.8vw !important;
+		font-size: 4.7vw !important;
+		line-height: 4.8vw !important;
+		letter-spacing: -0.1vw !important;
 	}
 	.header_set {
 		padding: 15px 25px;

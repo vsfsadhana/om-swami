@@ -98,6 +98,7 @@ var page = $('body').attr('id'),
 	isScroll,
 	scrollVal = 0,
 	scrollStopped,
+	cerchio,
 	siteIntrvl,
 	vh,
 	isSafari,
@@ -278,7 +279,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -471,6 +472,8 @@ function onWindowResize() {
 	} else if(page == 'journey') {
 
 		journeyScroll()
+
+		// $('.scroll_fix').css({width: (sizes.width / 2) - ($('.jus_col:last').innerWidth() / 2) + 5})
 	}
 
 }
@@ -979,6 +982,53 @@ function globalFunc(){
 		}
 
 	})
+
+	if(!isMobile){
+
+		cerchio = document.querySelectorAll('.mg');
+
+		cerchio.forEach(function(elem){
+			$(document).on('mousemove', function(e){
+				magnetize(elem, e);
+			});
+		})
+
+		function magnetize(el, e){
+
+		  var mX = e.pageX,
+		      mY = e.pageY;
+		  const item = $(el);
+		  
+		  const customDist = item.data('dist') * 20 || 120;
+		  const centerX = item.offset().left + (item.width()/2);
+		  const centerY = item.offset().top + (item.height()/2);
+		  
+		  var deltaX = Math.floor((centerX - mX)) * -0.45;
+		  var deltaY = Math.floor((centerY - mY)) * -0.45;
+		  
+		  var distance = calculateDistance(item, mX, mY);
+		    
+		  if(distance < customDist){
+		  	if(item.hasClass('mg')) {
+		    	gsap.to(item, 0.5, {y: deltaY, x: deltaX, scale:1.1});
+		    	item.addClass('magnet');
+		    }
+		  }
+		  else {
+		    gsap.to(item, 0.6, {y: 0, x: 0, scale:1});
+		    item.removeClass('magnet');
+		  }
+		}
+
+		function calculateDistance(elem, mouseX, mouseY) {
+		  return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+		}
+
+		function lerp(a, b, n) {
+		    return (1 - n) * a + n * b
+		}
+
+	}
 
 	if(page == 'monk') {
 
@@ -2107,7 +2157,7 @@ function journeyScroll(){
 
 let tagSection = $('.jus_tab'),
 	tabsCarousel,
-	current;
+	current = false;
 
 function tagsAdj() {
 
@@ -2117,17 +2167,35 @@ function tagsAdj() {
 
 		if(isHorizontal) {
 
-			if($this.offset().left <= 300) {
+			if(i >= tagSection.length-2) {
 
-				$this.addClass('active')
+				if($this.offset().left <= (sizes.width) - $this.innerWidth()) {
+					$this.addClass('active')
 
-				current = $('.jus_tab.active:last');
+					current = $('.jus_tab.active:last');
+
+				} else {
+
+					$('.jus_tab, .monk_nav_item').removeClass('active')
+
+				}
 
 			} else {
 
-				$this.removeClass('active')
+				if($this.offset().left <= (sizes.width/2) - ($this.innerWidth()/2)) {
+
+					$this.addClass('active')
+
+					current = $('.jus_tab.active:last');
+
+				} else {
+
+					$('.jus_tab, .monk_nav_item').removeClass('active')
+
+				}
 
 			}
+
 
 		} else {
 
@@ -2148,6 +2216,7 @@ function tagsAdj() {
 	})
 
 	if(current) {
+
 		let id = current.attr('id');
 
 		if($('.monk_nav_item:not([data-id='+id+'])').hasClass('active')) {
@@ -2157,6 +2226,12 @@ function tagsAdj() {
 		if(!$('.monk_nav_item[data-id='+id+']').hasClass('active')) {
 			$('.monk_nav_item[data-id='+id+']').addClass('active')
 		}
+
+		if(isHorizontal) {
+
+			current = false
+		}
+
 	}
 
 	if(tabsCarousel) { tabsCarousel.select( $('.monk_nav_item.active:last').index(), false) }
@@ -2224,13 +2299,37 @@ function journeyPage(){
 
 	$('.monk_nav_item').on('click', function(){
 
-		var index = $(this).attr('data-id')
+		var index = $(this).index(),
+			id = $(this).attr('data-id'),
+			offset;
+
+		if(isHorizontal) {
+
+			if(index >= $('.monk_nav_item').length-2) {
+
+				offset = scrollVal + $('#' + id).offset().left - (sizes.width) + ($('#' + id).innerWidth()) + 3
+
+			} else {
+
+				offset = scrollVal + $('#' + id).offset().left - (sizes.width/2) + ($('#' + id).innerWidth()/2) + 3
+
+			}
+
+		} else {
+			offset = scrollVal + $('#' + id).offset().top - (sizes.width/2) + ($('#' + id).innerHeight()/2) + 5
+		}
 
 		$('.monk_nav_item').removeClass('active')
 
 		$(this).addClass('active')
 
-		scroll.scrollTo('#' + index, { duration: 200 })
+		scroll.scrollTo(offset, { duration: 200 })
+
+	})
+
+	$('.anchor_btn').on('click', function(){
+
+		$('.monk_nav_item').eq(0).click()
 
 	})
 
