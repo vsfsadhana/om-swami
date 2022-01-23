@@ -201,7 +201,7 @@ p,
 .medium,
 .large,
 .small {
-	line-height: 110%;
+	line-height: 117%;
 }
 
 .thin {
@@ -288,7 +288,7 @@ header {
 	left: 0;
 	right: 0;
 	top: 0;
-	z-index: 99;
+	z-index: 699;
 }
 
 header.loaded {
@@ -390,8 +390,9 @@ header.light {
 }
 
 body.isDesktop .site_button:hover .sb_inner,
+body.isDesktop .site_button.hover .sb_inner,
 body.isDesktop.site_button.active .sb_inner {
-	transform: scaleX(1.3);
+	transform: scaleX(1.15);
 }
 
 .button_label_set {
@@ -670,6 +671,9 @@ header.opened .menu_label span:first-child {
 }
 
 @media (max-width: 500px){
+	body {
+		font-size: 17px;
+	}
 	h2 {
 		font-size: 18vw;
 		letter-spacing: -.5vw;
@@ -686,6 +690,9 @@ header.opened .menu_label span:first-child {
 	.alt_h2,
 	h6 {
 		font-size: 8vw;
+	}
+	p {
+		font-size: 4.4vw;
 	}
 	.ju_head .alt_h2 {
 		font-size: 8vw !important;

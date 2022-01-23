@@ -48,6 +48,12 @@ module.exports = {
             chunks: ['inners'],
             minify: true
         }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/author.html'),
+            filename: 'author.html',
+            chunks: ['inners'],
+            minify: true
+        }),
         new MiniCSSExtractPlugin()
     ],
     module:
