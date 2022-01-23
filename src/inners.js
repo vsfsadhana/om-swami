@@ -505,6 +505,8 @@ function onWindowResize() {
 
 		if(!authorStarted) {
 
+			authorStarted = true
+
 			fillWrap(nGridInner)
 
 			setBooks()
