@@ -1547,11 +1547,6 @@ body.opened:not(.progress) .n_grid_blocks.split .au_grid_box:not(.no-transition)
 	position: relative;
 }
 
-.isMobile .n_grid_inner {
-	width: 1800px;
-	height: 1600px;
-}
-
 .n_grid {
 	width: 100vw;
 	height: calc(var(--vh,1vh) * 100);
