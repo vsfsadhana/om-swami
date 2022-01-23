@@ -1535,7 +1535,7 @@ body.opened:not(.progress) .n_grid_blocks.split .au_grid_box:not(.no-transition)
 	overflow: hidden;
 }
 
-.isMobile .n_grid_wrap {
+.isMobile:not(.opened) .n_grid_wrap {
 	overflow: scroll;
 }
 
@@ -1618,7 +1618,7 @@ body.opened:not(.progress) .n_grid_blocks.split .au_grid_box:not(.no-transition)
 .split .sizeA.book9 {transform: translate(-1087px, 98px) scale(0.42);}
 .split .sizeA.book10 {transform: translate(-985px, 575px) scale(0.54);}
 
-/*.n_grid_blocks:not(.split) .sizeA.book1 {transform: rotate(15deg);}
+.n_grid_blocks:not(.split) .sizeA.book1 {transform: rotate(15deg);}
 .n_grid_blocks:not(.split) .sizeA.book2 {transform: rotate(5deg);}
 .n_grid_blocks:not(.split) .sizeA.book3 {transform: rotate(-15deg);}
 .n_grid_blocks:not(.split) .sizeA.book4 {transform: rotate(6deg);}
@@ -1643,7 +1643,7 @@ body.opened:not(.progress) .n_grid_blocks.split .au_grid_box:not(.no-transition)
 .n_grid_blocks:not(.split) .sizeB.book13 {transform: rotate(10deg);}
 .n_grid_blocks:not(.split) .sizeB.book14 {transform: rotate(11deg);}
 .n_grid_blocks:not(.split) .sizeB.book15 {transform: rotate(14deg);}
-*/
+
 .au_grid_side {
 	justify-content: flex-end;
 	position: relative;
