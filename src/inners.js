@@ -278,7 +278,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	// music()
+	music()
 
 	window.onblur = function(){
 
@@ -3427,10 +3427,6 @@ function staticPage(){
 			$('.faq_box:not(.active) .faq_body').stop().slideUp(200)
 
 		})
-
-		// .to('.faq_box.active .faq_body', 0.5, {scaleY: 1, ease: 'power3.Out'}, 0)
-
-		// faqTL.to('.faq_box:not(.active) .faq_body', 0.5, {scaleY: 0, ease: 'power3.Out'}, 0)
 
 		.to('.faq_box.active .faq_body p', 0.5, {autoAlpha: 1, ease: 'power3.Out'}, 0)
 
