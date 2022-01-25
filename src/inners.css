@@ -2907,11 +2907,14 @@ body.opened .author_nav_set {
 		letter-spacing: -1vw;
 	}
 	.section_side {
-		padding-right: 0;
-		padding-left: 0;
+		padding-left: 0!important;
+		padding-right: 0!important;
+		margin-right: 0 !important;
+		margin-left: 0 !important;
 	}
 	#contact .section_side h1 {
 		font-size: 35vw;
+		margin-bottom: 3vw;
 	}
 	.section_sides_set.wide .alt_font {
 		margin-bottom: -3vw;
