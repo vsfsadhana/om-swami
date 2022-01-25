@@ -860,7 +860,7 @@ body[data-id='4'] .en_sec_col h6 {
 }
 
 .getContent {
-	display: none;
+	/*display: none;*/
 }
 
 #monk .getContent {
@@ -1911,6 +1911,10 @@ body.opened .author_nav_set {
 
 .faq_arrow {
 	right: 25px;
+}
+
+.faq_arrow svg {
+	width: 38px;
 }
 
 .faq_box.active .faq_arrow {

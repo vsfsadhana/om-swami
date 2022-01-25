@@ -12,6 +12,13 @@ import monkContent2 from './monk2.html'
 import monkContent3 from './monk3.html'
 import monkContent4 from './monk4.html'
 
+import enContent1 from './en1.html'
+import enContent2 from './en2.html'
+import enContent3 from './en3.html'
+import enContent4 from './en4.html'
+import enContent5 from './en5.html'
+import enContent6 from './en6.html'
+
 var Flickity = require('flickity');
 
 gsap.config({
@@ -278,7 +285,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -1845,6 +1852,29 @@ function entrepreneurPage(){
 
 		if(!isDragging && !isEntrepreneurActive && !$('body').hasClass('wait')) {
 
+			var activeIndex = $(this).index()
+
+			switch(activeIndex) {
+				case 0:
+				$('.getContent').html(enContent1);
+				break;
+				case 1:
+				$('.getContent').html(enContent2);
+				break;
+				case 2:
+				$('.getContent').html(enContent3);
+				break;
+				case 3:
+				$('.getContent').html(enContent4);
+				break;
+				case 4:
+				$('.getContent').html(enContent5);
+				break;
+				case 5:
+				$('.getContent').html(enContent6);
+				break;
+			}
+
 			isEntrepreneurActive = true;
 
 			$(this).addClass('no-tranist')
@@ -1933,7 +1963,7 @@ function entrepreneurPage(){
 
 	})
 
-	function showContent(){
+	function showContent(index){
 
 		// appendImgs(false)
 
