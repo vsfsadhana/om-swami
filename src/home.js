@@ -169,6 +169,8 @@ function support_format_webp(img) {
 	if (!!(elem.getContext && elem.getContext('2d'))) { return img.substr(0, img.lastIndexOf(".")) + ".webp" } else { return img}
 }
 
+var glProgTL = new gsap.timeline({paused: true});
+
 function fire() {
 
 	var fireTL = new gsap.timeline();
@@ -236,6 +238,7 @@ function fire() {
 	})
 
 
+
 	$('.clouds .site_button').click(function(){
 
 		if(!$('body').hasClass('wait')) {
@@ -274,6 +277,8 @@ function fire() {
 
 				canScroll = true;
 
+				glProgTL.play()
+
 			})
 		}
 
@@ -308,7 +313,7 @@ function fire() {
 	})
 
 	if(isMobile) {
-		$('.tip').html('Swipe to navigate')
+		$('.tip > span').html('Swipe to navigate')
 	}
 }
 
@@ -433,7 +438,7 @@ function init() {
 
 	})
 
-	.to('.lb_set, .tip', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
+	.to('.lb_set, .tip > span', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
 
 	.to(transitionParams, 2, {transition2: 1, ease: 'power3.inOut'}, 0)
 
@@ -733,11 +738,11 @@ function initPlans() {
 
 			mainTL = new gsap.timeline();
 
-				gsap.to('.lb_set, .tip', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+				gsap.to('.lb_set, .tip > span', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					$('.tip').remove();
+					// $('.tip').remove();
 
-					setText('Bestselling','Author', 'scene_a', 'scene_b')
+					setText('author.html','Author', 'scene_a', 'scene_b')
 
 				}}, 0)
 
@@ -796,7 +801,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('Spiritual','Journey', 'scene_b', 'scene_c')
+					setText('journey.html','Journey', 'scene_b', 'scene_c')
 
 				}}, 0)
 
@@ -849,7 +854,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('Serial','Entrepreneur', 'scene_c', 'scene_d')
+					setText('entrepreneur.html','Entrepreneur', 'scene_c', 'scene_d')
 
 				}}, 0)
 
@@ -884,7 +889,65 @@ function initPlans() {
 				setActive(4)
 
 			})
+
+		},
+
+		sec1: function() {
+
+			if(mainTL) {mainTL.kill()}
+
+			mainTL = new gsap.timeline();
+
+			mainTL
+
+			.timeScale( 1.2 )
+
+			.call(function(){
+
+				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.in", onComplete: function(){
+
+					setText('author.html','Author', 'scene_a', 'scene_b')
+
+				}}, 0)
+
+			})
+
+			.to(transitionParams, 0.5, {sceneD: 0, ease: 'power3.in', onUpdate: function(val){
+
+				canRenderB = true;
+
+				resetScene(1)
+				resetScene(2)
+				resetScene(3)
+				resetScene(4)
+
+				transitionParams.transition = 1
+
+				setOpacity(4, transitionParams.sceneD)
+
+
+			}}, 0)
+
+			.to(transitionParams, 0.5, {sceneA: 1, ease: 'power3.out', onUpdate: function(val){
+
+				setOpacity(1, transitionParams.sceneA)
+
+
+			}}, 0.5)
+
+			.call(function(){
+
+				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+
+				setOpacity(2, 0)
+
+				setActive(1)
+
+			})
+
 		}
+
+
 	}
 
 
@@ -910,7 +973,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('Unconventional','Monk', 'scene_b', 'scene_a')
+					setText('monk.html','Monk', 'scene_b', 'scene_a')
 
 				}}, 0)
 
@@ -955,7 +1018,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('Bestselling','Author', 'scene_c', 'scene_b')
+					setText('author.html','Author', 'scene_c', 'scene_b')
 
 				}}, 0)
 
@@ -1007,7 +1070,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('Bestselling','Author', 'scene_c', 'scene_b')
+					setText('author.html','Author', 'scene_c', 'scene_b')
 
 				}}, 0)
 
@@ -1049,6 +1112,8 @@ function initPlans() {
 
 			if(canScroll) {
 
+				glProgTL.pause()
+
 				canScroll = false
 
 				var direction = (function () {
@@ -1081,6 +1146,8 @@ function initPlans() {
 
 			if(canScroll) {
 
+				glProgTL.pause()
+
 				ts = e.originalEvent.touches[0].clientY;
 
 			}
@@ -1090,6 +1157,8 @@ function initPlans() {
 		$(window).on('touchend', function (e){
 
 			if(canScroll) {
+
+				glProgTL.pause()
 
 				var te = e.originalEvent.changedTouches[0].clientY;
 
@@ -1113,6 +1182,13 @@ function initPlans() {
 
 	}
 
+	glProgTL.fromTo('#gl_progress i', 8, {scaleX: 0}, {scaleX: 1, ease: "power0.none"})
+
+	.call(function(){
+
+		getSection('next')
+
+	})
 
 	function getSection(dir){
 
@@ -1130,8 +1206,9 @@ function initPlans() {
 
 				next.sec4()
 
-			} else {
+			} else if(activeSection == 4){
 
+				// next.sec1()
 				canScroll = true
 
 			}
@@ -1150,8 +1227,9 @@ function initPlans() {
 
 				prev.sec1()
 
-			} else {
+			} else if(activeSection == 1){
 
+				// prev.sec4()
 				canScroll = true
 
 			}
@@ -1166,6 +1244,11 @@ function setActive(number) {
 
 	activeSection = number;
 	canScroll = true
+
+	$('#counter').html(activeSection + '/4')
+
+	glProgTL.restart()
+
 }
 
 function resetScene(number) {
@@ -1177,7 +1260,7 @@ function resetScene(number) {
 
 function setText(a, b, oldClass, newClass) {
 
-	$('.lb_text span').html(a)
+	$('.lb_set').attr('href', a)
 
 	$('.lb_text strong').html(b)
 
