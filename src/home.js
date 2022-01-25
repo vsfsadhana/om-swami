@@ -438,7 +438,7 @@ function init() {
 
 	})
 
-	.to('.lb_set, .tip > span', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
+	.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
 
 	.to(transitionParams, 2, {transition2: 1, ease: 'power3.inOut'}, 0)
 
@@ -738,7 +738,7 @@ function initPlans() {
 
 			mainTL = new gsap.timeline();
 
-				gsap.to('.lb_set, .tip > span', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
 					// $('.tip').remove();
 
