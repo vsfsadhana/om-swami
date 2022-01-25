@@ -47,7 +47,9 @@ html {
 	height: 100%;
 }
 
-body {
+body,
+input,
+textarea {
 	font-family: 'Mondia';
 	font-size: 20px;
 	line-height: 1;
@@ -686,6 +688,9 @@ header.opened .menu_label span:first-child {
 	}
 	h5 {
 		font-size: 16vw;
+	}
+	.alt_h1 {
+		font-size: 9vw;
 	}
 	.alt_h2,
 	h6 {

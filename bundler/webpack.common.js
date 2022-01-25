@@ -54,6 +54,18 @@ module.exports = {
             chunks: ['inners'],
             minify: true
         }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/contact.html'),
+            filename: 'contact.html',
+            chunks: ['inners'],
+            minify: true
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/faq.html'),
+            filename: 'faq.html',
+            chunks: ['inners'],
+            minify: true
+        }),
         new MiniCSSExtractPlugin()
     ],
     module:

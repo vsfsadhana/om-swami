@@ -278,7 +278,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -1144,6 +1144,10 @@ function globalFunc(){
 	} else if(page == 'author') {
 
 		authorPage()
+
+	} else {
+
+		staticPage()
 
 	}
 
@@ -2263,8 +2267,6 @@ function journeyScroll(){
 	isFirstBuild = false
 
 }
-
-
 
 let tagSection = $('.jus_tab'),
 	tabsCarousel,
@@ -3391,6 +3393,63 @@ function authorPage(){
 
 }
 
+function staticPage(){
+
+	canHideHeader = true;
+
+	var faqTL;
+
+	$('.faq_head').click(function(){
+
+		var box = $(this).closest('.faq_box')
+
+		if(!box.hasClass('active')) {
+
+			$('.faq_box').removeClass('active')
+
+			box.addClass('active')
+
+		} else {
+
+			$('.faq_box').removeClass('active')
+		}
+
+		if(faqTL) {faqTL.kill()}
+
+		faqTL = new gsap.timeline()
+
+		faqTL
+
+		.call(function(){
+
+			$('.faq_box.active .faq_body').stop().slideDown(200)
+
+			$('.faq_box:not(.active) .faq_body').stop().slideUp(200)
+
+		})
+
+		// .to('.faq_box.active .faq_body', 0.5, {scaleY: 1, ease: 'power3.Out'}, 0)
+
+		// faqTL.to('.faq_box:not(.active) .faq_body', 0.5, {scaleY: 0, ease: 'power3.Out'}, 0)
+
+		.to('.faq_box.active .faq_body p', 0.5, {autoAlpha: 1, ease: 'power3.Out'}, 0)
+
+		.to('.faq_box:not(.active) .faq_body p', 0.5, {autoAlpha: 0, ease: 'power3.Out'}, 0)
+
+		.call(function(){
+
+
+		})
+
+	})
+
+
+	$('.input_check').click(function(){
+		var checkBox = $(this).find('.checkbox')
+
+		checkBox.hasClass('active') ? checkBox.removeClass('active') : checkBox.addClass('active')
+	})
+}
 
 
 
