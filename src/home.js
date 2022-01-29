@@ -247,7 +247,7 @@ function fire() {
 
 			$(this).addClass('active')
 
-			// music()
+			music()
 
 			var vanishTL = new gsap.timeline();
 

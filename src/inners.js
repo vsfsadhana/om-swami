@@ -372,7 +372,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	// music()
+	music()
 
 	window.onblur = function(){
 
