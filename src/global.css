@@ -735,7 +735,7 @@ header.opened .menu_label span:first-child {
 	.menu_items li h5 {
 		font-size: 70px;
 	}
-	.site_button {
+	.site_button.menu_button {
 		width: 114px;
 	}
 }

@@ -367,7 +367,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -2046,10 +2046,10 @@ function entrepreneurPage(){
 					}
 				})
 
-				gsap.to(selected, 0.3, {width: parseFloat(40 * sizes.height) / 100, ease: 'power3.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
+				gsap.to(selected, 0.7, {width: parseFloat(40 * sizes.height) / 100, ease: 'power4.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
+					enCarousel.resize()
 					$('.en_col_set').removeClass('bigger').css('width', '')
 					selected.addClass('bigger')
-					enCarousel.resize()
 				} })
 
 			})

@@ -148,11 +148,11 @@ header.invisble .header_set {
 }
 
 .en_shape.shape_a {
-	left: -25%;
+	left: -400px;
 }
 
 .en_shape.shape_b {
-	right: -25%;
+	right: -400px;
 }
 
 .en_shape img {
@@ -2157,7 +2157,7 @@ body.opened .author_nav_set {
 			left: 0%;
 		}
 		.en_col_set {
-			margin-top: 0 !important;
+			height: 55vh;
 		}
 	}
 }
@@ -2364,6 +2364,14 @@ body.opened .author_nav_set {
 	}
 	.en_shape.shape_a {
 		left: 0;
+	}
+	.en_head_wrap {
+		height: auto;
+		min-height: auto;
+	}
+	.en_head_set {
+		padding: 100px 0;
+		min-height: auto;
 	}
 	.en_head {
 		position: relative;
