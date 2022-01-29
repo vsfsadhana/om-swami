@@ -186,7 +186,7 @@ h6 {
 
 .alt_h1 {
 	font-size: 3.6vw;
-	letter-spacing: -0.26vw;
+	letter-spacing: -.04vw;
 }
 
 .alt_h2 {
@@ -655,8 +655,8 @@ header.opened .menu_label span:first-child {
 		padding-bottom: 100px;
 	}
 	.menu_item {
-		width: 80vw;
-		height: 91.8125vw;
+		height: 71.8125vw;
+		width: 62vw;
 	}
 	.sub_nav {
 		width: 100%;
@@ -678,7 +678,7 @@ header.opened .menu_label span:first-child {
 	}
 	h2 {
 		font-size: 18vw;
-		letter-spacing: -.5vw;
+		letter-spacing: -.2vw;
 	}
 	h3 {
 		font-size: 26vw;
@@ -690,11 +690,11 @@ header.opened .menu_label span:first-child {
 		font-size: 16vw;
 	}
 	.alt_h1 {
-		font-size: 9vw;
+		font-size: 8vw;
 	}
 	.alt_h2,
 	h6 {
-		font-size: 8vw;
+		font-size: 7vw;
 	}
 	p {
 		font-size: 4.4vw;
@@ -720,6 +720,10 @@ header.opened .menu_label span:first-child {
 	}
 	.equalizer {
 		margin-left: 20px;
+	}
+	.menu_item {
+		width: 80vw;
+		height: 91.8125vw;
 	}
 	.menu_items li {
 		min-height: 775px;

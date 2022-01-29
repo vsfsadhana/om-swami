@@ -8,6 +8,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 var Flickity = require('flickity');
 
+
 let container, fov, controls, scene, camera, camera2, renderer, renderer2, stats, gui, loadingManager, textureLoader;
 let activeSection = 1;
 let mouseX = 0;
@@ -39,6 +40,7 @@ let isMobile;
 let sceneGroup = [];
 let clock;
 let perspective = 800
+let meshT = 800
 let ratio = {
 	width: 1680,
 	height: 946
@@ -245,7 +247,7 @@ function fire() {
 
 			$(this).addClass('active')
 
-			music()
+			// music()
 
 			var vanishTL = new gsap.timeline();
 
@@ -314,6 +316,53 @@ function fire() {
 
 	if(isMobile) {
 		$('.tip > span').html('Swipe to navigate')
+	} else {
+
+		let cerchio = document.querySelectorAll('.mg');
+
+		cerchio.forEach(function(elem){
+			$(document).on('mousemove', function(e){
+				magnetize(elem, e);
+			});
+		})
+
+		function magnetize(el, e){
+
+			var getx = e.pageX,
+				getY = e.pageY;
+
+			const item = $(el);
+			const customDist = item.data('dist') * 20 || 120;
+			const centerX = item.offset().left + (item.width()/2);
+			const centerY = item.offset().top + (item.height()/2);
+
+			var deltaX = Math.floor((centerX - getx)) * -0.45;
+			var deltaY = Math.floor((centerY - getY)) * -0.45;
+
+			var distance = calculateDistance(item, getx, getY);
+
+			if(distance < customDist){
+
+				if(item.hasClass('mg')) {
+					gsap.to(item, 0.5, {y: deltaY, x: deltaX, scale:1.1});
+					item.addClass('magnet');
+				}
+
+			} else {
+				gsap.to(item, 0.6, {y: 0, x: 0, scale:1});
+				item.removeClass('magnet');
+			}
+		}
+
+		function calculateDistance(elem, mouseX, mouseY) {
+			return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+		}
+
+		function lerp(a, b, n) {
+			return (1 - n) * a + n * b
+		}
+
+
 	}
 }
 
@@ -564,8 +613,8 @@ function FXScene( clearColor, number ) {
 		if(transitionParams.transition2 < 1) {
 
 			if(isReady) {
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+				// camera.position.x += ( mouseX - camera.position.x ) * .05;
+				// camera.position.y += ( - mouseY - camera.position.y ) * .05;
 			}
 
 			if ( rtt ) {
@@ -738,13 +787,13 @@ function initPlans() {
 
 			mainTL = new gsap.timeline();
 
-				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+			gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					// $('.tip').remove();
+				// $('.tip').remove();
 
-					setText('author.html','Author', 'scene_a', 'scene_b')
+				setText('author.html','Author', 'scene_a', 'scene_b')
 
-				}}, 0)
+			}}, 0)
 
 			mainTL
 
@@ -1326,9 +1375,11 @@ function Transition( sceneA, sceneB, sceneC, sceneD ) {
 		fragmentShader: fragmentShader
 	});
 
-	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( ratio.width, ratio.height ), material );
+	meshT = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
 
-	scene.add( mesh );
+	meshT.scale.set(sizes.width, sizes.height, 1)
+
+	scene.add( meshT );
 
 	material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
 	material.uniforms.tDiffuse2.value = sceneB.fbo.texture;
@@ -1464,12 +1515,15 @@ function onWindowResize() {
 			renderer.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
 			renderer2.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
 		    camera.aspect = camera2.aspect = sizes.width/ (sizes.width / (ratio.width/ratio.height));
+		    console.log('1')
 		} else {
 			renderer.setSize( sizes.width, sizes.height );
 			renderer2.setSize( sizes.width, sizes.height );
 		    camera.aspect = camera2.aspect = sizes.width/ sizes.height;
+		    console.log('2')
 		}
 
+		meshT.scale.set(sizes.width, sizes.height, 1)
 		camera.updateProjectionMatrix();
 		camera2.updateProjectionMatrix();
 

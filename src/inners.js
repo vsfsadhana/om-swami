@@ -7,17 +7,27 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import LocomotiveScroll from 'locomotive-scroll';
 import {gsap} from 'gsap'
 import { SplitText } from "gsap/dist/SplitText";
-import monkContent1 from './monk1.html'
-import monkContent2 from './monk2.html'
-import monkContent3 from './monk3.html'
-import monkContent4 from './monk4.html'
+import AjaxPageLoader from '@lyssal/ajax-page-loader/lib/ajax-page-loader.amd';
 
-import enContent1 from './en1.html'
-import enContent2 from './en2.html'
-import enContent3 from './en3.html'
-import enContent4 from './en4.html'
-import enContent5 from './en5.html'
-import enContent6 from './en6.html'
+import header from './includes/header.html'
+import monkHTML from './monk/template.html'
+import authorHTML from './author/template.html'
+import entrepreneurHTML from './entrepreneur/template.html'
+import journeyHTML from './journey/template.html'
+import contactHTML from './contact/template.html'
+import faqHTML from './faq/template.html'
+
+import monkContent1 from './monk/views1.html'
+import monkContent2 from './monk/views2.html'
+import monkContent3 from './monk/views3.html'
+import monkContent4 from './monk/views4.html'
+
+import enContent1 from './entrepreneur/black-lotus-app/views.html'
+import enContent2 from './entrepreneur/serial-entrepreneur/views.html'
+import enContent3 from './entrepreneur/sadhana-app/views.html'
+import enContent4 from './entrepreneur/life-coaching/views.html'
+import enContent5 from './entrepreneur/wildr/views.html'
+import enContent6 from './entrepreneur/sri-badrika-ashram/views.html'
 
 var Flickity = require('flickity');
 
@@ -77,6 +87,8 @@ let fragmentShader = `
 `;
 
 var page = $('body').attr('id'),
+	dataID = $('body').attr('data-id'),
+	ajaxPageLoader,
 	width = window.innerWidth,
 	height = window.innerHeight,
 	lastWindowWidth = 0,
@@ -89,24 +101,79 @@ var page = $('body').attr('id'),
 	isButtonLoaded = false,
 	isButtonHidden = false,
 	imagesLoaded = false,
+	pageTitle,
 	splitWords = [],
 	splitLines = [],
 
-	enCarousel,
-	isEntrepreneurActive = false,
-
+	isHorizontal,
 	ts,
 	curX,
 	curY,
+	ajaxTL,
+	menuTL,
+	animationTL,
 	scroll,
-	isScroll,
 	scrollVal = 0,
 	scrollStopped,
-	cerchio,
 	siteIntrvl,
 	vh,
 	isSafari,
 	isMobile;
+
+
+$('body').append(header);
+
+switch(page) {
+	case 'monk':
+	$('#page').append(monkHTML);
+	break;
+	case 'author':
+	$('#page').append(authorHTML);
+	break;
+	case 'entrepreneur':
+	$('#page').append(entrepreneurHTML);
+	break;
+	case 'journey':
+	$('#page').append(journeyHTML);
+	break;
+	case 'contact':
+	$('#page').append(contactHTML);
+	break;
+	case 'faq':
+	$('#page').append(faqHTML);
+	break;
+}
+
+if(page == 'entrepreneur-inner') {
+
+	switch(dataID) {
+		case '1':
+		$('.reloadWrap').append(enContent1);
+		break;
+		case '2':
+		$('.reloadWrap').append(enContent2);
+		break;
+		case '3':
+		$('.reloadWrap').append(enContent3);
+		break;
+		case '4':
+		$('.reloadWrap').append(enContent4);
+		break;
+		case '5':
+		$('.reloadWrap').append(enContent5);
+		break;
+		case '6':
+		$('.reloadWrap').append(enContent6);
+		break;
+	}
+
+}
+ 
+window.addEventListener('popstate', function(event) {
+
+	window.location.href = window.location.pathname;
+
+}, false);
 
 
 (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ? isMobile = true : isMobile = false
@@ -237,17 +304,31 @@ function appendImgs(val){
 
 function pageReady() {
 
-	gsap.to(transitionParams, 2, {transition2: 0, ease: "power3.inOut", onComplete: function(){
+	gsap.to(transitionParams, 1, {transition2: 0, ease: 'power3.out', onComplete: function(){
 
 		isPageReady = true
 
 		$('body').removeClass('wait')
 
-		gsap.set('header', {className: '+=loaded'})
+		$('header').addClass('loaded')
+
+		animationTL.play()
 
 	}}, 0)
 
 	fire()
+
+}
+
+function fire(){
+
+	if(page != 'journey') { buildScroll(true); }
+
+	globalFunc()
+
+	$('.siteLoader').remove();
+
+	gsap.set('main, header', {autoAlpha: 1})
 
 }
 
@@ -260,6 +341,7 @@ function support_format_webp(img) {
 
 function init() {
 
+	ajaxPageLoader = new AjaxPageLoader();
 	loadingManager = new THREE.LoadingManager()
 	textureLoader = new THREE.TextureLoader(loadingManager)
 
@@ -312,6 +394,113 @@ function init() {
 			audio.play();
 		}
 	}
+
+	$('.main_logo').on('click', function () {
+
+		let $this = $(this),
+			link = $this.attr('href');
+
+		if(!$('body').hasClass('wait')) {
+
+			openLink(link, true)
+
+		}
+
+		return false;
+
+	})
+
+	ajaxPageLoader.setDefaultTarget('#page');
+
+	ajaxPageLoader.setAfterAjaxLoadingEvent((ajaxLink) => {
+
+		if(!$('body').hasClass('wait')) {
+
+			if(ajaxTL) { ajaxTL.kill() }
+
+			ajaxTL = new gsap.timeline();
+
+			const url = ajaxLink.getUrl();
+
+			global.history.pushState({}, null, url.substring(0,url.lastIndexOf("/")+1));
+
+			page = url.substring(0,url.lastIndexOf("/")).replace(/\//g, "")
+
+			appendImgs(false)
+
+			$('body').addClass('wait')
+
+			$('header').removeClass('opened')
+
+			$('.menu_items').removeClass('ready')
+
+			callPage()
+
+			ajaxTL
+
+			.to('.menu_wrap', 1, {autoAlpha: 0, ease: 'power3.in'}, 0)
+
+			.to(transitionParams, 1, {transition2: 0, ease: 'power3.out', onStart: function(){
+
+				gsap.set('main', {autoAlpha: 1})
+
+				$('body').removeClass('no-color')
+
+				$('.en_bg').css('background-color', '')
+
+			}, onUpdate:function(val){
+
+				if(this.progress() >= 0.5 ) {
+
+					$('header').removeClass('active light')
+
+				}
+
+			}}, 0.5)
+
+			.call(function(){
+
+				isMenu = false
+
+				$('body').removeClass('wait')
+
+				animationTL.play()
+
+				menu();
+
+			})
+
+
+			if(page != 'journey') { buildScroll(true); }
+
+			onWindowResize(null, true);
+
+			document.title = $('#getMeta').attr('data-title')
+
+			$('body').attr('id', page)
+
+		}
+
+	});
+
+}
+
+function openLink(url, isMain){
+
+	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; top: 0; z-index: 99999;visibility: hidden;"></div>')
+
+	if(isMain) {
+		$('.siteLoader').css('background', '#1F1F1F')
+	}
+
+	gsap.to(audioLevel, 0.5, {val: 0, onUpdate: function(){
+		if(isAudio && !isMuted) {
+			audio.volume = audioLevel.val
+		}
+	} });
+
+	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
+
 }
 
 function FXScene2( clearColor, number ) {
@@ -351,7 +540,7 @@ function Transition2( sceneEmpty, sceneMenu ) {
 
 	const scene = new THREE.Scene();
 
-	const textures = textureLoader.load( support_format_webp('images/transition2.png') );
+	const textures = textureLoader.load( support_format_webp('../../images/transition2.png') );
 
 	const material = new THREE.ShaderMaterial(
 	{
@@ -406,7 +595,15 @@ function onDocumentMouseMove( event ) {
 
 }
 
-function onWindowResize() {
+function onWindowResize(e, value) {
+
+	let val
+
+	if(value) {
+		val = value
+	} else {
+		val = false
+	}
 
 	sizes.width = window.innerWidth
 	sizes.height = window.innerHeight
@@ -427,7 +624,8 @@ function onWindowResize() {
 
 		if(sizes.width != lastWindowWidth) {
 
-			$('body').addClass('progress');
+
+			if(!val) { $('body').addClass('progress');}
 
 			setH();
 
@@ -436,8 +634,8 @@ function onWindowResize() {
 	} else {
 
 		setH();
-
-		$('body').addClass('progress');
+			
+		if(!val) { $('body').addClass('progress');  }
 
 	}
 
@@ -456,27 +654,11 @@ function onWindowResize() {
 
 	}
 
-	if(nGridWrap.length != 0) {
-
-		nGridReset();
-
-		if(isMobile) {
-
-			if(isFirstMove) {
-
-				isFirstMove = false;
-
-			}
-
-		}
-
-	}
-
 	clearTimeout(window.resizedFinished);
 
 	window.resizedFinished = setTimeout(function(){
 
-		$('body').removeClass('progress');
+		if(!val) { $('body').removeClass('progress') }
 
 		if(!isMobile) { setH(); }
 
@@ -484,61 +666,6 @@ function onWindowResize() {
 
 	}, 500);
 
-	if(page == 'entrepreneur') {
-
-		if(!isEntrepreneurActive){
-			enColsFlic()
-		}
-
-	} else if(page == 'journey') {
-
-		journeyScroll()
-
-	} else if(page == 'author'){
-
-		isStep = false;
-		galW = nGridWrap.outerWidth(true)
-		galH = nGridWrap.outerHeight(true)
-		galSW = nGridWrap[0].scrollWidth
-		galSH = nGridWrap[0].scrollHeight
-		wDiff = (galSW / galW) - 1
-		hDiff = (galSH / galH) - 1
-		mmAA = galW - (mPadd * 2)
-		mmAAr = (galW / mmAA)
-		mmBB = galH - (mPadd * 2)
-		mmBBr = (galH / mmBB)
-
-		authorFlic();
-
-		if(!authorStarted) {
-
-			authorStarted = true
-
-			fillWrap(nGridInner)
-
-			setBooks()
-
-		} else {
-
-			if($('.au_grid_box.moved').length != 0) {
-
-				$('.au_grid_box').each(function(){
-
-					var $this = $(this)
-
-					if(!$this.hasClass('active')) {
-
-						matchBoxes($this, true);
-
-					}
-
-				})
-
-			}
-
-		}
-
-	}
 
 	lastWindowWidth = sizes.width
 
@@ -581,7 +708,6 @@ function render() {
 
 	}
 
-
 	if(page == 'monk' && isPageReady) {
 
 		if(!isClicked) {
@@ -610,7 +736,9 @@ function render() {
 
 function music(){
 
-	audio = new Audio('music/music.mp3');
+	var isPlaying = false;
+
+	audio = new Audio('../../music/music.mp3');
 	audio.loop = true;
 
 	const promise = audio.play();
@@ -619,15 +747,35 @@ function music(){
 
 		promise.then(() => {
 
-			isAudio = true;
-
-			isMuted = false;
-
-			$('.equalizer').addClass('active')
+			playing()
 
 		}).catch(error => {
 
+			$('body').click(function(){
+
+				if(!isPlaying) {
+
+					playing()
+
+					audio.play()
+
+				}
+
+			})
+
 		});
+	}
+
+	function playing() {
+
+		isAudio = true;
+
+		isMuted = false;
+
+		isPlaying = true
+
+		$('.equalizer').addClass('active')
+
 	}
 
 	$('.equalizer').click(function(){
@@ -653,37 +801,10 @@ function music(){
 	})
 }
 
-function fire(){
-
-	if(page != 'journey') { buildScroll(true); }
-
-	globalFunc()
-
-	$('.siteLoader').remove();
-
-	gsap.set('main, header', {autoAlpha: 1})
-
-}
-
-function openLink(url, isMain){
-
-	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; top: 0; z-index: 99999;visibility: hidden;"></div>')
-
-	if(isMain) {
-		$('.siteLoader').css('background', '#1F1F1F')
-	}
-
-	gsap.to(audioLevel, 0.5, {val: 0, onUpdate: function(){
-		if(isAudio && !isMuted) {
-			audio.volume = audioLevel.val
-		}
-	} });
-
-	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: "power3.out", onComplete: function(){ setTimeout(function(){ location.href = url; }, 500) } });
-
-}
 
 function buildScroll(val){
+
+	if(scroll) {scroll.destroy()}
 
 	scroll = new LocomotiveScroll(
 	{
@@ -701,21 +822,15 @@ function buildScroll(val){
 		}
 	});
 
-	isScroll = true;
+	scroll.on('scroll', (func, speed) => {
 
-	if(val) {
+		if(val && canHideHeader) {
+			pageScroll(func);
+		}
 
-		scroll.on('scroll', (func, speed) => {
+	});
 
-			if(canHideHeader) {
-				pageScroll(func);
-			}
-
-		});
-
-	}
-
-};
+}
 
 function pageScroll(val){
 
@@ -767,20 +882,7 @@ function pageScroll(val){
 
 	}
 
-	if(page == 'journey') {
-
-		if(isHorizontal == false) {
-
-			scrollVal = 0
-
-			if(val != 0 ) {
-
-				scrollVal = val.scroll.y;
-
-			}
-		}
-
-	} else {
+	if(page != 'journey') {
 
 		scrollVal = 0
 
@@ -789,31 +891,6 @@ function pageScroll(val){
 			scrollVal = val.scroll.y;
 
 		}
-
-		if(page == 'author') {
-
-			if($('.au_grid_box.moved').length != 0) {
-
-				$('.au_grid_box').each(function(){
-
-					var $this = $(this)
-
-					if(!$this.hasClass('active')) {
-
-						if(sizes.width > 1000) {
-							matchBoxes($this, true);
-						}
-
-					} else {
-						setActive(false)
-					}
-
-				})
-
-			}
-
-		}
-
 
 	}
 
@@ -844,15 +921,15 @@ function split($this, getWords, getLines, i) {
 
 		if(getWords.length != 0) {
 			splitWords[i] = new SplitText(getWords, {type:"words", wordsClass:"SplitClass"});
-			gsap.set(getWords, {autoAlpha: 1, delay: 0.3})
+			gsap.set(getWords, {autoAlpha: 1})
 			if(getWords.hasClass('dirX')) {
 				gsap.set(splitWords[i].words, { x: 20, autoAlpha: 0})
-				gsap.to(splitWords[i].words, 0.5, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.3, stagger: 0.1, onComplete: function(){
+				gsap.to(splitWords[i].words, 0.5, { x: 0, autoAlpha: 1, ease: 'power3.out', stagger: 0.1, onComplete: function(){
 					splitWords[i].revert()
 				} })
 			} else {
 				gsap.set(splitWords.words, { y: 20, autoAlpha: 0})
-				gsap.to(splitWords.words, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.3, stagger: 0.1, onComplete: function(){
+				gsap.to(splitWords.words, 0.5, { y: 0, autoAlpha: 1, ease: 'power3.out', stagger: 0.1, onComplete: function(){
 					splitWords[i].revert()
 				} })
 			}
@@ -862,7 +939,7 @@ function split($this, getWords, getLines, i) {
 			gsap.set(getLines, {autoAlpha: 1, delay: 0.5})
 			splitLines[i] = new SplitText(getLines, {type:"lines", linesClass:"SplitClass"});
 			gsap.set(splitLines[i].lines, { y: 20, autoAlpha: 0})
-			gsap.to(splitLines[i].lines, 0.5, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.5, stagger: 0.1, onComplete: function(){
+			gsap.to(splitLines[i].lines, 0.5, { y: 0, autoAlpha: 1, ease: 'power3.out', delay: 0.5, stagger: 0.1, onComplete: function(){
 				splitLines[i].revert()
 			} })
 		}
@@ -880,13 +957,13 @@ function animateEle($this, eleY, eleX) {
 
 		if(eleY.length != 0) {
 			gsap.set(eleY, { y: 100, autoAlpha: 0})
-			gsap.to(eleY, 1, { y: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+			gsap.to(eleY, 1, { y: 0, autoAlpha: 1, ease: 'power3.out', delay: 0.4, stagger: 0.15 })
 		}
 
 		if(eleX.length != 0) {
 
 			gsap.set(eleX, { x: 100, autoAlpha: 0})
-			gsap.to(eleX, 1, { x: 0, autoAlpha: 1, ease: "power3.out", delay: 0.4, stagger: 0.15 })
+			gsap.to(eleX, 1, { x: 0, autoAlpha: 1, ease: 'power3.out', delay: 0.4, stagger: 0.15 })
 		}
 	}
 
@@ -894,31 +971,58 @@ function animateEle($this, eleY, eleX) {
 
 function flickity_handle_wheel_event(e, flickity_instance) {
 
-	var normalized;
+	window.wheeldelta = {}
 
-	if (event.wheelDelta) {
+	if (!window.wheeling) {
 
-		normalized = (event.wheelDelta % 120 - 0) == -0 ? event.wheelDelta / 120 : event.wheelDelta / 12;
+		if(e.deltaX > 0 || e.deltaY < 0){
 
-	} else {
+			flickity_instance.previous();
 
-		var rawAmmount = event.deltaY ? event.deltaY : event.detail;
+		} else if(e.deltaX < 0 || e.deltaY > 0){
 
-		normalized = -(rawAmmount % 3 ? rawAmmount * 10 : rawAmmount / 3);
+			flickity_instance.next();
+
+		}
 
 	}
 
-	normalized < 0 ? flickity_instance.next() : flickity_instance.previous();
+	clearTimeout(window.wheeling);
+
+	window.wheeling = setTimeout(function() {
+
+		delete window.wheeling;
+
+		window.wheeldelta.x = 0;
+		window.wheeldelta.y = 0;
+
+	}, 50);
+
+	window.wheeldelta.x += e.deltaFactor * e.deltaX;
+	window.wheeldelta.y += e.deltaFactor * e.deltaY;
+
+	if(window.wheeldelta.x > 500 || window.wheeldelta.y > 500 || window.wheeldelta.x < -500 || window.wheeldelta.y < -500){
+
+		window.wheeldelta.x = 0;
+		window.wheeldelta.y = 0;
+
+		if(e.deltaX > 0 || e.deltaY < 0){
+			flickity_instance.previous();
+		} else if(e.deltaX < 0 || e.deltaY > 0){
+			flickity_instance.next();
+		}
+
+	}
 
 	isDragging = false;
 
 }
 
-function globalFunc(){
+function menu(){
 
-	// Menu
+	if(menuTL) { menuTL.kill() }
 
-	var menuTL = new gsap.timeline({paused: true});
+	menuTL = new gsap.timeline({paused: true});
 
 	menuTL
 
@@ -930,7 +1034,7 @@ function globalFunc(){
 
 	.set('.menu_wrap', {autoAlpha: 1}, 0)
 
-	.to(transitionParams, 2, {transition2: 1, ease: "power3.inOut", onStart: function(){
+	.to(transitionParams, 2, {transition2: 1, ease: 'power3.inOut', onStart: function(){
 
 	}, onUpdate:function(val){
 
@@ -948,7 +1052,7 @@ function globalFunc(){
 
 	.set('.sub_nav', {autoAlpha: 1}, 0)
 
-	.staggerFrom('.sub_nav ._ele', 0.5, {y: 30, autoAlpha: 0, ease: "power3.out"}, 0.05, 1)
+	.staggerFrom('.sub_nav ._ele', 0.5, {y: 30, autoAlpha: 0, ease: 'power3.out'}, 0.05, 1)
 
 	.call(function(){
 
@@ -956,9 +1060,9 @@ function globalFunc(){
 
 	})
 
-	.staggerFrom('.menu_items li a', 0.7, {x: 200, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+	.staggerFrom('.menu_items li a', 0.7, {x: 200, autoAlpha: 0, ease: 'power3.out'}, 0.1, 0.8)
 
-	.staggerFrom('.menu_items li ._ele', 0.7, {y: 50, autoAlpha: 0, ease: "power3.out"}, 0.1, 0.8)
+	.staggerFrom('.menu_items li ._ele', 0.7, {y: 50, autoAlpha: 0, ease: 'power3.out'}, 0.1, 0.8)
 
 	$('.isDesktop .menu_items a').on('mousemove', function(){
 
@@ -997,6 +1101,12 @@ function globalFunc(){
 
 	})
 
+}
+
+function globalFunc(){
+
+	menu();
+
 	$('.menu_button').click(function(){
 
 		if(!isMenu && !$('body').hasClass('wait')) {
@@ -1030,67 +1140,25 @@ function globalFunc(){
 		contain: true
 	});
 
-	document.onwheel = function(e) {
+	function wheel(e){
 
-		if(isMenu) {
-
-			flickity_handle_wheel_event(e, menuCur);
-
-		} else {
-
-			if(page == 'author') {
-				if(inBound && sizes.width <= 1000) {
-					flickity_handle_wheel_event(e, authorCarousel);
-				}
-			}
-
-		}
-
+		if(isMenu) { flickity_handle_wheel_event(e, menuCur) }
 	}
 
-	menuCur.on( 'dragStart', function( event, pointer ) {
+	document.addEventListener('wheel', wheel);
 
-		isDragging = true;
+	menuCur.on('dragStart', () => menuCur.slider.childNodes.forEach(slide => slide.style.pointerEvents = "none") );
+	menuCur.on('dragEnd', () => menuCur.slider.childNodes.forEach(slide => slide.style.pointerEvents = "all") );
 
-	});
+	callPage()
 
-	menuCur.on( 'settle', function( event, index ) {
+}
 
-		isDragging = false;
-
-	})
-
-	$('a').on('click', function () {
-
-		let $this = $(this),
-			link = $this.attr('href');
-
-		if($('body').hasClass('wait')) {
-
-			return false;
-
-		} else {
-
-			if(!$this.attr('target')) {
-
-				if(!isDragging) {
-
-					$('body').addClass('wait')
-
-					openLink(link, $this.hasClass('main_logo'))
-				}
-
-				return false;
-
-			}
-
-		}
-
-	})
+function cerchio(){
 
 	if(!isMobile){
 
-		cerchio = document.querySelectorAll('.mg');
+		let cerchio = document.querySelectorAll('.mg');
 
 		cerchio.forEach(function(elem){
 			$(document).on('mousemove', function(e){
@@ -1121,20 +1189,26 @@ function globalFunc(){
 				}
 
 			} else {
-					gsap.to(item, 0.6, {y: 0, x: 0, scale:1});
-					item.removeClass('magnet');
-				}
+				gsap.to(item, 0.6, {y: 0, x: 0, scale:1});
+				item.removeClass('magnet');
 			}
-
-			function calculateDistance(elem, mouseX, mouseY) {
-				return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
-			}
-
-			function lerp(a, b, n) {
-				return (1 - n) * a + n * b
-			}
-
 		}
+
+		function calculateDistance(elem, mouseX, mouseY) {
+			return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+		}
+
+		function lerp(a, b, n) {
+			return (1 - n) * a + n * b
+		}
+
+	}
+
+}
+
+function callPage(){
+
+	cerchio()
 
 	if(page == 'monk') {
 
@@ -1152,11 +1226,17 @@ function globalFunc(){
 
 		authorPage()
 
+	} else if(page == 'entrepreneur-inner') {
+
+		innerEntrepreneur()
+
 	} else {
 
 		staticPage()
 
 	}
+
+	$('body').attr('id', page)
 
 }
 
@@ -1207,30 +1287,6 @@ function monkPage(){
 
 	getActive.find('.monk_visuals').addClass('prx')
 
-	gsap.set(getActive, {autoAlpha: 1})
-
-	gsap.from(getActive.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in', delay: 1})
-
-	gsap.from(getActive.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%', ease: 'power3.out', delay: 1, stagger: 0.1})
-
-	gsap.from(getActive.find('.monk_text .mobile_explore'), 0.7, {y: 20, autoAlpha: 0, ease: 'power3.out', delay: 1.5})
-
-	gsap.fromTo(getActive.find($imgs1), 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out', delay: 1})
-
-	gsap.fromTo(getActive.find($imgs2), 1, {
-		x: function(index, target){
-			let val;
-			sizes.width > 768 ? val = 100 : val = 0;
-			return val;
-		},
-		y: function(index, target){
-			let val;
-			sizes.width <= 768 ? val = 100 : val = 0;
-			return val;
-		},
-		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out', delay: 1
-	})
-
 	canScroll = true
 
 	navCarousel = new Flickity( '.monk_nav_items', {
@@ -1243,17 +1299,8 @@ function monkPage(){
 		friction:  1
 	});
 
-	navCarousel.on( 'dragStart', function( event, pointer ) {
-
-		isDragging = true;
-
-	});
-
-	navCarousel.on( 'settle', function( event, index ) {
-
-		isDragging = false;
-
-	})
+	navCarousel.on( 'dragStart', function( event, pointer ) { isDragging = true })
+	navCarousel.on( 'settle', function( event, index ) { isDragging = false })
 
 	$('.arrow').on( 'click', function() {
 
@@ -1369,7 +1416,6 @@ function monkPage(){
 			}
 
 		});
-
 
 	}
 
@@ -1488,20 +1534,6 @@ function monkPage(){
 
 	}
 
-	$(document).on('click', function(){
-
-		if(sizes.width > 768) {
-			clicked()
-		}
-
-	})
-
-	$('.mobile_explore').on('click', function(){
-
-		clicked()
-
-	})
-
 	function clicked(){
 
 		if(!isClicked && !isMenu) {
@@ -1521,6 +1553,140 @@ function monkPage(){
 		}
 
 	}
+
+	function loadContent(index, val){
+
+		imagesLoaded = false;
+
+		var activeIndex = index
+
+		if(val) {
+
+			$('.monk_nav_item.active').removeClass('active')
+
+			$('.monk_nav_item').eq(index).addClass('active')
+
+		}
+
+		if(!index) {
+
+			activeIndex = $('.monk_nav_item.active').index()
+
+		}
+
+		getActive = $('.monk_slide').eq(activeIndex)
+
+		$('body').addClass('wait').attr('data-id', activeIndex+1)
+
+		switch(activeIndex) {
+			case 0:
+			$('.getContent').html(monkContent1);
+			break;
+			case 1:
+			$('.getContent').html(monkContent2);
+			break;
+			case 2:
+			$('.getContent').html(monkContent3);
+			break;
+			case 3:
+			$('.getContent').html(monkContent4);
+			break;
+		}
+
+		appendImgs(false)
+
+		scroll.update()
+
+		gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
+
+		if(!val) {
+			gsap.set('.getContent', {autoAlpha: 1})
+		}
+
+		siteIntrvl = setInterval(function () {
+
+			if(imagesLoaded) {
+
+				imagesLoaded = false;
+
+				clearInterval(siteIntrvl);
+
+				excute()
+			};
+
+		}, 50);
+
+
+		function excute() {
+
+			$('.monk_nav').addClass('has_close transition')
+
+			scroll.scrollTo('.getContent', {
+				duration: val ? 0 : 400,
+				disableLerp: val ? true : false,
+				callback: function(){
+
+					canScroll = false;
+
+					stopScroll()
+
+					pageScroll(0)
+
+					if(val) {
+
+						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+					}
+
+					setTimeout(function(){
+
+						navCarousel.resize();
+
+						$('#monkSlides').hide();
+
+						scroll.scrollTo(0, {duration: 0, disableLerp: true})
+
+						scroll.update()
+
+						setTimeout(function(){
+
+							startScroll()
+
+							$('.monk_visuals').removeClass('prx')
+
+							$('body').removeClass('wait')
+
+							canHideHeader = true
+
+							isDragging = false
+
+							$('.monk_nav').removeClass('transition')
+
+						}, 500)
+
+					}, 1000)
+
+				}
+
+			})
+
+		}
+
+	}
+
+	$(document).on('click', function(){
+
+		if(sizes.width > 768) {
+			clicked()
+		}
+
+	})
+
+	$('.mobile_explore').on('click', function(){
+
+		clicked()
+
+	})
 
 	$('a, .header_side, .monk_nav_set').on('mouseenter', function(){
 
@@ -1660,119 +1826,231 @@ function monkPage(){
 
 	})
 
-	function loadContent(index, val){
+	if(animationTL) {animationTL.kill()}
 
-		imagesLoaded = false;
+	animationTL = gsap.timeline({paused: true});
 
-		var activeIndex = index
+	animationTL.set(getActive, {autoAlpha: 1})
 
-		if(val) {
+	.from(getActive.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
 
-			$('.monk_nav_item.active').removeClass('active')
+	.from(getActive.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%', ease: 'power3.out', stagger: 0.1}, 0)
 
-			$('.monk_nav_item').eq(index).addClass('active')
+	.fromTo(getActive.find($imgs1), 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out', delay: 1}, 0)
+
+	.fromTo(getActive.find($imgs2), 1, {
+		x: function(index, target){
+			let val;
+			sizes.width > 768 ? val = 100 : val = 0;
+			return val;
+		},
+		y: function(index, target){
+			let val;
+			sizes.width <= 768 ? val = 100 : val = 0;
+			return val;
+		},
+		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out', delay: 1
+	}, 0)
+
+	.from(getActive.find('.monk_text .mobile_explore'), 0.7, {y: 20, autoAlpha: 0, ease: 'power3.out', delay: 1.5}, 0.5)
+
+}
+
+function entrepreneurPage(){
+
+	var labTL,
+		enCarousel,
+		lastActive = 1,
+		isEntrepreneurActive = false,
+		split1,
+		split2,
+		isFirstHover = true,
+		isColsFlickity = false;
+
+	canHideHeader = false
+
+	isHorizontal = false
+
+	function resize(){
+
+		if(page == 'entrepreneur') {
+
+			if(!isEntrepreneurActive){
+				enColsFlic()
+			}
+
+			if(split1) { split1.revert() }
+			if(split2) { split2.revert() }
 
 		}
 
-		if(!index) {
+	} resize();
 
-			activeIndex = $('.monk_nav_item.active').index()
+	function scrollFunc(){
 
+	}
+
+	function wheel(e){
+
+		if(page == 'entrepreneur') {
+			if(!isMenu && isColsFlickity) {
+				flickity_handle_wheel_event(e, enCarousel);
+			}
 		}
 
-		getActive = $('.monk_slide').eq(activeIndex)
+	}
 
-		$('body').addClass('wait').attr('data-id', activeIndex+1)
-
-		switch(activeIndex) {
-			case 0:
-			$('.getContent').html(monkContent1);
-			break;
-			case 1:
-			$('.getContent').html(monkContent2);
-			break;
-			case 2:
-			$('.getContent').html(monkContent3);
-			break;
-			case 3:
-			$('.getContent').html(monkContent4);
-			break;
-		}
+	function showContent(index){
 
 		appendImgs(false)
 
-		scroll.update()
+		$('#epSection').remove();
 
-		gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
+		$('.getContent').show();
 
-		if(!val) {
-			gsap.set('.getContent', {autoAlpha: 1})
+		canHideHeader = true;
+
+		let contentTL = new gsap.timeline()
+
+		split1 = new SplitText('._sp1', {type:"chars", charsClass:"SplitClass"})
+		split2 = new SplitText('._sp2', {type:"lines", linesClass:"SplitClass"})
+
+		var target1 = split1.chars,
+			target2 = split2.lines;
+
+		contentTL.set('.en_head', {autoAlpha: 1}, 0)
+
+		.from('.en_shape', 0.5, {x: 400, autoAlpha: 0, ease: 'power3.Out', stagger: 0.5}, 0)
+
+		.from('.en_head .alt_h1', 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out'}, 0)
+
+		.from(target1, 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.07}, 0)
+
+		.from(target2, 0.5, {y: 50, autoAlpha: 0, ease: 'power3.out', stagger: 0.1}, 0.5)
+
+		.set('.en_scroll', {autoAlpha: 1}, 1)
+
+		.call(function(){
+
+			$('body').removeClass('add-transit');
+
+			startScroll()
+
+			scroll.update()
+
+		})
+
+		.from('.en_scroll span', 1, {x: 30, autoAlpha: 0, ease: 'power3.out'}, 1)
+
+		.from('.en_scroll i', 1, {scaleX: 0, ease: 'power3.out'}, 1.2)
+
+	}
+
+	function updateLab(title, index){
+
+		if(labTL) {
+			labTL.kill()
 		}
 
-		siteIntrvl = setInterval(function () {
+		labTL = new gsap.timeline()
 
-			if(imagesLoaded) {
+		var labWords = $('.en_lab > span')
 
-				imagesLoaded = false;
+		labTL
 
-				clearInterval(siteIntrvl);
+		.to(labWords, 0.5, { y: '-110%', ease: "power3.in" })
 
-				excute()
+		.call(function(){
+
+			$('.en_lab > span').html(title)
+
+		})
+
+		.set(labWords, { y: '110%' })
+
+		.to(labWords, 0.5, { y: '0%', ease: 'power3.out' })
+
+	}
+
+	function enColsFlic() {
+
+		if((sizes.width / sizes.height) < (3/2)){
+
+			if ( isColsFlickity == false ) {
+
+				build();
+
 			};
 
-		}, 50);
+		} else {
 
+			if ( isColsFlickity == true ) {
 
-		function excute() {
+				lastActive = 1
 
-			$('.monk_nav').addClass('has_close transition')
+				$('.en_col_set').removeClass('bigger').css('width', '')
 
-			scroll.scrollTo('.getContent', {
-				duration: val ? 0 : 400,
-				disableLerp: val ? true : false,
-				callback: function(){
+				isColsFlickity = false;
 
-					canScroll = false;
+				enCarousel.destroy();
 
-					stopScroll()
+			}
 
-					pageScroll(0)
+		}
 
-					if(val) {
+		function build(){
 
-						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+			isColsFlickity = true;
 
-					}
+			enCarousel = new Flickity('.en_wrap', {
+				prevNextButtons: false,
+				accessibility: true,
+				pageDots: false,
+				percentPosition: false,
+				contain: false,
+				groupCells: false,
+				cellAlign: 'left',
+				selectedAttraction: 0.3,
+				friction: 0.8
+			});
 
-					setTimeout(function(){
+			enCarousel.select(1)
 
-						navCarousel.resize();
+			if(lastActive != 1) {
+				lastActive = -1
+				updateLab($('.en_col_set').eq(1).attr('data-title'), 1)
+			}
 
-						$('#monkSlides').hide();
+			$('.en_col_set').removeClass('hover')
 
-						scroll.scrollTo(0, {duration: 0, disableLerp: true})
+			enCarousel.on('dragStart', () => enCarousel.slider.childNodes.forEach(slide => slide.style.pointerEvents = "none") );
+			enCarousel.on('dragEnd', () => enCarousel.slider.childNodes.forEach(slide => slide.style.pointerEvents = "all") );
 
-						scroll.update()
+			enCarousel.on( 'settle', function( index ) {
 
-						setTimeout(function(){
+				let selected = $('.en_col_set').eq(index),
+					title = selected.attr('data-title');
 
-							startScroll()
+				if(lastActive != index) {
 
-							$('.monk_visuals').removeClass('prx')
+					lastActive = index
 
-							$('body').removeClass('wait')
-
-							canHideHeader = true
-
-							isDragging = false
-
-							$('.monk_nav').removeClass('transition')
-
-						}, 500)
-
-					}, 1000)
+					updateLab(title, index)
 
 				}
+
+				$('.en_col_set').each(function(i){
+					let $this = $(this);
+					if( i != index ) {
+						gsap.to($this, 0.3, {width: parseFloat(20 * sizes.height) / 100, ease: 'power3.out' })
+					}
+				})
+
+				gsap.to(selected, 0.3, {width: parseFloat(40 * sizes.height) / 100, ease: 'power3.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
+					$('.en_col_set').removeClass('bigger').css('width', '')
+					selected.addClass('bigger')
+					enCarousel.resize()
+				} })
 
 			})
 
@@ -1780,42 +2058,10 @@ function monkPage(){
 
 	}
 
-}
+	window.addEventListener('resize', resize)
+	document.addEventListener('wheel', wheel)
 
-let lastActive,
-	isFirstHover = true,
-	labTL;
-
-function entrepreneurPage(){
-
-	stopScroll()
-
-	if(!isEntrepreneurActive){
-		if(!isSafari && !isMobile) {
-			$('.en_col_set').find('.en_col').append('<div class="en_mask has-svg full_bg"><svg viewBox="0 0 264 652" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs><clipPath id="maskRect1" clipPathUnits="objectBoundingBox" transform="scale(0.003787878787879, 0.001533742331288)"><path fill="none" stroke="#373636" stroke-width="1.9845" d="M260.6,616.6v-45.3v-64.2v-30.2v-73.6l-2.4-73.6l-1.4-99.8 c-0.8-34.6-2-104.8-2-106.3c0-1.9,1-31.8,1-52.6c0-20.8-2.4-30.2-2.4-41.5c0-9.1,2.7-21.4,1.1-26.4c-6.4,0-27.4,0-37,0 c-12,0-33.5,1.9-35.9,1.9c-2.4,0-7.2-1.9-12-1.9h-33.5c-4.8,0-38.3,1.9-50.3,0c-12-1.9-12,0-14.4,0h-24c-3.8,0-30.3-1.3-43.1-1.9 v28.3l2.4,56.6V102v25.7l2.8,37.2l-2.8,99.7v10.3l-2.4,17L1.9,393.9L0.5,510.5v12.9v21.4l1,33.2c-0.8,10.1,0.4,22,0.4,31.1 s1.6,32.1,0,37.8c4.8-0.6,7.2,0,16.8,0c9.6,0,25.9,0.3,33.1,0.9c3.2,0.6,9.5,1,12.4,1c2.4,0,18.4,0.6,26.4,1.9 c4.8,0,17.7-0.4,31.1-1.9c13.4-1.5,32.7-0.6,40.7,0l19.2,1.9l19.2-1.9l43.1,1.9l16.9-0.1L260.6,616.6z"/></clipPath></defs></svg></div>')
-			$('.en_borders').append('<svg width="264" height="652" viewBox="0 0 264 652" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M47.434 3.11371C43.6012 3.11371 17.0906 1.85525 4.31438 1.22601L4.31438 29.5415L6.70992 86.1724L6.70991 102.028L6.70991 127.702L9.47704 164.858L6.70991 264.597L6.70991 274.942L4.31437 291.931L1.91883 393.867L0.518677 510.465L0.518654 523.376L0.518653 544.728L1.50865 577.965C0.710134 588.032 1.91882 600.004 1.91882 609.065C1.91882 618.126 3.51592 641.156 1.9189 646.819C6.70997 646.189 9.10543 646.819 18.6876 646.819C28.2697 646.819 44.5938 647.121 51.7804 647.75C54.9745 648.379 61.2365 648.706 64.2028 648.706C66.6448 648.706 82.5685 649.336 90.5537 650.594C95.3447 650.594 108.281 650.216 121.696 648.706C135.111 647.196 154.435 648.077 162.42 648.706L181.584 650.594L200.748 648.706L243.868 650.594L260.809 650.496L260.637 616.615L260.637 571.311L260.637 507.129L260.637 476.926L260.637 403.306L258.241 329.685L256.827 229.907C256.029 195.3 254.837 125.153 254.837 123.643C254.837 121.755 255.846 91.8355 255.846 71.0709C255.846 50.3062 253.45 40.8677 253.45 29.5415C253.45 20.4805 256.102 8.15451 254.505 3.12065C248.117 3.12065 227.099 3.11372 217.517 3.11372C205.539 3.11372 183.98 5.00142 181.584 5.00142C179.189 5.00142 174.397 3.11372 169.606 3.11372L136.069 3.11372C131.278 3.11372 97.7403 5.00141 85.7626 3.11371C73.7849 1.22602 73.7849 3.11371 71.3894 3.11371L47.434 3.11371Z" stroke="#373636" stroke-width="1.98448"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.06166 564.789C3.26751 542.412 3.4633 521.128 3.4633 497.312C3.4633 476.378 3.66321 455.533 4.64366 434.672C5.18715 423.109 5.00603 411.352 4.82519 399.613C4.73494 393.755 4.64475 387.9 4.64475 382.077C4.64475 368.769 4.93983 355.402 5.23524 342.039L5.23654 341.98C5.53143 328.64 5.8262 315.306 5.8262 302.064C5.8262 296.45 6.40803 290.803 6.99831 285.074L7.00243 285.034C7.59231 279.308 8.1891 273.502 8.1891 267.669C8.1891 261.349 7.89247 255.018 7.59728 248.734L7.59495 248.685C7.30018 242.41 7.00765 236.183 7.00766 230.015L7.00766 189.134C8.41333 180.698 8.30767 177.505 8.13235 172.208C8.06241 170.095 7.98138 167.646 7.9808 164.397C8.86759 151.956 8.39145 137.638 7.69786 122.657C7.57785 120.065 7.45132 117.453 7.3241 114.827C6.71473 102.246 6.0895 89.3389 6.08876 76.7351C7.02187 56.1878 7.01704 48.9366 7.00918 37.1692C7.00844 36.052 7.00766 34.8941 7.00766 33.6803L7.00767 0.992239C7.00767 0.44424 6.56343 2.60308e-07 6.01543 2.36354e-07C5.46743 2.124e-07 5.02319 0.44424 5.02319 0.992238L5.02319 33.6803C5.02319 34.8957 5.02396 36.0548 5.02471 37.1729C5.03259 48.9265 5.03742 56.1476 4.1053 76.6676L4.10428 76.6901L4.10428 76.7126C4.10428 89.3762 4.73278 102.349 5.34264 114.938C5.46969 117.56 5.59593 120.166 5.71551 122.749C6.41005 137.751 6.87968 151.973 5.99885 164.29L5.99632 164.326L5.99632 164.361C5.99632 167.74 6.07927 170.24 6.14993 172.37C6.32347 177.599 6.42283 180.594 5.03675 188.888L5.02318 188.97L5.02318 230.015C5.02318 236.23 5.31753 242.496 5.61156 248.754L5.61499 248.827C5.91053 255.118 6.20462 261.403 6.20462 267.669C6.20462 273.383 5.61997 279.088 5.0284 284.83L5.01904 284.921C4.43234 290.615 3.84173 296.348 3.84173 302.064C3.84173 315.284 3.54736 328.6 3.25231 341.947L3.25124 341.995C2.95592 355.354 2.66028 368.744 2.66028 382.077C2.66028 387.967 2.75114 393.855 2.84179 399.73C3.02235 411.43 3.20207 423.075 2.66137 434.579C1.67872 455.486 1.47882 476.368 1.47882 497.312C1.47882 521.119 1.28311 542.394 1.07725 564.772L1.04358 568.436C0.82593 592.17 0.608249 617.348 0.608248 648.224C0.608248 648.772 1.05249 649.216 1.60049 649.216C2.14848 649.216 2.59272 648.772 2.59272 648.224C2.59273 617.358 2.81033 592.187 3.02797 568.454L3.06166 564.789Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0.76118 481.282C1.09127 485.844 1.30408 490.336 0.852552 494.748C0.381985 499.346 0.408209 503.896 0.536746 508.406C0.57155 509.628 0.613722 510.844 0.655802 512.058C0.769788 515.345 0.883099 518.613 0.847475 521.911C0.770378 529.05 0.793238 535.203 0.818843 542.096C0.832726 545.833 0.847417 549.788 0.847417 554.235C0.847417 558.385 0.86426 562.475 0.881092 566.532L0.881469 566.623C0.898177 570.65 0.914749 574.644 0.914749 578.636C0.914749 584.852 0.818026 591.095 0.720457 597.393L0.718365 597.528C0.620131 603.869 0.521743 610.265 0.521743 616.73C0.521743 617.278 0.965984 617.722 1.51398 617.722C2.06198 617.722 2.50622 617.278 2.50622 616.73C2.50622 610.283 2.60434 603.902 2.7026 597.559L2.70481 597.416C2.8023 591.124 2.89923 584.868 2.89923 578.636C2.89923 574.64 2.88264 570.642 2.86594 566.617L2.86555 566.524C2.84872 562.466 2.83189 558.38 2.83189 554.235C2.83189 549.771 2.81716 545.809 2.80326 542.07C2.77767 535.188 2.75488 529.058 2.83184 521.933C2.86799 518.586 2.75233 515.25 2.63782 511.948C2.59606 510.744 2.55445 509.544 2.52042 508.35C2.39251 503.861 2.36967 499.416 2.82672 494.95C3.29702 490.355 3.07169 485.716 2.74048 481.139C2.67442 480.226 2.60426 479.316 2.53435 478.41C2.2518 474.747 1.97322 471.136 1.98482 467.554C2.0013 462.464 2.31903 457.452 2.63884 452.408L2.65059 452.223C2.97372 447.126 3.29515 441.995 3.29515 436.774C3.29515 436.226 2.85091 435.782 2.30291 435.782C1.75491 435.782 1.31067 436.226 1.31067 436.774C1.31067 441.922 0.993735 446.992 0.670093 452.097L0.656707 452.308C0.338008 457.335 0.017028 462.397 0.000355745 467.547C-0.011525 471.217 0.275032 474.929 0.55838 478.599C0.62764 479.496 0.696709 480.391 0.76118 481.282Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.08852 53.5721C5.22317 40.2537 5.05255 27.0593 7.77094 14.6529C7.88823 14.1176 7.54937 13.5886 7.01407 13.4713C6.47877 13.354 5.94974 13.6929 5.83245 14.2282C3.0521 26.9174 3.24017 40.3408 4.10822 53.7008C4.3826 57.9237 4.72399 62.1331 5.06299 66.3128C5.80059 75.4073 6.52686 84.362 6.52686 93.0137L6.52685 172.682C6.52685 191.58 5.89713 211.805 5.26671 232.051L5.26643 232.06C4.63632 252.295 4.00561 272.549 4.00561 291.481C4.00561 292.029 4.44985 292.473 4.99785 292.473C5.54585 292.473 5.99009 292.029 5.99009 291.481C5.99009 272.583 6.61981 252.357 7.25023 232.112L7.25051 232.103C7.88062 211.868 8.51133 191.613 8.51133 172.682L8.51133 93.0137C8.51133 84.2804 7.77436 75.1903 7.03356 66.053C6.69628 61.8927 6.3582 57.7227 6.08852 53.5721Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M1.82166 523.787C2.36957 523.797 2.82179 523.361 2.83172 522.813C4.23636 445.333 5.65135 367.271 5.65135 289.761C5.65135 289.213 5.20711 288.769 4.65911 288.769C4.11112 288.769 3.66688 289.213 3.66688 289.761C3.66687 367.25 2.25227 445.294 0.847568 522.777C0.837635 523.325 1.27375 523.777 1.82166 523.787Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M254.552 4.00989C255.099 3.98474 255.564 4.40814 255.589 4.95557C257.849 54.1932 258.636 105.391 258.636 155.614C258.636 176.549 258.836 197.394 259.817 218.254C260.36 229.818 260.179 241.574 259.998 253.313C259.908 259.172 259.818 265.026 259.818 270.85C259.818 284.157 260.113 297.525 260.408 310.888L260.41 310.947C260.705 324.286 260.999 337.621 260.999 350.863C260.999 356.477 261.581 362.124 262.171 367.853L262.176 367.893C262.765 373.619 263.362 379.425 263.362 385.258C263.362 391.578 263.066 397.909 262.77 404.192L262.768 404.242C262.473 410.517 262.181 416.743 262.181 422.911L262.181 463.875C262.181 466.851 262.049 469.956 261.917 473.067C261.824 475.258 261.731 477.452 261.683 479.607C261.567 484.886 261.717 490.077 262.75 494.961L262.772 495.063L262.772 495.166C262.772 510.777 262.394 523.677 262.016 536.353L262.001 536.878C261.629 549.346 261.264 561.629 261.262 576.117C262.642 583.107 262.868 590.414 262.754 597.683C262.703 600.896 262.588 604.069 262.474 607.208C262.326 611.274 262.181 615.283 262.181 619.246C262.181 624.703 262.086 629.923 261.991 635.133L261.991 635.137C261.896 640.351 261.801 645.555 261.801 650.992C261.801 651.54 261.357 651.984 260.809 651.984C260.261 651.984 259.817 651.54 259.817 650.992C259.817 645.535 259.912 640.315 260.007 635.105L260.007 635.101C260.102 629.888 260.196 624.684 260.196 619.246C260.196 615.288 260.345 611.181 260.493 607.057C260.607 603.913 260.721 600.759 260.77 597.652C260.884 590.397 260.653 583.221 259.297 576.408L259.277 576.312L259.277 576.214C259.277 561.655 259.645 549.319 260.017 536.827L260.033 536.294C260.409 523.646 260.785 510.801 260.787 495.27C259.726 490.191 259.583 484.855 259.699 479.563C259.749 477.31 259.844 475.09 259.937 472.897C260.068 469.841 260.196 466.839 260.196 463.875L260.196 422.911C260.196 416.697 260.491 410.431 260.785 404.172L260.788 404.099C261.084 397.808 261.378 391.524 261.378 385.258C261.378 379.543 260.793 373.838 260.202 368.096L260.192 368.006C259.606 362.311 259.015 356.579 259.015 350.863C259.015 337.643 258.721 324.327 258.425 310.98L258.424 310.932C258.129 297.573 257.833 284.183 257.833 270.85C257.833 264.959 257.924 259.071 258.015 253.197C258.196 241.497 258.375 229.851 257.835 218.347C256.852 197.441 256.652 176.559 256.652 155.614C256.652 105.41 255.864 54.2444 253.606 5.04657C253.581 4.49915 254.005 4.03503 254.552 4.00989Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M254.242 141.729C254.501 137.958 254.755 134.246 254.716 130.605C254.675 126.881 254.714 123.477 254.752 120.107C254.827 113.445 254.9 106.919 254.362 98.331L254.356 98.2389L254.367 98.1474C255.353 90.155 256.087 82.2808 256.087 74.2904C256.087 71.5315 256.115 68.7796 256.142 66.0335C256.24 56.2372 256.338 46.5156 255.18 36.8191C255.115 36.275 255.503 35.7812 256.047 35.7162C256.591 35.6512 257.085 36.0396 257.15 36.5837C258.325 46.4203 258.225 56.3112 258.126 66.1273C258.099 68.855 258.072 71.577 258.072 74.2904C258.072 82.3677 257.333 90.3037 256.348 98.2989C256.885 106.911 256.811 113.538 256.736 120.22C256.698 123.575 256.661 126.943 256.7 130.584C256.74 134.311 256.479 138.121 256.22 141.898C256.16 142.773 256.1 143.646 256.044 144.516C255.745 149.167 255.554 153.75 256.009 158.194C256.936 167.251 257.128 176.329 257.157 185.373C257.18 192.36 257.172 200.253 257.164 207.829C257.161 211.502 257.157 215.101 257.157 218.486C257.157 219.034 256.713 219.478 256.165 219.478C255.617 219.478 255.173 219.034 255.173 218.486C255.173 215.097 255.176 211.496 255.18 207.821C255.187 200.248 255.195 192.363 255.173 185.379C255.143 176.352 254.952 167.354 254.035 158.396C253.562 153.776 253.764 149.051 254.064 144.389C254.121 143.499 254.182 142.613 254.242 141.729Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M261.262 599.354C260.396 612.672 260.226 625.867 262.944 638.273C263.061 638.808 262.722 639.338 262.187 639.455C261.652 639.572 261.123 639.233 261.006 638.698C258.225 626.009 258.413 612.585 259.281 599.225C259.556 595.002 259.897 590.793 260.236 586.613C260.974 577.519 261.7 568.564 261.7 559.912L261.7 480.244C261.7 461.343 261.23 443.61 260.759 425.862L260.758 425.857C260.288 408.114 259.817 390.357 259.817 371.428C259.817 370.88 260.261 370.435 260.809 370.435C261.357 370.435 261.801 370.88 261.801 371.428C261.801 390.329 262.272 408.062 262.742 425.81L262.743 425.815C263.213 443.558 263.684 461.315 263.684 480.244L263.684 559.912C263.684 568.646 262.947 577.736 262.207 586.873C261.869 591.033 261.531 595.203 261.262 599.354Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M256.312 127.617C256.86 127.607 257.312 128.043 257.322 128.591C257.659 147.221 258.037 165.974 258.417 184.792C259.614 244.222 260.825 304.294 260.825 363.165C260.825 363.713 260.38 364.158 259.832 364.158C259.284 364.158 258.84 363.713 258.84 363.165C258.84 304.316 257.63 244.272 256.433 184.846C256.053 166.025 255.675 147.266 255.338 128.627C255.328 128.079 255.764 127.626 256.312 127.617Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M255.581 4.44211C255.511 4.98555 255.013 5.36897 254.47 5.29849C240.772 3.52201 224.647 3.69161 209.752 3.84828C205.637 3.89156 201.615 3.93386 197.765 3.93386C196.373 3.93386 194.966 4.24794 193.454 4.59513L193.342 4.62068C191.905 4.95092 190.357 5.30673 188.822 5.30673C188.073 5.30673 187.248 5.33409 186.366 5.36338C186.291 5.36586 186.216 5.36836 186.14 5.37085C185.18 5.40252 184.163 5.43357 183.149 5.4283C181.145 5.41788 179.046 5.26753 177.334 4.63503C177.206 4.58782 177.003 4.57231 176.6 4.5939C176.552 4.59647 176.499 4.59982 176.442 4.60342C176.115 4.62416 175.655 4.65328 175.237 4.59007C174.688 4.50712 174.154 4.39503 173.661 4.29156C173.466 4.2508 173.278 4.21137 173.098 4.17559C172.439 4.04444 171.819 3.94608 171.148 3.93369C169.053 3.89498 166.943 3.74323 164.863 3.59359C164.693 3.58141 164.524 3.56924 164.355 3.55715C162.1 3.39574 159.879 3.24742 157.683 3.24742L144.888 3.24742C141.201 3.24742 137.627 3.54071 133.992 3.83899C132.163 3.989 130.32 4.14027 128.439 4.25613C127.107 4.33819 125.774 4.42438 124.441 4.51063C118.296 4.90813 112.134 5.30672 105.906 5.30672C101.813 5.30672 97.8003 4.78577 93.858 4.27394L93.8185 4.26881C89.8431 3.75267 85.9378 3.24742 81.9672 3.24742L81.8522 3.24741C78.5515 3.24726 75.8734 3.24714 72.9982 4.37964C72.2577 4.67134 71.3038 4.74439 70.3615 4.73688C69.3919 4.72917 68.3105 4.63281 67.2515 4.51265C66.593 4.43793 65.9191 4.35098 65.2802 4.26854C64.9003 4.21952 64.5328 4.17209 64.1883 4.12979C63.2341 4.01264 62.4492 3.93385 61.8992 3.93385C60.2005 3.93385 58.8576 4.08835 57.5444 4.23945C57.0854 4.29225 56.6301 4.34464 56.1645 4.38987C54.3712 4.56406 52.5509 4.61134 50.1343 4.08252C49.2041 3.87898 48.252 3.89814 47.1825 3.91967C46.8365 3.92664 46.4781 3.93385 46.1043 3.93385C43.735 3.93385 41.304 3.7216 38.9402 3.51522C37.8006 3.41572 36.6766 3.31759 35.5827 3.24525C25.9816 2.6104 16.429 2.33913 6.78938 2.21768C6.24142 2.21078 5.80281 1.76097 5.80972 1.21302C5.81662 0.665066 6.26642 0.226457 6.81438 0.233361C16.4734 0.355058 26.0643 0.627057 35.7136 1.2651C36.8984 1.34345 38.0689 1.44593 39.2306 1.54764C41.5422 1.75004 43.8189 1.94937 46.1043 1.94937C46.3816 1.94937 46.6767 1.94302 46.984 1.93641C48.0984 1.91242 49.3751 1.88494 50.5585 2.14392C52.7101 2.61474 54.3097 2.57622 55.9726 2.41469C56.3819 2.37494 56.8027 2.32646 57.2409 2.27598C58.5779 2.12197 60.0762 1.94937 61.8992 1.94937C62.5872 1.94937 63.4859 2.04417 64.4301 2.1601C64.8009 2.20564 65.179 2.25445 65.5627 2.304C66.1872 2.38465 66.8268 2.46725 67.4753 2.54083C68.5134 2.65862 69.5129 2.74559 70.3773 2.75247C71.269 2.75957 71.9022 2.6785 72.271 2.53324C75.5004 1.2612 78.5128 1.26202 81.715 1.26289L81.9672 1.26294C86.0798 1.26294 90.1046 1.78548 94.0531 2.29813L94.0741 2.30085C98.0498 2.81703 101.949 3.32225 105.906 3.32225C112.063 3.32225 118.148 2.92878 124.291 2.53161C125.63 2.44504 126.971 2.35829 128.317 2.2754C130.111 2.16488 131.912 2.01741 133.72 1.86928C137.405 1.56745 141.123 1.26294 144.888 1.26294L157.683 1.26294C159.959 1.26294 162.245 1.41657 164.497 1.57774C164.663 1.58964 164.829 1.60158 164.995 1.61351C167.087 1.76387 169.145 1.91186 171.184 1.94955C172.028 1.96514 172.782 2.08929 173.486 2.22923C173.708 2.27341 173.919 2.31786 174.127 2.36134C174.597 2.46008 175.043 2.55379 175.533 2.6279C175.724 2.65671 175.932 2.64457 176.263 2.62528C176.334 2.62116 176.411 2.61671 176.493 2.61227C176.886 2.59124 177.468 2.56883 178.022 2.77361C179.389 3.2789 181.194 3.43363 183.16 3.44385C184.131 3.4489 185.114 3.41916 186.075 3.38745C186.152 3.3849 186.23 3.38232 186.307 3.37976C187.18 3.35074 188.038 3.32225 188.822 3.32225C190.129 3.32225 191.488 3.01025 193.01 2.66098C194.487 2.32173 196.111 1.94938 197.765 1.94938C201.565 1.94938 205.55 1.90729 209.642 1.86407C224.554 1.70658 240.875 1.53422 254.725 3.33049C255.269 3.40097 255.652 3.89866 255.581 4.44211Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M261.801 650.992C261.801 651.54 261.357 651.984 260.809 651.984C249.335 651.984 237.631 651.444 226.512 650.905C225.91 650.876 225.309 650.847 224.711 650.818C214.245 650.309 204.352 649.828 195.671 649.828C194.174 649.828 192.739 650.04 191.246 650.265L191.154 650.279C189.712 650.497 188.205 650.725 186.654 650.725L174.598 650.725L174.414 650.648C174.294 650.598 174.098 650.579 173.681 650.604C173.633 650.607 173.579 650.611 173.52 650.615C173.181 650.639 172.691 650.675 172.247 650.599C171.945 650.547 171.288 650.506 170.376 650.479C169.489 650.453 168.426 650.441 167.354 650.437C166.392 650.434 165.414 650.436 164.559 650.438C163.531 650.44 162.681 650.442 162.246 650.433C160.03 650.387 158.587 650.248 157.217 650.116C157.127 650.107 157.038 650.098 156.948 650.09C155.512 649.952 154.094 649.828 151.815 649.828C149.628 649.828 147.773 649.922 145.894 650.017L145.886 650.018C144.011 650.113 142.112 650.209 139.871 650.209C137.843 650.209 135.966 650.162 134.144 650.116C130.664 650.028 127.382 649.946 123.632 650.207C116.164 650.727 109.521 650.726 102.132 650.725C101.773 650.725 101.413 650.725 101.051 650.725C96.8362 650.725 92.8212 650.5 88.8339 650.276L88.8124 650.275C84.8108 650.051 80.8366 649.828 76.6648 649.828C75.2012 649.828 74.4809 649.897 73.4369 649.997C73.2866 650.012 73.1295 650.027 72.9626 650.042C71.6389 650.166 69.7604 650.316 65.8412 650.428C65.0935 650.708 64.1739 650.78 63.271 650.772C62.2586 650.763 61.1311 650.649 60.0298 650.508C59.345 650.42 58.6432 650.318 57.9786 650.221C57.584 650.163 57.2025 650.107 56.8456 650.058C55.8534 649.92 55.0429 649.828 54.4776 649.828C52.0417 649.828 50.7083 649.679 49.3657 649.529L49.2536 649.516C47.9075 649.366 46.5059 649.216 43.8175 649.216L43.6965 649.216L43.579 649.187C43.0025 649.044 41.8723 648.991 40.5927 648.986C39.9748 648.984 39.3536 648.993 38.7909 649.002C38.6898 649.004 38.5902 649.005 38.4926 649.007C38.0532 649.014 37.6552 649.021 37.3475 649.021C36.1754 649.021 35.0483 649.051 33.9311 649.081C31.7144 649.141 29.5367 649.199 27.123 649.018C22.1763 648.648 18.3271 648.731 14.4492 648.891C13.774 648.919 13.097 648.949 12.4127 648.979C9.16734 649.124 5.75667 649.276 1.58682 649.216C1.03888 649.208 0.601013 648.758 0.608826 648.21C0.616638 647.662 1.06714 647.224 1.61508 647.232C5.72173 647.29 9.06779 647.141 12.3101 646.997C12.9985 646.967 13.6823 646.936 14.3676 646.908C18.2802 646.747 22.2152 646.661 27.2711 647.039C29.5903 647.213 31.5946 647.158 33.7444 647.1C34.8819 647.069 36.0603 647.037 37.3475 647.037C37.6367 647.037 38.0125 647.03 38.451 647.023C38.5504 647.021 38.6529 647.019 38.7583 647.018C39.3233 647.008 39.9612 647 40.6001 647.002C41.7751 647.006 43.077 647.047 43.9307 647.232C46.6439 647.236 48.1022 647.39 49.4741 647.544L49.5903 647.557C50.9025 647.704 52.1521 647.844 54.4776 647.844C55.1989 647.844 56.1379 647.956 57.1186 648.092C57.5051 648.146 57.8984 648.203 58.2974 648.262C58.9457 648.356 59.609 648.453 60.2824 648.54C61.3604 648.678 62.3954 648.78 63.2889 648.788C64.2111 648.796 64.8568 648.701 65.2301 648.535L65.4098 648.455L65.6064 648.449C69.6093 648.338 71.4815 648.188 72.778 648.067C72.9408 648.051 73.0955 648.037 73.245 648.022C74.3034 647.921 75.1042 647.844 76.6648 647.844C80.8997 647.844 84.9272 648.07 88.9207 648.293L88.9235 648.294C92.9253 648.518 96.8929 648.74 101.051 648.74C101.407 648.74 101.761 648.74 102.113 648.741C109.517 648.742 116.097 648.743 123.494 648.227C127.332 647.96 130.775 648.046 134.318 648.134C136.121 648.179 137.951 648.225 139.871 648.225C142.059 648.225 143.914 648.131 145.793 648.036L145.801 648.035C147.675 647.94 149.574 647.844 151.815 647.844C154.183 647.844 155.671 647.974 157.138 648.114C157.227 648.123 157.315 648.132 157.404 648.14C158.766 648.271 160.147 648.404 162.288 648.449C162.707 648.458 163.512 648.456 164.507 648.454C165.361 648.452 166.355 648.449 167.361 648.453C168.439 648.457 169.522 648.468 170.434 648.495C171.322 648.521 172.119 648.563 172.581 648.643C172.77 648.675 172.975 648.661 173.318 648.639C173.392 648.634 173.473 648.629 173.561 648.623C173.921 648.601 174.446 648.577 174.968 648.74L186.654 648.74C188.055 648.74 189.435 648.532 190.923 648.307L190.95 648.303C192.426 648.08 194.003 647.844 195.671 647.844C204.402 647.844 214.341 648.327 224.788 648.835C225.393 648.864 226 648.893 226.608 648.923C237.731 649.462 249.389 650 260.809 650C261.357 650 261.801 650.444 261.801 650.992Z" fill="#373636"/><path d="M253.921 3.99796C253.921 8.51124 253.921 13.0245 253.921 17.5378C253.921 19.5703 253.881 21.9323 254.311 23.9183C255 27.1041 254.753 30.2382 255.06 33.4441C255.352 36.5009 255.809 39.4643 255.809 42.5505C255.809 44.5047 256.02 46.5326 256.093 48.4967C256.239 52.4229 256.23 56.3542 256.363 60.2841C256.497 64.2504 256.73 68.212 256.872 72.1764C256.95 74.3713 256.844 76.5711 256.887 78.7666C256.927 80.8202 255.809 88.2195 255.809 90.2941" stroke="#373636" stroke-width="2.97671" stroke-linecap="round"/><path d="M2.00854 620.149C4.48914 576.49 2.50466 535.238 2.50466 493.398" stroke="#373636" stroke-width="2.97671" stroke-linecap="round"/></svg>')
-		}
-	}
-
-	$('.en_wrap').on('mouseleave', function(){
-
-		if(!isEntrepreneurActive && !$('body').hasClass('wait')) {
-
-			$(this).removeClass('mouseenter')	
-
-			if(!isColsFlickity) {
-
-				$('.en_col_set').removeClass('hover')
-
-				lastActive = -1
-
-				gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
-
-			}
-
-		}
-
-	})
+	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
 	$('.en_col_set').each(function(){
 
@@ -1825,10 +2071,9 @@ function entrepreneurPage(){
 
 	})
 
-
 	$('.en_col_set').on('mouseenter', function(){
 
-		if(!isColsFlickity && !isEntrepreneurActive) {
+		if(!isColsFlickity && !isEntrepreneurActive && !$('body').hasClass('wait')) {
 
 			let title = $(this).attr('data-title'),
 				index = $(this).index();
@@ -1841,8 +2086,6 @@ function entrepreneurPage(){
 
 			}
 
-			$('.en_wrap').addClass('mouseenter')	
-
 			$('.en_col_set').removeClass('hover')
 
 			$(this).addClass('hover')
@@ -1852,30 +2095,12 @@ function entrepreneurPage(){
 
 		if(!isDragging && !isEntrepreneurActive && !$('body').hasClass('wait')) {
 
-			var activeIndex = $(this).index()
-
-			switch(activeIndex) {
-				case 0:
-				$('.getContent').html(enContent1);
-				break;
-				case 1:
-				$('.getContent').html(enContent2);
-				break;
-				case 2:
-				$('.getContent').html(enContent3);
-				break;
-				case 3:
-				$('.getContent').html(enContent4);
-				break;
-				case 4:
-				$('.getContent').html(enContent5);
-				break;
-				case 5:
-				$('.getContent').html(enContent6);
-				break;
-			}
-
 			isEntrepreneurActive = true;
+
+			var activeIndex = $(this).index(),
+				activeURL = $(this).attr('href')
+
+			enContent(activeIndex, '#enContent', activeURL)
 
 			$(this).addClass('no-tranist')
 
@@ -1895,7 +2120,7 @@ function entrepreneurPage(){
 
 			})
 
-			gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out" })
+			gsap.to('.en_lab_set', 0.5, {autoAlpha: 0, ease: 'power3.out'})
 
 			gsap.to('.hide', 0.5, {opacity: 0, ease: 'power3.out', onComplete: function(){
 
@@ -1961,441 +2186,447 @@ function entrepreneurPage(){
 
 		}
 
+		return false;
+
 	})
 
-	function showContent(index){
+	$('.en_wrap').on('mouseleave', function(){
 
-		// appendImgs(false)
+		if(!isEntrepreneurActive && !$('body').hasClass('wait')) {
 
-		// siteIntrvl = setInterval(function () {
-
-		// 	if(imagesLoaded) {
-
-		// 		imagesLoaded = false;
-
-		// 		clearInterval(siteIntrvl);
-
-		// 		excute()
-		// 	};
-
-		// }, 50);
-
-		$('.en_scroll').click(function(){
-
-			scroll.scrollTo('.scroll_to', {
-				duration: 400,
-				disableLerp: false,
-			})
-
-		})
-
-		$('#epSection').remove();
-
-		$('.getContent').show();
-
-		canHideHeader = true;
-
-		let contentTL = new gsap.timeline({ delay: 0 })
-
-		var split1 = new SplitText('._sp1', {type:"chars", charsClass:"SplitClass"}),
-			target1 = split1.chars,
-			split2 = new SplitText('._sp2', {type:"lines", linesClass:"SplitClass"}),
-			target2 = split2.lines;
-
-		contentTL.set('.en_head', {autoAlpha: 1}, 0)
-
-		.from('.en_shape', 0.5, {x: 400, autoAlpha: 0, ease: 'power3.Out', stagger: 0.5}, 0)
-
-		.from('.en_head .alt_h1', 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out'}, 0)
-
-		.from(target1, 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.07}, 0)
-
-		.from(target2, 0.5, {y: 50, autoAlpha: 0, ease: 'power3.out', stagger: 0.1}, 0.5)
-
-		.set('.en_scroll', {autoAlpha: 1}, 1)
-
-		.from('.en_scroll span', 1, {x: 30, autoAlpha: 0, ease: 'power3.out'}, 1)
-
-		.from('.en_scroll i', 1, {scaleX: 0, ease: 'power3.out'}, 1.2)
-
-		.call(function(){
-
-			$('body').removeClass('add-transit');
-
-			startScroll()
-
-			split1.revert()
-
-			split2.revert()
-
-			if(scroll) {
-				scroll.update()
+			if(lastActive != 1) {
+				lastActive = -1
+				updateLab($('.en_col_set').eq(1).attr('data-title'), 1)
 			}
 
-		})
+			if(!isColsFlickity) {
 
-	}
+				$('.en_col_set').removeClass('hover')
+
+			}
+
+		}
+
+	})
+
+	$('.en_borders').append('<div class="en_border left"><svg width="9" height="650" viewBox="0 0 9 650" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.06166 564.789C3.26751 542.412 3.4633 521.128 3.4633 497.313C3.4633 476.378 3.66321 455.533 4.64366 434.673C5.18715 423.109 5.00603 411.352 4.82519 399.614C4.73494 393.755 4.64475 387.9 4.64475 382.077C4.64475 368.769 4.93983 355.402 5.23524 342.039L5.23654 341.98C5.53143 328.64 5.8262 315.306 5.8262 302.064C5.8262 296.45 6.40803 290.803 6.99831 285.074L7.00243 285.034C7.59231 279.308 8.1891 273.502 8.1891 267.669C8.1891 261.349 7.89247 255.018 7.59728 248.734L7.59495 248.685C7.30018 242.41 7.00765 236.183 7.00766 230.015L7.00766 189.134C8.41333 180.698 8.30767 177.505 8.13235 172.208C8.06241 170.095 7.98138 167.646 7.9808 164.397C8.86759 151.956 8.39145 137.638 7.69786 122.658C7.57785 120.065 7.45132 117.453 7.3241 114.827C6.71473 102.246 6.0895 89.3389 6.08876 76.7352C7.02187 56.1879 7.01704 48.9367 7.00918 37.1692C7.00844 36.052 7.00766 34.8942 7.00766 33.6803L7.00767 0.9923C7.00767 0.444302 6.56343 6.12955e-05 6.01543 6.12715e-05C5.46743 6.12476e-05 5.02319 0.444301 5.02319 0.992299L5.02319 33.6803C5.02319 34.8958 5.02396 36.0549 5.02471 37.173C5.03258 48.9266 5.03742 56.1477 4.1053 76.6676L4.10428 76.6902L4.10428 76.7127C4.10428 89.3763 4.73278 102.349 5.34264 114.938C5.46969 117.561 5.59593 120.166 5.71551 122.749C6.41005 137.751 6.87968 151.973 5.99885 164.291L5.99632 164.326L5.99632 164.361C5.99632 167.74 6.07927 170.24 6.14993 172.37C6.32347 177.599 6.42283 180.594 5.03675 188.888L5.02318 188.97L5.02318 230.015C5.02318 236.23 5.31753 242.496 5.61156 248.754L5.61499 248.827C5.91053 255.118 6.20462 261.403 6.20462 267.669C6.20462 273.383 5.61997 279.089 5.0284 284.83L5.01904 284.921C4.43234 290.616 3.84173 296.348 3.84173 302.064C3.84173 315.284 3.54736 328.6 3.25231 341.947L3.25124 341.995C2.95592 355.354 2.66028 368.744 2.66028 382.077C2.66028 387.967 2.75114 393.855 2.84179 399.73C3.02235 411.43 3.20207 423.075 2.66137 434.579C1.67872 455.486 1.47882 476.368 1.47882 497.313C1.47882 521.119 1.28311 542.394 1.07725 564.772L1.04358 568.436C0.82593 592.17 0.608249 617.348 0.608248 648.224C0.608248 648.772 1.05249 649.216 1.60049 649.216C2.14848 649.216 2.59272 648.772 2.59272 648.224C2.59273 617.358 2.81033 592.187 3.02797 568.454L3.06166 564.789Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0.76118 481.282C1.09127 485.844 1.30408 490.336 0.852552 494.748C0.381985 499.346 0.408209 503.896 0.536746 508.407C0.57155 509.628 0.613722 510.844 0.655802 512.058C0.769788 515.345 0.883099 518.613 0.847475 521.911C0.770378 529.05 0.793238 535.204 0.818843 542.096C0.832726 545.833 0.847417 549.788 0.847417 554.235C0.847417 558.385 0.86426 562.475 0.881092 566.532L0.881469 566.623C0.898177 570.65 0.914749 574.644 0.914749 578.636C0.914749 584.852 0.818026 591.095 0.720457 597.393L0.718365 597.528C0.620131 603.869 0.521743 610.265 0.521743 616.73C0.521743 617.278 0.965984 617.722 1.51398 617.722C2.06198 617.722 2.50622 617.278 2.50622 616.73C2.50622 610.283 2.60434 603.902 2.7026 597.559L2.70481 597.416C2.8023 591.124 2.89923 584.868 2.89923 578.636C2.89923 574.64 2.88264 570.642 2.86594 566.617L2.86555 566.524C2.84872 562.466 2.83189 558.38 2.83189 554.235C2.83189 549.771 2.81716 545.809 2.80326 542.07C2.77767 535.188 2.75488 529.058 2.83184 521.933C2.86799 518.586 2.75233 515.25 2.63782 511.949C2.59606 510.744 2.55445 509.544 2.52042 508.35C2.39251 503.861 2.36967 499.416 2.82672 494.95C3.29702 490.355 3.07169 485.716 2.74048 481.139C2.67442 480.226 2.60426 479.316 2.53435 478.41C2.2518 474.747 1.97323 471.136 1.98482 467.554C2.0013 462.464 2.31904 457.452 2.63884 452.408L2.65059 452.223C2.97372 447.126 3.29515 441.995 3.29515 436.774C3.29515 436.226 2.85091 435.782 2.30291 435.782C1.75491 435.782 1.31067 436.226 1.31067 436.774C1.31067 441.922 0.993735 446.992 0.670093 452.097L0.656707 452.309C0.338008 457.335 0.017028 462.397 0.000355745 467.547C-0.011525 471.217 0.275032 474.929 0.55838 478.599C0.62764 479.496 0.696709 480.391 0.76118 481.282Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.08852 53.5722C5.22317 40.2538 5.05255 27.0594 7.77094 14.653C7.88823 14.1177 7.54937 13.5887 7.01407 13.4714C6.47877 13.3541 5.94974 13.693 5.83245 14.2283C3.0521 26.9174 3.24017 40.3409 4.10822 53.7008C4.3826 57.9238 4.72399 62.1331 5.06299 66.3129C5.80059 75.4074 6.52686 84.3621 6.52686 93.0137L6.52685 172.682C6.52685 191.58 5.89713 211.806 5.26671 232.051L5.26643 232.06C4.63632 252.295 4.00561 272.549 4.00561 291.481C4.00561 292.029 4.44985 292.473 4.99785 292.473C5.54585 292.473 5.99009 292.029 5.99009 291.481C5.99009 272.583 6.61981 252.357 7.25023 232.112L7.25051 232.103C7.88062 211.868 8.51133 191.613 8.51133 172.682L8.51133 93.0137C8.51133 84.2805 7.77436 75.1904 7.03356 66.053C6.69628 61.8928 6.3582 57.7228 6.08852 53.5722Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M1.82166 523.787C2.36957 523.797 2.82179 523.361 2.83172 522.813C4.23636 445.333 5.65135 367.271 5.65135 289.761C5.65135 289.213 5.20711 288.769 4.65911 288.769C4.11112 288.769 3.66688 289.213 3.66688 289.761C3.66687 367.25 2.25227 445.294 0.847568 522.777C0.837635 523.325 1.27375 523.777 1.82166 523.787Z" fill="#373636"/><path d="M2.00854 620.148C4.48914 576.49 2.50466 535.237 2.50466 493.398" stroke="#373636" stroke-width="2.97671" stroke-linecap="round"/></svg></div><div class="en_border right"><svg width="12" height="650" viewBox="0 0 12 650" fill="none" xmlns="http://www.w3.org/2000/svg"preserveAspectRatio="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.55202 2.00995C3.09944 1.9848 3.56358 2.4082 3.58871 2.95563C5.84852 52.1932 6.63649 103.391 6.63649 153.614C6.63649 174.549 6.83639 195.394 7.81684 216.254C8.36033 227.818 8.17921 239.574 7.99837 251.313C7.90812 257.172 7.81793 263.026 7.81793 268.85C7.81793 282.157 8.11301 295.525 8.40841 308.888L8.40972 308.947C8.7046 322.286 8.99937 335.621 8.99937 348.863C8.99937 354.477 9.58119 360.124 10.1715 365.853L10.1756 365.893C10.7655 371.619 11.3623 377.425 11.3623 383.258C11.3623 389.578 11.0656 395.909 10.7705 402.193L10.7681 402.242C10.4733 408.517 10.1808 414.744 10.1808 420.911L10.1808 461.875C10.1808 464.852 10.049 467.957 9.91689 471.068C9.82386 473.258 9.73071 475.452 9.68338 477.607C9.56741 482.886 9.71712 488.077 10.7501 492.961L10.7715 493.063L10.7715 493.166C10.7715 508.777 10.3937 521.677 10.0163 534.353L10.0007 534.878C9.62934 547.346 9.26355 559.629 9.26191 574.117C10.6421 581.107 10.8681 588.414 10.7538 595.684C10.7033 598.896 10.588 602.069 10.4741 605.208C10.3264 609.274 10.1808 613.283 10.1808 617.246C10.1808 622.704 10.0857 627.924 9.99086 633.133L9.99078 633.137C9.89583 638.351 9.80109 643.555 9.80109 648.992C9.80109 649.54 9.35685 649.985 8.80885 649.985C8.26085 649.985 7.81661 649.54 7.81661 648.992C7.81661 643.535 7.91168 638.315 8.00656 633.105L8.00664 633.101C8.10159 627.888 8.19633 622.684 8.19633 617.246C8.19633 613.288 8.34455 609.181 8.4934 605.057C8.60686 601.913 8.7207 598.759 8.76954 595.652C8.88362 588.397 8.65274 581.221 7.29653 574.408L7.27743 574.312L7.27743 574.214C7.27743 559.655 7.64479 547.319 8.01681 534.827L8.03269 534.294C8.40926 521.646 8.7854 508.801 8.78706 493.27C7.72607 488.191 7.58313 482.855 7.69938 477.563C7.74888 475.31 7.84376 473.09 7.93745 470.897C8.06804 467.841 8.19634 464.839 8.19634 461.875L8.19634 420.911C8.19634 414.697 8.4907 408.431 8.78473 402.172L8.78816 402.099C9.0837 395.808 9.37779 389.524 9.37779 383.258C9.37779 377.543 8.79313 371.838 8.20157 366.097L8.19222 366.006C7.60551 360.311 7.0149 354.579 7.0149 348.863C7.0149 335.643 6.72053 322.327 6.42548 308.98L6.42442 308.932C6.1291 295.573 5.83345 282.183 5.83345 268.85C5.83345 262.959 5.92432 257.071 6.01497 251.197C6.19553 239.497 6.37525 227.852 5.83455 216.347C4.85191 195.441 4.65201 174.559 4.65201 153.614C4.65201 103.41 3.8643 52.2444 1.60632 3.04663C1.58119 2.49921 2.0046 2.0351 2.55202 2.00995Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M2.24211 139.729C2.50053 135.958 2.7549 132.246 2.71558 128.605C2.67536 124.881 2.71375 121.477 2.75175 118.107C2.82689 111.445 2.90049 104.92 2.36184 96.331L2.35607 96.239L2.36736 96.1474C3.35344 88.1551 4.0871 80.2808 4.0871 72.2905C4.0871 69.5316 4.11468 66.7796 4.14221 64.0336C4.24039 54.2373 4.33783 44.5156 3.1797 34.8192C3.11471 34.275 3.50313 33.7812 4.04727 33.7162C4.5914 33.6513 5.08519 34.0397 5.15018 34.5838C6.32503 44.4203 6.22538 54.3113 6.12648 64.1274C6.099 66.8551 6.07158 69.5771 6.07158 72.2905C6.07158 80.3677 5.33279 88.3038 4.34818 96.2989C4.88485 104.911 4.81067 111.538 4.73587 118.221C4.69832 121.575 4.66062 124.943 4.69994 128.584C4.74019 132.311 4.4789 136.121 4.21987 139.898C4.15986 140.773 4.09996 141.646 4.04397 142.516C3.74468 147.167 3.55423 151.75 4.00901 156.194C4.93595 165.252 5.12789 174.329 5.15717 183.373C5.17979 190.36 5.17192 198.254 5.16437 205.829C5.1607 209.503 5.15712 213.101 5.15712 216.486C5.15712 217.034 4.71288 217.478 4.16488 217.478C3.61688 217.478 3.17264 217.034 3.17264 216.486C3.17264 213.097 3.17623 209.496 3.17989 205.821C3.18745 198.248 3.19531 190.363 3.1727 183.379C3.14348 174.352 2.95158 165.354 2.03485 156.396C1.56202 151.776 1.76354 147.051 2.06359 142.389C2.12084 141.499 2.18158 140.613 2.24211 139.729Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.26162 597.354C8.39627 610.672 8.22564 623.867 10.944 636.273C11.0613 636.809 10.7225 637.338 10.1872 637.455C9.65187 637.572 9.12284 637.233 9.00555 636.698C6.2252 624.009 6.41327 610.585 7.28131 597.225C7.5557 593.002 7.89709 588.793 8.23609 584.613C8.97369 575.519 9.69996 566.564 9.69996 557.913L9.69996 478.244C9.69996 459.343 9.22951 441.61 8.75862 423.862L8.75848 423.857C8.28772 406.114 7.81658 388.357 7.81658 369.428C7.81658 368.88 8.26082 368.435 8.80882 368.435C9.35682 368.435 9.80106 368.88 9.80106 369.428C9.80106 388.329 10.2715 406.062 10.7424 423.81L10.7425 423.815C11.2133 441.558 11.6844 459.315 11.6844 478.244L11.6844 557.913C11.6844 566.646 10.9475 575.736 10.2067 584.873C9.86938 589.033 9.5313 593.203 9.26162 597.354Z" fill="#373636"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.31167 125.617C4.85958 125.607 5.3118 126.043 5.32173 126.591C5.65948 145.221 6.03735 163.974 6.41653 182.792C7.61406 242.222 8.82451 302.294 8.8245 361.166C8.8245 361.714 8.38026 362.158 7.83227 362.158C7.28427 362.158 6.84003 361.714 6.84003 361.166C6.84003 302.316 5.63016 242.272 4.43272 182.846C4.05349 164.025 3.67549 145.266 3.33758 126.627C3.32765 126.079 3.76376 125.627 4.31167 125.617Z" fill="#373636"/><path d="M1.9214 1.99802C1.9214 6.5113 1.9214 11.0246 1.9214 15.5379C1.9214 17.5704 1.88141 19.9323 2.31082 21.9184C2.99963 25.1041 2.75275 28.2382 3.0597 31.4442C3.35237 34.5009 3.80859 37.4644 3.80859 40.5506C3.80859 42.5047 4.02042 44.5327 4.09316 46.4968C4.23858 50.4229 4.22954 54.3543 4.36276 58.2842C4.49721 62.2505 4.73042 66.2121 4.872 70.1765C4.95039 72.3714 4.84435 74.5712 4.88698 76.7667C4.92685 78.8203 3.80859 86.2196 3.80859 88.2942" stroke="#373636" stroke-width="2.97671" stroke-linecap="round"/></svg></div><div class="en_border top"><svg viewBox="0 0 251 6" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M250.581 4.44217C250.511 4.98562 250.013 5.36903 249.47 5.29855C235.772 3.52207 219.647 3.69167 204.752 3.84834C200.637 3.89162 196.615 3.93392 192.765 3.93392C191.373 3.93392 189.966 4.248 188.454 4.59519L188.342 4.62074C186.905 4.95098 185.357 5.30679 183.822 5.30679C183.073 5.30679 182.248 5.33415 181.366 5.36344C181.291 5.36592 181.216 5.36842 181.14 5.37091C180.18 5.40258 179.163 5.43363 178.149 5.42836C176.145 5.41794 174.046 5.26759 172.334 4.63509C172.206 4.58788 172.003 4.57237 171.6 4.59396C171.552 4.59653 171.499 4.59988 171.442 4.60348C171.115 4.62422 170.655 4.65334 170.237 4.59013C169.688 4.50718 169.154 4.39509 168.661 4.29162C168.466 4.25086 168.278 4.21143 168.098 4.17565C167.439 4.0445 166.819 3.94615 166.148 3.93375C164.053 3.89504 161.943 3.74329 159.863 3.59365C159.693 3.58147 159.524 3.56931 159.355 3.55722C157.1 3.3958 154.879 3.24748 152.683 3.24748L139.888 3.24748C136.201 3.24748 132.627 3.54077 128.992 3.83905C127.163 3.98906 125.32 4.14033 123.439 4.25619C122.107 4.33825 120.774 4.42444 119.441 4.51069C113.296 4.90819 107.134 5.30679 100.906 5.30678C96.8127 5.30678 92.8003 4.78583 88.858 4.274L88.8185 4.26887C84.8431 3.75273 80.9378 3.24748 76.9672 3.24748L76.8522 3.24747C73.5515 3.24732 70.8734 3.2472 67.9982 4.3797C67.2577 4.6714 66.3038 4.74445 65.3615 4.73695C64.3919 4.72923 63.3105 4.63287 62.2515 4.51271C61.593 4.438 60.9191 4.35104 60.2802 4.2686C59.9003 4.21958 59.5328 4.17215 59.1883 4.12985C58.2341 4.0127 57.4492 3.93391 56.8992 3.93391C55.2005 3.93391 53.8576 4.08842 52.5444 4.23951C52.0854 4.29231 51.6301 4.3447 51.1645 4.38993C49.3712 4.56412 47.5509 4.6114 45.1343 4.08258C44.2041 3.87904 43.252 3.8982 42.1825 3.91973C41.8365 3.9267 41.4781 3.93391 41.1043 3.93391C38.735 3.93391 36.304 3.72167 33.9402 3.51528C32.8006 3.41578 31.6766 3.31765 30.5827 3.24531C20.9816 2.61046 11.429 2.33919 1.78938 2.21774C1.24142 2.21084 0.802811 1.76104 0.809723 1.21308C0.81662 0.665127 1.26642 0.226518 1.81438 0.233422C11.4734 0.355119 21.0643 0.627118 30.7136 1.26516C31.8984 1.34351 33.0689 1.44599 34.2306 1.5477C36.5422 1.7501 38.8189 1.94943 41.1043 1.94943C41.3816 1.94943 41.6767 1.94308 41.984 1.93647C43.0984 1.91248 44.3751 1.885 45.5585 2.14398C47.7101 2.6148 49.3097 2.57628 50.9726 2.41475C51.3819 2.375 51.8027 2.32652 52.2409 2.27604C53.5779 2.12203 55.0762 1.94943 56.8992 1.94943C57.5872 1.94943 58.4859 2.04424 59.4301 2.16017C59.8009 2.2057 60.179 2.25451 60.5627 2.30407C61.1872 2.38471 61.8268 2.46731 62.4753 2.54089C63.5134 2.65868 64.5129 2.74565 65.3773 2.75253C66.269 2.75963 66.9022 2.67856 67.271 2.5333C70.5004 1.26126 73.5128 1.26208 76.715 1.26295L76.9672 1.263C81.0798 1.263 85.1046 1.78554 89.0531 2.29819L89.0741 2.30091C93.0498 2.81709 96.9485 3.32231 100.906 3.32231C107.063 3.32231 113.148 2.92885 119.291 2.53168C120.63 2.4451 121.971 2.35835 123.317 2.27547C125.111 2.16494 126.912 2.01747 128.72 1.86934C132.405 1.56752 136.123 1.263 139.888 1.263L152.683 1.263C154.959 1.263 157.245 1.41663 159.497 1.5778C159.663 1.5897 159.829 1.60164 159.995 1.61357C162.087 1.76393 164.145 1.91192 166.184 1.94961C167.028 1.96521 167.782 2.08935 168.486 2.22929C168.708 2.27347 168.919 2.31792 169.127 2.3614C169.597 2.46014 170.043 2.55386 170.533 2.62796C170.724 2.65677 170.932 2.64463 171.263 2.62534C171.334 2.62122 171.411 2.61677 171.493 2.61233C171.886 2.5913 172.468 2.56889 173.022 2.77367C174.389 3.27896 176.194 3.43369 178.16 3.44391C179.131 3.44896 180.114 3.41922 181.075 3.38751C181.152 3.38496 181.23 3.38238 181.307 3.37982C182.18 3.3508 183.038 3.32231 183.822 3.32231C185.129 3.32231 186.488 3.01032 188.01 2.66104C189.487 2.32179 191.111 1.94944 192.765 1.94944C196.565 1.94944 200.55 1.90735 204.642 1.86413C219.554 1.70664 235.875 1.53428 249.725 3.33056C250.269 3.40104 250.652 3.89872 250.581 4.44217Z" fill="#373636"/></svg></div><div class="en_border bottom"><svg viewBox="0 0 262 6" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M261.801 4.9921C261.801 5.5401 261.357 5.98434 260.809 5.98434C249.335 5.98434 237.631 5.44407 226.512 4.90513C225.91 4.87595 225.309 4.84677 224.711 4.81769C214.245 4.30908 204.352 3.82824 195.671 3.82824C194.174 3.82824 192.739 4.04008 191.246 4.26548L191.154 4.27937C189.712 4.4973 188.205 4.72497 186.654 4.72497L174.598 4.72497L174.414 4.64817C174.294 4.59816 174.098 4.57882 173.681 4.60412C173.633 4.60706 173.579 4.61093 173.52 4.61513C173.181 4.63953 172.691 4.67476 172.247 4.59867C171.945 4.54703 171.288 4.50562 170.376 4.47876C169.489 4.45264 168.426 4.44151 167.354 4.4375C166.392 4.4339 165.414 4.43613 164.559 4.43809C163.531 4.44044 162.681 4.44239 162.246 4.43331C160.03 4.38698 158.587 4.24785 157.217 4.11579C157.127 4.10714 157.038 4.09852 156.948 4.08996C155.512 3.95223 154.094 3.82823 151.815 3.82823C149.628 3.82823 147.773 3.92218 145.894 4.01751L145.886 4.0179C144.011 4.113 142.112 4.20935 139.871 4.20935C137.843 4.20935 135.966 4.16202 134.144 4.11608C130.664 4.02834 127.382 3.94562 123.632 4.20695C116.164 4.72739 109.521 4.7263 102.132 4.72509C101.773 4.72503 101.413 4.72497 101.051 4.72497C96.8362 4.72497 92.8212 4.49983 88.8339 4.27625L88.8124 4.27504C84.8108 4.05066 80.8366 3.82823 76.6648 3.82823C75.2012 3.82823 74.4809 3.89732 73.4369 3.99744C73.2866 4.01186 73.1295 4.02692 72.9626 4.04251C71.6389 4.16614 69.7604 4.31596 65.8412 4.42807C65.0935 4.70852 64.1739 4.78051 63.271 4.77238C62.2586 4.76326 61.1311 4.64949 60.0298 4.50811C59.345 4.4202 58.6432 4.31775 57.9786 4.22074C57.584 4.16313 57.2025 4.10745 56.8456 4.05786C55.8534 3.92005 55.0429 3.82823 54.4776 3.82823C52.0417 3.82823 50.7083 3.67894 49.3657 3.52863L49.2536 3.51609C47.9075 3.36559 46.5059 3.21623 43.8175 3.21623L43.6965 3.21623L43.579 3.18715C43.0025 3.04443 41.8723 2.99124 40.5927 2.98647C39.9748 2.98416 39.3536 2.99269 38.7909 3.00193C38.6898 3.00359 38.5902 3.00528 38.4926 3.00694C38.0532 3.01441 37.6552 3.02117 37.3475 3.02117C36.1754 3.02117 35.0483 3.05136 33.9311 3.08128C31.7144 3.14065 29.5367 3.19897 27.123 3.01841C22.1763 2.64834 18.3271 2.7314 14.4492 2.89086C13.774 2.91862 13.097 2.94876 12.4127 2.97923C9.16734 3.12372 5.75665 3.27557 1.58682 3.21613C1.03888 3.20832 0.601013 2.75779 0.608826 2.20985C0.616638 1.66191 1.06714 1.22405 1.61508 1.23186C5.72174 1.29039 9.06779 1.14153 12.3101 0.997287C12.9985 0.966658 13.6823 0.936239 14.3676 0.908057C18.2802 0.747175 22.2152 0.661234 27.2711 1.03946C29.5903 1.21296 31.5946 1.15835 33.7444 1.09979C34.8819 1.0688 36.0603 1.03669 37.3475 1.03669C37.6367 1.03669 38.0125 1.03032 38.451 1.02288C38.5504 1.02119 38.6529 1.01945 38.7583 1.01772C39.3233 1.00844 39.9612 0.999622 40.6001 1.00201C41.7751 1.00639 43.077 1.0468 43.9307 1.23184C46.6439 1.23603 48.1022 1.39052 49.4741 1.5439L49.5903 1.5569C50.9025 1.70383 52.1521 1.84375 54.4776 1.84376C55.1989 1.84376 56.1379 1.95604 57.1186 2.09226C57.5051 2.14595 57.8984 2.20341 58.2974 2.2617C58.9457 2.35642 59.609 2.45333 60.2824 2.53978C61.3604 2.67816 62.3954 2.77993 63.2889 2.78798C64.2111 2.79629 64.8568 2.70133 65.2301 2.53497L65.4098 2.45491L65.6064 2.44944C69.6093 2.33788 71.4815 2.18773 72.778 2.06663C72.9408 2.05144 73.0955 2.03658 73.245 2.02223C74.3034 1.92063 75.1042 1.84375 76.6648 1.84376C80.8997 1.84376 84.9272 2.06959 88.9207 2.29352L88.9235 2.29368C92.9253 2.51807 96.8929 2.74049 101.051 2.74049C101.407 2.74049 101.761 2.74055 102.113 2.7406C109.517 2.74176 116.097 2.74278 123.494 2.22727C127.332 1.95982 130.775 2.04576 134.318 2.13418C136.121 2.1792 137.951 2.22487 139.871 2.22487C142.059 2.22487 143.914 2.13092 145.793 2.03559L145.801 2.0352C147.675 1.9401 149.574 1.84375 151.815 1.84375C154.183 1.84376 155.671 1.97388 157.138 2.11454C157.227 2.12305 157.315 2.13159 157.404 2.14014C158.766 2.27139 160.147 2.40451 162.288 2.44927C162.707 2.45802 163.512 2.45609 164.507 2.4537C165.361 2.45165 166.355 2.44927 167.361 2.45304C168.439 2.45707 169.522 2.46827 170.434 2.49514C171.322 2.52127 172.119 2.56353 172.581 2.64261C172.77 2.67482 172.975 2.66133 173.318 2.63878C173.392 2.63391 173.473 2.62862 173.561 2.62328C173.921 2.60143 174.446 2.57752 174.968 2.74049L186.654 2.74049C188.055 2.74049 189.435 2.53207 190.923 2.30726L190.95 2.30325C192.426 2.08028 194.003 1.84376 195.671 1.84376C204.402 1.84376 214.341 2.32686 224.788 2.83463C225.393 2.86402 226 2.8935 226.608 2.92298C237.731 3.46209 249.389 3.99987 260.809 3.99987C261.357 3.99987 261.801 4.44411 261.801 4.9921Z" fill="#373636"/></svg></div>')
+
+	if(animationTL) {animationTL.kill()}
+
+	animationTL = gsap.timeline({paused: true});
 
 }
 
-function updateLab(title, index){
+function innerEntrepreneur(){
 
-	if(labTL) {
-		labTL.kill()
-		labTL = new gsap.timeline()
-	} else {
-		labTL = new gsap.timeline()
+	var split1,
+		split2;
+
+	behaviours()
+
+	animateContent(true, split1, split2)
+
+	function resize(){
+
+		if(page == 'entrepreneur-inner') {
+
+			if(split1) { split1.revert() }
+			if(split2) { split2.revert() }
+
+		}
+
+	} resize();
+
+	function scrollFunc(){
+
 	}
 
-	var labWords = new SplitText('.en_lab > span', {type:"words", wordsClass:"SplitClass"});
+	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
-	labTL
+	window.addEventListener('resize', resize)
 
-	.to(labWords.words, 0.5, { y: '-110%', ease: "power3.in", stagger: 0.06 })
+}
+
+function animateContent(val, split1, split2) {
+
+	split1 = new SplitText('._sp1', {type:"chars", charsClass:"SplitClass"})
+	split2 = new SplitText('._sp2', {type:"lines", linesClass:"SplitClass"})
+
+	if(!val) { appendImgs(false) }
+
+	var target1 = split1.chars,
+		target2 = split2.lines;
+
+	if(animationTL) {animationTL.kill()}
+
+	animationTL = gsap.timeline({paused: val});
+
+	animationTL.set('.en_head', {autoAlpha: 1}, 0)
+
+	.from('.en_shape', 0.5, {x: 400, autoAlpha: 0, ease: 'power3.Out', stagger: 0.5}, 0)
+
+	.from('.en_head .alt_h1', 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out'}, 0)
+
+	.from(target1, 0.5, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.07}, 0)
+
+	.from(target2, 0.5, {y: 50, autoAlpha: 0, ease: 'power3.out', stagger: 0.1}, 0.5)
+
+	.set('.en_scroll', {autoAlpha: 1}, 1)
+
+	.from('.en_scroll span', 1, {x: 30, autoAlpha: 0, ease: 'power3.out'}, 1)
+
+	.from('.en_scroll i', 1, {scaleX: 0, ease: 'power3.out'}, 1.2)
 
 	.call(function(){
 
-		$('.en_lab > span').html(title)
+		$('body').removeClass('add-transit');
 
-		labWords = new SplitText('.en_lab > span', {type:"words", wordsClass:"SplitClass"});
+		startScroll()
 
-		if(isFirstHover){
-
-			isFirstHover = false;
-
-			gsap.to('.en_lab_set', 1, { autoAlpha: 1, ease: "power3.out" })
-
-		}
-
-		gsap.from(labWords.words, 0.5, { y: '110%', ease: "power3.out", stagger: 0.06 })
+		scroll.update()
 
 	})
 
 }
 
+function behaviours(){
 
-function enColsFlic() {
+	isHorizontal = false
 
-	if((sizes.width / sizes.height) < (3/2)){
+	canHideHeader = true
 
-		if ( isColsFlickity == false ) {
+	stopScroll()
 
-			build();
+	$('.en_scroll').click(function(){
 
-		};
-
-	} else {
-
-		if ( isColsFlickity == true ) {
-
-			lastActive = -1
-
-			$('.en_col_set').removeClass('bigger').css('width', '')
-
-			gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
-
-			isColsFlickity = false;
-
-			enCarousel.destroy();
-
-		};
-
-	};
-
-
-	function build(){
-
-		isColsFlickity = true;
-
-		lastActive = -1;
-
-		enCarousel = new Flickity('.en_wrap', {
-			prevNextButtons: false,
-			accessibility: true,
-			pageDots: false,
-			percentPosition: false,
-			contain: false,
-			groupCells: false,
-			cellAlign: 'left',
-			selectedAttraction: 0.3,
-			friction: 0.8
-		});
-
-		gsap.to('.en_lab_set', 0.5, { autoAlpha: 0, ease: "power3.out", onComplete: function(){ isFirstHover = true } })
-
-		$('.en_col_set').removeClass('hover')
-
-		enCarousel.on( 'dragStart', function( event, pointer ) {
-
-			isDragging = true;
-
-		});
-
-
-		enCarousel.on( 'settle', function( index ) {
-
-			let selected = $('.en_col_set').eq(index),
-				title = selected.attr('data-title');
-
-			isDragging = false;
-
-			if(lastActive != index) {
-
-				lastActive = index
-
-				updateLab(title, index)
-
-			}
-
-			$('.en_col_set').each(function(i){
-				let $this = $(this);
-				if( i != index ) {
-					gsap.to($this, 0.3, {width: parseFloat(20 * sizes.height) / 100, ease: 'power3.out' })
-				}
-			})
-
-			gsap.to(selected, 0.3, {width: parseFloat(40 * sizes.height) / 100, ease: 'power3.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
-				$('.en_col_set').removeClass('bigger').css('width', '')
-				selected.addClass('bigger')
-				enCarousel.resize()
-			} })
-
-			
-
+		scroll.scrollTo('.scroll_to', {
+			duration: 400,
+			disableLerp: false,
 		})
 
-	}
+	})
 
-};
+	$('.reload').click(function(){
 
-var isHorizontal = -1,
-	isFirstBuild = true,
-	resizing = false;
+		var activeIndex = $(this).attr('data-id'),
+			activeURL = $(this).attr('href')
 
-function journeyScroll(){
+		reloadInit(activeIndex, activeURL)
 
-	if(sizes.width > 768) {
-
-		if(isHorizontal == false || isFirstBuild) {
-
-			isHorizontal = true
-
-			canHideHeader = false
-
-			$('.jus_text ._splitWords').addClass('dirX')
-
-			if(scroll) { 
-				scroll.stop();
-				scroll.destroy();
-			}
-
-			$('.journey_bg').attr('data-scroll-direction', 'horizontal')
-
-			scroll = new LocomotiveScroll(
-			{
-				el: document.querySelector('[data-scroll-container]'),
-				smooth: true,
-				direction: 'horizontal',
-				scrollFromAnywhere: true,
-				lerp: 0.08,
-				smartphone: {
-					breakpoint: 0,
-					smooth: true
-				},
-				tablet: {
-					breakpoint: 0,
-					smooth: true
-				},
-			});
-
-			if(isFirstBuild) {
-
-				pageScroll(0);
-			}
-
-			scroll.on('scroll', (func, speed) => {
-
-				scrollVal = func.scroll.x
-
-				gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $('.ju_wrap').innerWidth() - sizes.width ) )) })
-
-				if(!isClicked) {tagsAdj()}
-
-				pageScroll(func);
-
-			});
-
-		}
-
-		if(sizes.width == lastWindowWidth) {
-			
-			resizing = true
-			$('.monk_nav_item.active').click()
-
-		}
-
-	} else {
-
-		if(isHorizontal == true || isFirstBuild) {
-
-			isHorizontal = false
-
-			canHideHeader = true
-
-			$('.jus_text ._splitWords').removeClass('dirX')
-
-			if(scroll) { 
-				scroll.stop();
-				scroll.destroy();
-			}
-
-			$('.journey_bg').attr('data-scroll-direction', 'vertical')
-
-			if(isFirstBuild) {
-
-				clearTimeout(window.menuTimer);
-
-				window.menuTimer = setTimeout(function(){
-
-					pageScroll(0);
-
-				}, 1000);
-
-			}
-
-			scroll = new LocomotiveScroll(
-			{
-				el: document.querySelector('[data-scroll-container]'),
-				smooth: true,
-				scrollFromAnywhere: true,
-				direction: 'vertical',
-				getDirection: true,
-				smartphone: {
-					smooth: false
-				},
-				tablet: {
-					smooth: false
-				}
-			});
-
-			scroll.on('scroll', (func, speed) => {
-
-				scrollVal = func.scroll.y
-
-				gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $(document).height() - sizes.height ) )) })
-
-				if(!isClicked) {tagsAdj()}
-
-				pageScroll(func);
-
-			});
-
-		}
-
-	}
-
-	isFirstBuild = false
-
-}
-
-let tagSection = $('.jus_tab'),
-	tabsCarousel,
-	current = false;
-
-function tagsAdj() {
-
-	tagSection.each(function(i){
-
-		let $this = $(this);
-
-		if(isHorizontal) {
-
-			if(i >= tagSection.length-2) {
-
-				if($this.offset().left <= (sizes.width) - $this.innerWidth()) {
-					$this.addClass('active')
-
-					current = $('.jus_tab.active:last');
-
-				} else {
-
-					$('.jus_tab, .monk_nav_item').removeClass('active')
-
-				}
-
-			} else {
-
-				if($this.offset().left <= (sizes.width/2) - ($this.innerWidth()/2)) {
-
-					$this.addClass('active')
-
-					current = $('.jus_tab.active:last');
-
-				} else {
-
-					$('.jus_tab, .monk_nav_item').removeClass('active')
-
-				}
-
-			}
-
-
-		} else {
-
-			if($this.isInViewport()) {
-
-				$this.addClass('active')
-
-				current = $('.jus_tab.active:last');
-
-			} else {
-
-				$this.removeClass('active')
-
-			}
-
-		}
+		return false
 
 	})
 
-	if(current) {
+}
 
-		let id = current.attr('id');
+function enContent(index, wrap, url){
 
-		if($('.monk_nav_item:not([data-id='+id+'])').hasClass('active')) {
-			$('.monk_nav_item:not([data-id='+id+'])').removeClass('active')
-		}
-
-		if(!$('.monk_nav_item[data-id='+id+']').hasClass('active')) {
-			$('.monk_nav_item[data-id='+id+']').addClass('active')
-		}
-
-		if(isHorizontal) {
-
-			current = false
-		}
-
+	switch(Number(index)) {
+		case 0:
+		$(wrap).html(enContent1);
+		break;
+		case 1:
+		$(wrap).html(enContent2);
+		break;
+		case 2:
+		$(wrap).html(enContent3);
+		break;
+		case 3:
+		$(wrap).html(enContent4);
+		break;
+		case 4:
+		$(wrap).html(enContent5);
+		break;
+		case 5:
+		$(wrap).html(enContent6);
+		break;
 	}
 
-	if(tabsCarousel) { tabsCarousel.select( $('.monk_nav_item.active:last').index(), false) }
+	behaviours()
+
+	global.history.pushState({}, null, url);
+
+	document.title = $('#getTitle').attr('data-title');
 
 }
 
-var isMouseDown = false;
+function reloadInit(index, url){
+
+	$('body').append('<div class="siteLoader" style="background: #040404; position: fixed; width: 100vw; height: 100vh; z-index: 99999; top: 0; visibility: hidden;"></div>')
+
+	gsap.to('.siteLoader', 0.5, {autoAlpha: 1, ease: 'power3.out', onComplete: function(){
+
+		scroll.scrollTo(0, { duration: 0, disableLerp: true})
+
+		enContent(index, '.reloadWrap', url)
+
+		let color = $('.en_head_wrap').attr('data-color')
+
+		$('.en_bg').css('background-color', hexToRgbA(color, 1))
+
+		transitionParams.transition2 = 1
+
+		gsap.to(transitionParams, 1.5, {transition2: 0, ease: 'power3.out', delay: 0.5, onStart: function(){
+
+			$('header').removeClass('invisble')
+
+			$('.siteLoader').remove();
+
+			animateContent(false)
+
+		}, onComplete: function(){
+
+
+		}})
+
+	}})
+
+}
 
 function journeyPage(){
 
-	if(sizes.width > 768) {
+	var tagSection = $('.jus_tab'),
+		tabsCarousel,
+		pos = { left: 0, x: 0 },
+		current = false,
+		isFirstBuild = true,
+		isMouseDown = false,
+		resizing = false;
 
-		$('.jus_text ._splitWords').addClass('dirX')
+	isHorizontal = -1
 
-	}
-
-	let pos = { left: 0, x: 0 };
+	canHideHeader = false
 
 	gsap.from('._in', 1, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.2, delay: 1})
 
+	function resize(){
+
+		if(page == 'journey') {
+
+			if(sizes.width > 768) {
+
+				if(isHorizontal == false || isFirstBuild) {
+
+					isHorizontal = true
+
+					canHideHeader = false
+
+					$('.jus_text ._splitWords').addClass('dirX')
+
+					if(scroll) {
+						scroll.stop();
+						scroll.destroy();
+					}
+
+					$('.journey_bg').attr('data-scroll-direction', 'horizontal')
+
+					scroll = new LocomotiveScroll(
+					{
+						el: document.querySelector('[data-scroll-container]'),
+						smooth: true,
+						direction: 'horizontal',
+						scrollFromAnywhere: true,
+						lerp: 0.08,
+						smartphone: {
+							breakpoint: 0,
+							smooth: true
+						},
+						tablet: {
+							breakpoint: 0,
+							smooth: true
+						},
+					});
+
+					if(isFirstBuild) {
+
+						pageScroll(0);
+					}
+
+					scroll.on('scroll', (func, speed) => {
+
+						scrollVal = func.scroll.x
+
+						gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $('.ju_wrap').innerWidth() - sizes.width ) )) })
+
+						if(!isClicked) {tagsAdj()}
+
+						pageScroll(func);
+
+					});
+
+				}
+
+				if(sizes.width == lastWindowWidth) {
+					
+					resizing = true
+					$('.monk_nav_item.active').click()
+
+				}
+
+			} else {
+
+				if(isHorizontal == true || isFirstBuild) {
+
+					isHorizontal = false
+
+					canHideHeader = true
+
+					$('.jus_text ._splitWords').removeClass('dirX')
+
+					if(scroll) { 
+						scroll.stop();
+						scroll.destroy();
+					}
+
+					$('.journey_bg').attr('data-scroll-direction', 'vertical')
+
+					if(isFirstBuild) {
+
+						clearTimeout(window.menuTimer);
+
+						window.menuTimer = setTimeout(function(){
+
+							pageScroll(0);
+
+						}, 1000);
+
+					}
+
+					scroll = new LocomotiveScroll(
+					{
+						el: document.querySelector('[data-scroll-container]'),
+						smooth: true,
+						scrollFromAnywhere: true,
+						direction: 'vertical',
+						getDirection: true,
+						smartphone: {
+							smooth: false
+						},
+						tablet: {
+							smooth: false
+						}
+					});
+
+					scroll.on('scroll', (func, speed) => {
+
+						scrollVal = func.scroll.y
+
+						gsap.set('.monk_nav_progress i', {scaleX: scrollVal / ( ( ( $(document).height() - sizes.height ) )) })
+
+						if(!isClicked) {tagsAdj()}
+
+						pageScroll(func);
+
+					});
+
+				}
+
+			}
+
+			isFirstBuild = false
+
+			journeyScroll(0)
+
+		}
+
+	} resize()
+
+	function journeyScroll(val){
+
+		if(isHorizontal == false) {
+
+			scrollVal = 0
+
+			if(val != 0 ) {
+
+				scrollVal = val.scroll.y;
+
+			}
+		}
+
+	}
+
+	function tagsAdj() {
+
+		tagSection.each(function(i){
+
+			let $this = $(this);
+
+			if(isHorizontal) {
+
+				if(i >= tagSection.length-2) {
+
+					if($this.offset().left <= (sizes.width) - $this.innerWidth()) {
+						$this.addClass('active')
+
+						current = $('.jus_tab.active:last');
+
+					} else {
+
+						$('.jus_tab, .monk_nav_item').removeClass('active')
+
+					}
+
+				} else {
+
+					if($this.offset().left <= (sizes.width/2) - ($this.innerWidth()/2)) {
+
+						$this.addClass('active')
+
+						current = $('.jus_tab.active:last');
+
+					} else {
+
+						$('.jus_tab, .monk_nav_item').removeClass('active')
+
+					}
+
+				}
+
+
+			} else {
+
+				if($this.isInViewport()) {
+
+					$this.addClass('active')
+
+					current = $('.jus_tab.active:last');
+
+				} else {
+
+					$this.removeClass('active')
+
+				}
+
+			}
+
+		})
+
+		if(current) {
+
+			let id = current.attr('id');
+
+			if($('.monk_nav_item:not([data-id='+id+'])').hasClass('active')) {
+				$('.monk_nav_item:not([data-id='+id+'])').removeClass('active')
+			}
+
+			if(!$('.monk_nav_item[data-id='+id+']').hasClass('active')) {
+				$('.monk_nav_item[data-id='+id+']').addClass('active')
+			}
+
+			if(isHorizontal) {
+
+				current = false
+			}
+
+		}
+
+		if(tabsCarousel) { tabsCarousel.select( $('.monk_nav_item.active:last').index(), false) }
+
+	}
+
 	const mouseDownHandler = function (e) {
+
 
 		if(isHorizontal && !isMenu) {
 
@@ -2404,7 +2635,6 @@ function journeyPage(){
 			isMouseDown = true
 
 		}
-
 
     }
 
@@ -2431,6 +2661,7 @@ function journeyPage(){
 	document.addEventListener('mousemove', mouseMoveHandler)
     document.addEventListener('mousedown', mouseDownHandler);
 	document.addEventListener('mouseup', mouseUpHandler)
+	window.addEventListener('resize', resize)
 
 	tabsCarousel = new Flickity( '.monk_nav_items', {
 		prevNextButtons: false,
@@ -2478,272 +2709,68 @@ function journeyPage(){
 
 	})
 
+	if(sizes.width > 768) {
+
+		$('.jus_text ._splitWords').addClass('dirX')
+
+	}
+
 	$('.line_v').append('<span><svg width="4" height="14" viewBox="0 0 4 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.57579 17.5335C2.57579 5.75526 3.00003 1.60612 3.00003 1.3009e-08L1.00003 3.68579e-08C1.00003 1.60612 1.48488 5.75526 1.48488 17.5335C1.48488 29.2447 1.00003 33.3939 1.00003 35L3.00004 35C3.00004 33.3939 2.57579 29.2447 2.57579 17.5335Z" fill="#373636"/></svg></span><span><svg viewBox="0 0 4 1" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M2.57579 4.59656C2.57579 -29.392 3.00003 -41.3652 3.00003 -46L1.00003 -46C1.00003 -41.3652 1.48488 -29.392 1.48488 4.59656C1.48488 38.392 1.00003 50.3652 1.00003 55L3.00004 55C3.00004 50.3652 2.57579 38.392 2.57579 4.59656Z" fill="#373636"/></svg></span><span><svg width="4" height="14" viewBox="0 0 4 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.57579 17.5335C2.57579 5.75526 3.00003 1.60612 3.00003 1.3009e-08L1.00003 3.68579e-08C1.00003 1.60612 1.48488 5.75526 1.48488 17.5335C1.48488 29.2447 1.00003 33.3939 1.00003 35L3.00004 35C3.00004 33.3939 2.57579 29.2447 2.57579 17.5335Z" fill="#373636"/></svg></span>')
 	$('.jus_year').append('<i class="line line_h before"><span><svg width="10" height="4" viewBox="0 0 10 4" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.5335 1.42421C5.75526 1.42421 1.60612 0.999965 1.30094e-08 0.999965L1.30085e-08 2.99997C1.60612 2.99997 5.75526 2.51512 17.5335 2.51512C29.2447 2.51512 33.3939 2.99997 35 2.99997V0.999965C33.3939 0.999965 29.2447 1.42421 17.5335 1.42421Z" fill="#373636"/></svg></span><span><svg viewBox="0 0 1 4" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M2.09656 1.42421C-31.892 1.42421 -43.8652 0.999965 -48.5 0.999965L-48.5 2.99997C-43.8652 2.99997 -31.892 2.51512 2.09656 2.51512C35.892 2.51512 47.8652 2.99997 52.5 2.99997V0.999965C47.8652 0.999965 35.892 1.42421 2.09656 1.42421Z" fill="#373636"/></svg></span></i><i class="line line_h after"><span><svg width="10" height="4" viewBox="0 0 10 4" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.5335 1.42421C5.75526 1.42421 1.60612 0.999965 1.30094e-08 0.999965L1.30085e-08 2.99997C1.60612 2.99997 5.75526 2.51512 17.5335 2.51512C29.2447 2.51512 33.3939 2.99997 35 2.99997V0.999965C33.3939 0.999965 29.2447 1.42421 17.5335 1.42421Z" fill="#373636"/></svg></span><span><svg viewBox="0 0 1 4" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M2.09656 1.42421C-31.892 1.42421 -43.8652 0.999965 -48.5 0.999965L-48.5 2.99997C-43.8652 2.99997 -31.892 2.51512 2.09656 2.51512C35.892 2.51512 47.8652 2.99997 52.5 2.99997V0.999965C47.8652 0.999965 35.892 1.42421 2.09656 1.42421Z" fill="#373636"/></svg></span></i>')
 
-}
+	if(animationTL) {animationTL.kill()}
 
-var nGridWrap = $('.n_grid_wrap'),
-	nGrid = $('.n_grid'),
-	nGridInner = $('.n_grid_inner'),
-	nGridSide= $('.au_grid_side_items'),
-	sideBox,
-	sideBoxLeft,
-	sideBoxTop,
-	authorCarousel,
-	contentTL,
-	fluid = true,
-	isFirstMove = true,
-	isStep = false,
-	canMove = false,
-	authorStarted = false,
-	canSwitch = true,
-	isClosed = true,
-	canClose = false,
-	inBound = false,
-	mPadd = 60,
-	damp = 20,
-	mX = 0,
-	mX2 = 0,
-	posX = 0,
-	mY = 0,
-	mY2 = 0,
-	posY = 0,
-	galW,
-	galH,
-	galSW,
-	galSH,
-	wDiff,
-	hDiff,
-	mmAA,
-	mmAAr,
-	mmBB,
-	mmBBr,
-	authorTL;
-
-
-function nGridReset(){
-
-	posX = (sizes.width/2);
-	posY = (sizes.height/2);
-	galW = nGridWrap.outerWidth(true)
-	galH = nGridWrap.outerHeight(true)
-	galSW = nGridWrap[0].scrollWidth
-	galSH = nGridWrap[0].scrollHeight
-	wDiff = (galSW / galW) - 1
-	hDiff = (galSH / galH) - 1
-	mmAA = galW - (mPadd * 2)
-	mmAAr = (galW / mmAA)
-	mmBB = galH - (mPadd * 2)
-	mmBBr = (galH / mmBB)
-
-	nGridWrap.scrollTop(nGrid.position().top);
-	nGridWrap.scrollLeft(nGrid.position().left);
+	animationTL = gsap.timeline({paused: true});
 
 }
-
-function matchBoxes($this, val){
-
-	$this.addClass('moved')
-
-	var id = $this.attr('data-id'),
-		getW,
-		getH,
-		offsetLeft = $this.offset().left,
-		offsetTop = $this.offset().top;
-
-	sizes.width > 1000 ? getW = 135 : getW = 50
-
-	if($this.hasClass('sizeA')){
-		sideBox = $('.au_side_box.sizeA[data-id='+id+']');
-		sizes.width > 1000 ? getH = 135 : getH = 50
-	} else {
-		sideBox = $('.au_side_box.sizeB[data-id='+id+']');
-		sizes.width > 1000 ? getH = 175 : getH = 65
-	}
-
-	sideBoxLeft = sideBox.offset().left;
-	sideBoxTop = sideBox.offset().top;
-
-	var currentWidth = $this.outerWidth();
-	var currentHeight = $this.outerHeight();
-
-	var scaleX = getW / currentWidth;
-	var scaleY = getH / currentHeight;
-
-	scaleY = Math.min(scaleX, scaleY);
-	scaleX = scaleX;
-
-	var translationX = Math.round((getW - (currentWidth * scaleX)) / 2);
-	var translationY = Math.round((getH - (currentHeight * scaleY)) / 2);
-
-	gsap.set($this, {x: 0 - (sizes.width/2) + (getW/2) + sideBoxLeft, y: 0 - (sizes.height/2) + (getH/2) + sideBoxTop, scale: scaleY, rotate: 0 })
-
-	setActive(false)
-
-}
-
-function authorFlic(argument) {
-
-	if(sizes.width <= 1000) {
-
-		if ( isColsFlickity == false ) {
-
-			build();
-
-		};
-
-	} else {
-
-		if ( isColsFlickity == true ) {
-
-			isColsFlickity = false;
-
-			authorCarousel.destroy();
-
-		};
-
-	};
-
-	function build(){
-
-		isColsFlickity = true;
-
-		authorCarousel = new Flickity( '.au_grid_side_items', {
-			prevNextButtons: false,
-			accessibility: true,
-			pageDots: false,
-			percentPosition: false,
-			freeScroll: true,
-			contain: true,
-			cellAlign: 'left',
-		});
-
-		authorCarousel.on( 'scroll', function( event, progress ) {
-
-			if($('.au_grid_box.moved').length != 0) {
-
-				$('.au_grid_box').each(function(){
-
-					var $this = $(this)
-
-					if(!$this.hasClass('active')) {
-
-						matchBoxes($this, true);
-
-					}
-
-				})
-			}
-
-		})
-
-		authorCarousel.on( 'settle', function( event, index ) {
-
-			isDragging = false;
-
-			if(scroll) { scroll.start() }
-
-			$('body').removeClass('hidden')
-
-		});
-
-		authorCarousel.on( 'dragStart', function( event, pointer ) {
-
-			isDragging = true;
-
-			if(scroll) { scroll.stop() }
-
-			$('body').addClass('hidden')
-
-		});
-
-
-	}
-
-
-}
-
-function setActive(reposition){
-
-	let $this = $('.au_grid_box.active');
-
-	if($this.length != 0) {
-
-		let W = $('.au_current_cover').innerWidth(),
-			H = $('.au_current_cover').innerHeight();
-
-		gsap.set($this, {width: W, height: H })
-
-		var offsetLeft = $this.offset().left,
-			offsetLeft = $this.offset().left,
-			offsetTop = $this.offset().top,
-			getX = $('.au_current_cover').offset().left,
-			getY = $('.au_current_cover').offset().top;
-
-		gsap.set($this, {x: 0 - (sizes.width/2) + (W/2) + getX, y: 0 - (sizes.height/2) + (H/2) + getY, scale: 1, rotate: 0 })
-
-		if(sizes.width <= 1000) {
-
-			if(reposition) {
-
-				authorCarousel.resize();
-
-			}
-
-		}
-	}
-
-}
-
-function fillWrap(div) {
-
-	var currentWidth = div.outerWidth();
-	var currentHeight = div.outerHeight();
-
-	var availableHeight = window.innerHeight;
-	var availableWidth = window.innerWidth;
-
-	var scaleX = availableWidth / currentWidth;
-	var scaleY = availableHeight / currentHeight;
-
-	scaleY = Math.min(scaleX, scaleY);
-	scaleX = scaleX;
-
-	var translationX = Math.round((availableWidth - (currentWidth * scaleX)) / 2);
-	var translationY = Math.round((availableHeight - (currentHeight * scaleY)) / 2);
-
-	gsap.set(div, {scale: scaleY })
-
-}
-
-function setBooks(){
-
-	gsap.set('.au_grid_box', {
-		x: function(index, target){
-			var	element = document.querySelector('.n_grid'),
-			wrapWidth = element.getBoundingClientRect().width,
-			getWidth = target.getBoundingClientRect().width,
-			getScale = wrapWidth / element.offsetWidth,
-			getOffset = target.offsetLeft,
-			ofVal;
-			return - (getWidth/getScale) - getOffset + (((wrapWidth - width)/2) / getScale)
-		},
-		scale: 0.5,
-		y: 300
-	})
-}
-
 
 function authorPage(){
 
-	var coords = [0,0],
+	var nGridWrap = $('.n_grid_wrap'),
+		nGrid = $('.n_grid'),
+		nGridInner = $('.n_grid_inner'),
+		nGridSide= $('.au_grid_side_items'),
+		coords = [0,0],
 		box_area = {x1:0, y1:0, x2:0, y2:0},
-		buttonArea = {x1:0, y1:0, x2:0, y2:0};
+		buttonArea = {x1:0, y1:0, x2:0, y2:0},
+		authorStarted = false,
+		fluid = true,
+		isStep = false,
+		canMove = false,
+		canSwitch = true,
+		isClosed = true,
+		canClose = false,
+		inBound = false,
+		isMouseIn = false,
+		sideBox,
+		sideBoxLeft,
+		sideBoxTop,
+		authorCarousel,
+		contentTL,
+		lastHovered = -1,
+		mPadd = 60,
+		damp = 20,
+		mX = 0,
+		mX2 = 0,
+		posX = 0,
+		mY = 0,
+		mY2 = 0,
+		posY = 0,
+		galW,
+		galH,
+		galSW,
+		galSH,
+		wDiff,
+		hDiff,
+		mmAA,
+		mmAAr,
+		mmBB,
+		mmBBr,
+		boxTL;
 
 	canHideHeader = true
 
-	if(scroll) { scroll.stop() }
+	stopScroll()
 
 	function store_boundary() {
 		var B = nGridSide,
@@ -2775,121 +2802,6 @@ function authorPage(){
 			}
 		return false;
 	};
-
-
-	if(!isMobile) {
-
-		$(window).on('mousemove', function(e) {
-
-			var C = coords;
-
-			C[0] = e.pageX;
-			C[1] = e.pageY;
-
-			if(!isClosed) {
-
-				store_boundary()
-
-				if(sizes.width > 1000) {
-					if(is_mouse_in_area(buttonArea)){
-						$('body').css('cursor', 'pointer')
-						$('.au_text a').addClass('hover')
-					} else {
-						$('body').css('cursor', 'default')
-						$('.au_text a').removeClass('hover')
-					}
-				}
-
-				if(is_mouse_in_area(box_area) || is_mouse_in_area(buttonArea)){
-
-					if(fluid) {
-
-						fluid = false
-
-						canClose = false
-
-						gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
-
-						inBound = true
-
-						if(sizes.width <= 1000) {
-							stopScroll()
-						}
-
-					}
-
-				} else {
-
-					if(!fluid) {
-
-						fluid = true
-
-						canClose = true
-
-						gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
-
-						inBound = false
-
-						if(sizes.width <= 1000) {
-							startScroll()
-						}
-
-					}
-
-				}
-
-			}
-
-			gsap.to('.fluid_close', 0.3, {
-				x:function(index, target) {
-					return e.pageX - (target.offsetWidth/2);
-				},
-				y:function(index, target) {
-					return e.pageY - (target.offsetHeight/2);
-				}
-			})
-
-			if(!$('body').hasClass('wait') && canMove) {
-
-				mX = e.pageX - nGridWrap.parent().offset().left - nGridWrap.offset().left;
-				mY = e.pageY - nGridWrap.parent().offset().top - nGridWrap.offset().top;
-
-				mX2 = Math.min(Math.max(0, mX - mPadd), mmAA) * mmAAr;
-				mY2 = Math.min(Math.max(0, mY - mPadd), mmBB) * mmBBr;
-
-				if(!isStep) {
-
-					isStep = true;
-
-					step();
-
-				}
-
-			}
-
-		});
-
-		function step() {
-
-			if(!$('body').hasClass('progress')) {
-
-				posX += (mX2 - posX) / damp;
-				posY += (mY2 - posY) / damp;
-
-				if(canMove) {
-
-					nGridWrap.scrollTop(posY * hDiff);
-					nGridWrap.scrollLeft(posX * wDiff);
-				}
-
-				window.requestAnimationFrame(step);
-
-			}
-
-		}
-
-
-	}
 
 	function closeBox(){
 
@@ -2974,7 +2886,7 @@ function authorPage(){
 
 			canMove = false;
 
-			contentTL = new gsap.timeline({delay: 0.5});
+			contentTL = new gsap.timeline();
 
 			isClosed = false;
 
@@ -3094,16 +3006,450 @@ function authorPage(){
 
 	}
 
+	function nGridReset(){
+
+		posX = (sizes.width/2);
+		posY = (sizes.height/2);
+		galW = nGridWrap.outerWidth(true)
+		galH = nGridWrap.outerHeight(true)
+		galSW = nGridWrap[0].scrollWidth
+		galSH = nGridWrap[0].scrollHeight
+		wDiff = (galSW / galW) - 1
+		hDiff = (galSH / galH) - 1
+		mmAA = galW - (mPadd * 2)
+		mmAAr = (galW / mmAA)
+		mmBB = galH - (mPadd * 2)
+		mmBBr = (galH / mmBB)
+
+		nGridWrap.scrollTop(nGrid.position().top);
+		nGridWrap.scrollLeft(nGrid.position().left);
+
+	}
+
+	function matchBoxes($this, val){
+
+		$this.addClass('moved')
+
+		var id = $this.attr('data-id'),
+			getW,
+			getH,
+			offsetLeft = $this.offset().left,
+			offsetTop = $this.offset().top;
+
+		sizes.width > 1000 ? getW = 135 : getW = 50
+
+		if($this.hasClass('sizeA')){
+			sideBox = $('.au_side_box.sizeA[data-id='+id+']');
+			sizes.width > 1000 ? getH = 135 : getH = 50
+		} else {
+			sideBox = $('.au_side_box.sizeB[data-id='+id+']');
+			sizes.width > 1000 ? getH = 175 : getH = 65
+		}
+
+		sideBoxLeft = sideBox.offset().left;
+		sideBoxTop = sideBox.offset().top;
+
+		var currentWidth = $this.outerWidth();
+		var currentHeight = $this.outerHeight();
+
+		var scaleX = getW / currentWidth;
+		var scaleY = getH / currentHeight;
+
+		scaleY = Math.min(scaleX, scaleY);
+		scaleX = scaleX;
+
+		var translationX = Math.round((getW - (currentWidth * scaleX)) / 2);
+		var translationY = Math.round((getH - (currentHeight * scaleY)) / 2);
+
+		console.log(sideBoxLeft)
+
+		gsap.set($this, {x: 0 - (sizes.width/2) + (getW/2) + sideBoxLeft, y: 0 - (sizes.height/2) + (getH/2) + sideBoxTop, scale: scaleY, rotate: 0 })
+
+		setActive(false)
+
+	}
+
+	function authorFlic(argument) {
+
+		if(sizes.width <= 1000) {
+
+			if ( isColsFlickity == false ) {
+
+				build();
+
+			};
+
+		} else {
+
+			if ( isColsFlickity == true ) {
+
+				isColsFlickity = false;
+
+				authorCarousel.destroy();
+
+			};
+
+		};
+
+		function build(){
+
+			isColsFlickity = true;
+
+			authorCarousel = new Flickity( '.au_grid_side_items', {
+				prevNextButtons: false,
+				accessibility: true,
+				pageDots: false,
+				percentPosition: false,
+				freeScroll: true,
+				contain: true,
+				cellAlign: 'left',
+			});
+
+			authorCarousel.on( 'click', 'a', function( event ) {
+				if ( event.currentTarget != flickity.selectedElement ) {
+					event.preventDefault();
+				}
+			});
+
+			authorCarousel.on( 'scroll', function( event, progress ) {
+
+				if($('.au_grid_box.moved').length != 0) {
+
+					$('.au_grid_box').each(function(){
+
+						var $this = $(this)
+
+						if(!$this.hasClass('active')) {
+
+							matchBoxes($this, true);
+
+						}
+
+					})
+				}
+
+			})
+
+			authorCarousel.on( 'settle', function( event, index ) {
+
+				isDragging = false;
+
+				if(scroll) { scroll.start() }
+
+				$('body').removeClass('hidden')
+
+			});
+
+			authorCarousel.on( 'dragStart', function( event, pointer ) {
+
+				isDragging = true;
+
+				if(scroll) { scroll.stop() }
+
+				$('body').addClass('hidden')
+
+			});
+
+		}
+
+	}
+
+	function setActive(reposition){
+
+		let $this = $('.au_grid_box.active');
+
+		if($this.length != 0) {
+
+			let W = $('.au_current_cover').innerWidth(),
+				H = $('.au_current_cover').innerHeight();
+
+			gsap.set($this, {width: W, height: H })
+
+			var offsetLeft = $this.offset().left,
+				offsetLeft = $this.offset().left,
+				offsetTop = $this.offset().top,
+				getX = $('.au_current_cover').offset().left,
+				getY = $('.au_current_cover').offset().top;
+
+			gsap.set($this, {x: 0 - (sizes.width/2) + (W/2) + getX, y: 0 - (sizes.height/2) + (H/2) + getY, scale: 1, rotate: 0 })
+
+			if(sizes.width <= 1000) {
+
+				if(reposition) {
+
+					authorCarousel.resize();
+
+				}
+
+			}
+		}
+
+	}
+
+	function fillWrap(div) {
+
+		var currentWidth = div.outerWidth();
+		var currentHeight = div.outerHeight();
+
+		var availableHeight = window.innerHeight;
+		var availableWidth = window.innerWidth;
+
+		var scaleX = availableWidth / currentWidth;
+		var scaleY = availableHeight / currentHeight;
+		console.log(scaleY)
+
+		scaleY = Math.min(scaleX, scaleY);
+
+
+		gsap.set(div, {scale: scaleY })
+
+	}
+
+	function setBooks(){
+
+		gsap.set('.au_grid_box', {
+			x: function(index, target){
+				var	element = document.querySelector('.n_grid'),
+				wrapWidth = element.getBoundingClientRect().width,
+				getWidth = target.getBoundingClientRect().width,
+				getScale = wrapWidth / element.offsetWidth,
+				getOffset = target.offsetLeft,
+				ofVal;
+				return - (getWidth/getScale) - getOffset + (((wrapWidth - width)/2) / getScale)
+			},
+			scale: 0.5,
+			y: 300
+		})
+	}
+
+	function step() {
+
+		if(page == 'author') {
+
+			if(!$('body').hasClass('progress')) {
+
+				posX += (mX2 - posX) / damp;
+				posY += (mY2 - posY) / damp;
+
+				if(canMove) {
+
+					nGridWrap.scrollTop(posY * hDiff);
+					nGridWrap.scrollLeft(posX * wDiff);
+				}
+
+				// window.requestAnimationFrame(step);
+
+			}
+		}
+
+	}
+
+	function resize(){
+
+		if(page == 'author') {
+
+			isStep = false;
+			galW = nGridWrap.outerWidth(true)
+			galH = nGridWrap.outerHeight(true)
+			galSW = nGridWrap[0].scrollWidth
+			galSH = nGridWrap[0].scrollHeight
+			wDiff = (galSW / galW) - 1
+			hDiff = (galSH / galH) - 1
+			mmAA = galW - (mPadd * 2)
+			mmAAr = (galW / mmAA)
+			mmBB = galH - (mPadd * 2)
+			mmBBr = (galH / mmBB)
+
+			nGridReset();
+
+			authorFlic();
+
+			if(!authorStarted) {
+
+				authorStarted = true
+
+				fillWrap(nGridInner)
+
+				setBooks()
+
+			} else {
+
+				if($('.au_grid_box.moved').length != 0) {
+
+					$('.au_grid_box').each(function(){
+
+						var $this = $(this)
+
+						if(!$this.hasClass('active')) {
+
+							matchBoxes($this, true);
+
+						}
+
+					})
+
+				}
+
+			}
+		}
+
+	} resize();
+
+	function scrollFunc(){
+
+		if($('.au_grid_box.moved').length != 0) {
+
+			$('.au_grid_box').each(function(){
+
+				var $this = $(this)
+
+				if(!$this.hasClass('active')) {
+
+					if(sizes.width > 1000) {
+						matchBoxes($this, true);
+					}
+
+				} else {
+					setActive(false)
+				}
+
+			})
+
+		}
+
+	}
+
+	function wheel(e){
+
+		if(page == 'author') {
+			if(!isMenu && inBound && sizes.width <= 1000 && page == 'author') {
+				flickity_handle_wheel_event(e, authorCarousel);
+			}
+		}
+
+	}
+
+	document.addEventListener('wheel', wheel);
+
+	window.addEventListener( 'resize', resize);
+
+	scroll.on('scroll', (func, speed) => {
+
+		scrollFunc()
+
+	});
+
+	if(!isMobile) {
+
+		$(window).on('mousemove', function(e) {
+
+			if(page == 'author') {
+
+				var C = coords;
+
+				C[0] = e.pageX;
+				C[1] = e.pageY;
+
+				if(!isClosed) {
+
+					store_boundary()
+
+					if(sizes.width > 1000) {
+						if(is_mouse_in_area(buttonArea)){
+							$('body').css('cursor', 'pointer')
+							$('.au_text a').addClass('hover')
+						} else {
+							$('body').css('cursor', 'default')
+							$('.au_text a').removeClass('hover')
+						}
+					}
+
+					if(is_mouse_in_area(box_area) || is_mouse_in_area(buttonArea)){
+
+						if(fluid) {
+
+							fluid = false
+
+							canClose = false
+
+							gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
+
+							inBound = true
+
+							if(sizes.width <= 1000) {
+								stopScroll()
+							}
+
+						}
+
+					} else {
+
+						if(!fluid) {
+
+							fluid = true
+
+							canClose = true
+
+							gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
+
+							inBound = false
+
+							if(sizes.width <= 1000) {
+								startScroll()
+							}
+
+						}
+
+					}
+
+				}
+
+				gsap.to('.fluid_close', 0.3, {
+					x:function(index, target) {
+						return e.pageX - (target.offsetWidth/2);
+					},
+					y:function(index, target) {
+						return e.pageY - (target.offsetHeight/2);
+					}
+				})
+
+				if(!$('body').hasClass('wait') && canMove) {
+
+					mX = e.pageX - nGridWrap.parent().offset().left - nGridWrap.offset().left;
+					mY = e.pageY - nGridWrap.parent().offset().top - nGridWrap.offset().top;
+
+					mX2 = Math.min(Math.max(0, mX - mPadd), mmAA) * mmAAr;
+					mY2 = Math.min(Math.max(0, mY - mPadd), mmBB) * mmBBr;
+
+					if(!isStep) {
+
+						isStep = true;
+
+						step();
+
+					}
+
+				}
+
+			}
+
+		});
+
+	}
 
 	$('body').on('click', function () {
 
-		if(sizes.width > 1000) {
+		if(!isMenu) {
 
-			if(is_mouse_in_area(buttonArea)){
+			if(sizes.width > 1000) {
 
-				let url = $('.au_link a').attr('href')
+				if(is_mouse_in_area(buttonArea)){
 
-				window.open(url, '_blank').focus();
+					let url = $('.au_link a').attr('href')
+
+					window.open(url, '_blank').focus();
+
+				}
 
 			}
 
@@ -3111,39 +3457,13 @@ function authorPage(){
 
 	})
 
-	authorTL = gsap.timeline({delay: 2});
-
-	authorTL.set('.au_grid_wrap', {autoAlpha: 1})
-
-	.to('.au_grid_box', 0.5, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
-
-	.call(function(){
-
-		clearTimeout(window.authorTimer);
-
-		window.authorTimer = setTimeout(function(){
-
-			$('.au_grid_box').css({"transform":""})
-			$('.n_grid_blocks').addClass('split')
-
-		}, 500);
-
-	})
-
-	.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut'}, 1.7)
-
-	.call(function(){
-
-		canMove = true
-
-	})
 
 	$('.au_side_box').on('click', function () {
 
 		let $this = $(this),
 			id = $this.attr('data-id');
 
-		if(sizes.width <= 1000 && !isDragging) {
+		if(sizes.width <= 1000) {
 
 			if($this.hasClass('sizeA')) {
 			
@@ -3161,17 +3481,17 @@ function authorPage(){
 
 	$('.close').on('click', function () {
 
-		lastHovered = -1
+		if(!isMenu) {
 
-		isMouseIn = false;
+			lastHovered = -1
 
-		closeBox();
+			isMouseIn = false;
+
+			closeBox();
+
+		}
 
 	})
-
-	let boxTL,
-		isMouseIn = false,
-		lastHovered = -1
 
 	$('.author_nav_item').on('click', function () {
 
@@ -3211,8 +3531,6 @@ function authorPage(){
 			if(sizes.width > 768 && lastHovered != i) {
 
 				lastHovered = i
-
-				console.log(lastHovered, i)
 
 				clearTimeout(window.navTimer);
 
@@ -3421,11 +3739,43 @@ function authorPage(){
 
 	$('.n_grid_blocks').addClass('split')
 
+	if(animationTL) {animationTL.kill()}
+
+	animationTL = gsap.timeline({paused: true});
+
+	animationTL.set('.au_grid_wrap', {autoAlpha: 1})
+
+	.to('.au_grid_box', 0.5, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
+
+	.call(function(){
+
+		clearTimeout(window.authorTimer);
+
+		window.authorTimer = setTimeout(function(){
+
+			$('.au_grid_box').css({"transform":""})
+
+		}, 500);
+
+	})
+
+	.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut'}, 1.7)
+
+	.call(function(){
+
+		$('.au_grid_box').append('<div class="hero_borders full_bg"> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> </div>')
+
+		gsap.to('.au_grid_box .hero_borders', 0.3, { autoAlpha: 1, ease: 'power3.out'})
+
+		canMove = true
+
+	})
+
 }
 
 function staticPage(){
 
-	canHideHeader = true;
+	canHideHeader = false;
 
 	var faqTL;
 
@@ -3475,6 +3825,11 @@ function staticPage(){
 
 		checkBox.hasClass('active') ? checkBox.removeClass('active') : checkBox.addClass('active')
 	})
+
+	if(animationTL) {animationTL.kill()}
+
+	animationTL = gsap.timeline({paused: true});
+
 }
 
 

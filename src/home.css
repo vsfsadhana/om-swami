@@ -31,6 +31,11 @@ body:not(.progress) .cloud {
 	-webkit-transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+body:not(.progress) .lb_set i {
+	transition: all 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	-webkit-transition: all 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
 .tip {
 	text-transform: uppercase;
 	position: absolute;
@@ -417,6 +422,10 @@ body:not(.progress) .cloud {
 	.cloud_text p {
 		font-size: 1.667vw;
 		letter-spacing: -0.02604vw;
+		line-height: 1.5vw;
+	}
+	.cloud_text p > span > span {
+		padding: 0.2vw 0;
 	}
 }
 
@@ -425,7 +434,10 @@ body:not(.progress) .cloud {
 	height: 145.81px;
 	position: absolute;
 	z-index: 199;
-	visibility: hidden;
+}
+
+.lb_set:hover i {
+	transform: scaleX(1.15);
 }
 
 .lb_set.scene_a {
