@@ -367,7 +367,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	// music()
+	music()
 
 	window.onblur = function(){
 
@@ -3061,8 +3061,6 @@ function authorPage(){
 		var translationX = Math.round((getW - (currentWidth * scaleX)) / 2);
 		var translationY = Math.round((getH - (currentHeight * scaleY)) / 2);
 
-		console.log(sideBoxLeft)
-
 		gsap.set($this, {x: 0 - (sizes.width/2) + (getW/2) + sideBoxLeft, y: 0 - (sizes.height/2) + (getH/2) + sideBoxTop, scale: scaleY, rotate: 0 })
 
 		setActive(false)
@@ -3196,10 +3194,8 @@ function authorPage(){
 
 		var scaleX = availableWidth / currentWidth;
 		var scaleY = availableHeight / currentHeight;
-		console.log(scaleY)
 
 		scaleY = Math.min(scaleX, scaleY);
-
 
 		gsap.set(div, {scale: scaleY })
 
