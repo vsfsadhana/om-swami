@@ -217,13 +217,11 @@ p {
 
 .small {
 	font-size: 1.2vw;
-	line-height: 1.35vw;
 	letter-spacing: -0.01vw;
 }
 
 .medium {
 	font-size: 2vw;
-	font-size: 2.2vw;
 }
 
 .large {
@@ -632,11 +630,9 @@ header.opened .menu_label span:first-child {
 	}
 	.small {
 		font-size: 2.7vw;
-		line-height: 2.8vw;
 	}
 	.ju_text .small {
 		font-size: 2.7vw !important;
-		line-height: 2.8vw !important;
 	}
 	.medium {
 		font-size: 5vw;
@@ -708,11 +704,9 @@ header.opened .menu_label span:first-child {
 	}
 	.small {
 		font-size: 3.7vw;
-		line-height: 4.1vw;
 	}
 	.ju_text .small {
 		font-size: 4.7vw !important;
-		line-height: 4.8vw !important;
 		letter-spacing: -0.1vw !important;
 	}
 	.header_set {

@@ -111,6 +111,9 @@ var page = $('body').attr('id'),
 	curY,
 	ajaxTL,
 	menuTL,
+	split1,
+	split2,
+	splitDone = false,
 	animationTL,
 	scroll,
 	scrollVal = 0,
@@ -337,6 +340,8 @@ function support_format_webp(img) {
 	var elem = document.createElement('canvas')
 
 	if (!!(elem.getContext && elem.getContext('2d'))) { return img.substr(0, img.lastIndexOf(".")) + ".webp" } else { return img}
+
+	return img
 }
 
 function init() {
@@ -367,7 +372,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -415,6 +420,8 @@ function init() {
 	ajaxPageLoader.setAfterAjaxLoadingEvent((ajaxLink) => {
 
 		if(!$('body').hasClass('wait')) {
+
+			splitDone = false
 
 			if(ajaxTL) { ajaxTL.kill() }
 
@@ -1862,8 +1869,6 @@ function entrepreneurPage(){
 		enCarousel,
 		lastActive = 1,
 		isEntrepreneurActive = false,
-		split1,
-		split2,
 		isFirstHover = true,
 		isColsFlickity = false;
 
@@ -1878,9 +1883,10 @@ function entrepreneurPage(){
 			if(!isEntrepreneurActive){
 				enColsFlic()
 			}
-
-			if(split1) { split1.revert() }
-			if(split2) { split2.revert() }
+			if(splitDone) {
+				if(split1) { split1.revert() }
+				if(split2) { split2.revert() }
+			}
 
 		}
 
@@ -1938,6 +1944,7 @@ function entrepreneurPage(){
 
 			scroll.update()
 
+			splitDone = true
 		})
 
 		.from('.en_scroll span', 1, {x: 30, autoAlpha: 0, ease: 'power3.out'}, 1)
@@ -2219,19 +2226,18 @@ function entrepreneurPage(){
 
 function innerEntrepreneur(){
 
-	var split1,
-		split2;
-
 	behaviours()
 
-	animateContent(true, split1, split2)
+	animateContent(true)
 
 	function resize(){
 
 		if(page == 'entrepreneur-inner') {
 
-			if(split1) { split1.revert() }
-			if(split2) { split2.revert() }
+			if (splitDone) {
+				if(split1) { split1.revert() }
+				if(split2) { split2.revert() }
+			}
 
 		}
 
@@ -2247,7 +2253,7 @@ function innerEntrepreneur(){
 
 }
 
-function animateContent(val, split1, split2) {
+function animateContent(val) {
 
 	split1 = new SplitText('._sp1', {type:"chars", charsClass:"SplitClass"})
 	split2 = new SplitText('._sp2', {type:"lines", linesClass:"SplitClass"})
@@ -2271,6 +2277,12 @@ function animateContent(val, split1, split2) {
 
 	.from(target2, 0.5, {y: 50, autoAlpha: 0, ease: 'power3.out', stagger: 0.1}, 0.5)
 
+	.call(function(){
+
+		startScroll()
+
+	})
+
 	.set('.en_scroll', {autoAlpha: 1}, 1)
 
 	.from('.en_scroll span', 1, {x: 30, autoAlpha: 0, ease: 'power3.out'}, 1)
@@ -2279,9 +2291,9 @@ function animateContent(val, split1, split2) {
 
 	.call(function(){
 
-		$('body').removeClass('add-transit');
+		splitDone = true
 
-		startScroll()
+		$('body').removeClass('add-transit');
 
 		scroll.update()
 
@@ -2884,9 +2896,7 @@ function authorPage(){
 			getTitle = $this.attr('data-title'),
 			getTitleLong = $this.attr('aria-label'),
 			getText = $this.attr('data-text'),
-			split1,
 			target1,
-			split2,
 			target2;
 
 		if(isClosed) {
@@ -2918,11 +2928,7 @@ function authorPage(){
 
 			.call(function(){
 
-				split1.revert()
-
-				if(scroll) {
-					scroll.update();
-				};
+				scroll.update();
 
 			})
 
@@ -2932,11 +2938,7 @@ function authorPage(){
 
 				canSwitch = true
 
-				split2.revert()
-
-				if(scroll) {
-					scroll.update();
-				};
+				scroll.update();
 
 			})
 
