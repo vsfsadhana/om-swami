@@ -2046,7 +2046,7 @@ function entrepreneurPage(){
 					}
 				})
 
-				gsap.to(selected, 0.7, {width: parseFloat(40 * sizes.height) / 100, ease: 'power4.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
+				gsap.to(selected, 0.7, {width: parseFloat(40 * sizes.height) / 100, ease: 'power4.out', onUpdate: function(){}, onComplete: function(){
 					enCarousel.resize()
 					$('.en_col_set').removeClass('bigger').css('width', '')
 					selected.addClass('bigger')
