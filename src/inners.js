@@ -2440,6 +2440,7 @@ function journeyPage(){
 					if(isFirstBuild) {
 
 						pageScroll(0);
+						journeyScroll(0);
 					}
 
 					scroll.on('scroll', (func, speed) => {
@@ -2451,6 +2452,7 @@ function journeyPage(){
 						if(!isClicked) {tagsAdj()}
 
 						pageScroll(func);
+						journeyScroll(func);
 
 					});
 
@@ -2487,6 +2489,7 @@ function journeyPage(){
 						window.menuTimer = setTimeout(function(){
 
 							pageScroll(0);
+							journeyScroll(0);
 
 						}, 1000);
 
@@ -2516,6 +2519,7 @@ function journeyPage(){
 						if(!isClicked) {tagsAdj()}
 
 						pageScroll(func);
+						journeyScroll(func);
 
 					});
 
@@ -2533,6 +2537,7 @@ function journeyPage(){
 
 	function journeyScroll(val){
 
+
 		if(isHorizontal == false) {
 
 			scrollVal = 0
@@ -2540,6 +2545,7 @@ function journeyPage(){
 			if(val != 0 ) {
 
 				scrollVal = val.scroll.y;
+
 
 			}
 		}
@@ -2671,6 +2677,8 @@ function journeyPage(){
 		cellAlign: 'left',
 	});
 
+	resizing = false
+
 	$('.monk_nav_item').on('click', function(){
 
 		var index = $(this).index(),
@@ -2690,7 +2698,8 @@ function journeyPage(){
 			}
 
 		} else {
-			offset = scrollVal + $('#' + id).offset().top - (sizes.width/2) + ($('#' + id).innerHeight()/2) + 5
+			offset = $('#' + id).offset().top - (sizes.width/2) + ($('#' + id).innerHeight()/2) + 5
+
 		}
 
 		$('.monk_nav_item').removeClass('active')
