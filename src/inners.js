@@ -97,6 +97,7 @@ var page = $('body').attr('id'),
 	isDragging = false,
 	canScroll = false,
 	isClicked = false,
+	isAnimation = false,
 	canHideHeader = false,
 	isButtonLoaded = false,
 	isButtonHidden = false,
@@ -111,6 +112,7 @@ var page = $('body').attr('id'),
 	curY,
 	ajaxTL,
 	menuTL,
+	split0,
 	split1,
 	split2,
 	splitDone = false,
@@ -372,7 +374,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -631,8 +633,7 @@ function onWindowResize(e, value) {
 
 		if(sizes.width != lastWindowWidth) {
 
-
-			if(!val) { $('body').addClass('progress');}
+			if(!val && !isAnimation) {$('body').addClass('progress');}
 
 			setH();
 
@@ -642,7 +643,7 @@ function onWindowResize(e, value) {
 
 		setH();
 			
-		if(!val) { $('body').addClass('progress');  }
+		if(!val && !isAnimation) { $('body').addClass('progress');  }
 
 	}
 
@@ -976,47 +977,58 @@ function animateEle($this, eleY, eleX) {
 
 }
 
-function flickity_handle_wheel_event(e, flickity_instance) {
 
-	window.wheeldelta = {}
+function flickity_handle_wheel_event(e, flickity_instance, stop) {
 
-	if (!window.wheeling) {
+	if(stop) {
 
-		if(e.deltaX > 0 || e.deltaY < 0){
+		var direction = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
 
-			flickity_instance.previous();
+		direction > 0 ? flickity_instance.next() : flickity_instance.previous()
 
-		} else if(e.deltaX < 0 || e.deltaY > 0){
+	} else {
 
-			flickity_instance.next();
+		window.wheeldelta = {}
+
+		if (!window.wheeling) {
+
+			if(e.deltaX > 0 || e.deltaY < 0){
+
+				flickity_instance.previous();
+
+			} else if(e.deltaX < 0 || e.deltaY > 0){
+
+				flickity_instance.next();
+
+			}
 
 		}
 
-	}
+		clearTimeout(window.wheeling);
 
-	clearTimeout(window.wheeling);
+		window.wheeling = setTimeout(function() {
 
-	window.wheeling = setTimeout(function() {
+			delete window.wheeling;
 
-		delete window.wheeling;
+			window.wheeldelta.x = 0;
+			window.wheeldelta.y = 0;
 
-		window.wheeldelta.x = 0;
-		window.wheeldelta.y = 0;
+		}, 50);
 
-	}, 50);
+		window.wheeldelta.x += e.deltaFactor * e.deltaX;
+		window.wheeldelta.y += e.deltaFactor * e.deltaY;
 
-	window.wheeldelta.x += e.deltaFactor * e.deltaX;
-	window.wheeldelta.y += e.deltaFactor * e.deltaY;
+		if(window.wheeldelta.x > 500 || window.wheeldelta.y > 500 || window.wheeldelta.x < -500 || window.wheeldelta.y < -500){
 
-	if(window.wheeldelta.x > 500 || window.wheeldelta.y > 500 || window.wheeldelta.x < -500 || window.wheeldelta.y < -500){
+			window.wheeldelta.x = 0;
+			window.wheeldelta.y = 0;
 
-		window.wheeldelta.x = 0;
-		window.wheeldelta.y = 0;
+			if(e.deltaX > 0 || e.deltaY < 0){
+				flickity_instance.previous();
+			} else if(e.deltaX < 0 || e.deltaY > 0){
+				flickity_instance.next();
+			}
 
-		if(e.deltaX > 0 || e.deltaY < 0){
-			flickity_instance.previous();
-		} else if(e.deltaX < 0 || e.deltaY > 0){
-			flickity_instance.next();
 		}
 
 	}
@@ -2757,6 +2769,7 @@ function authorPage(){
 		authorStarted = false,
 		fluid = true,
 		isStep = false,
+		canHover = false,
 		canMove = false,
 		canSwitch = true,
 		isClosed = true,
@@ -2822,7 +2835,7 @@ function authorPage(){
 				}
 			}
 		return false;
-	};
+	}
 
 	function closeBox(){
 
@@ -2863,6 +2876,8 @@ function authorPage(){
 					canSwitch = true
 					canMove = true
 					nGridReset()
+					$('.au_grid_box').addClass('no-transition')
+					$('.au_grid_side_items').removeClass('audio physical')
 				}
 
 			}, 800);
@@ -2899,6 +2914,8 @@ function authorPage(){
 			target1,
 			target2;
 
+		splitDone = false
+
 		if(isClosed) {
 
 			nGridReset();
@@ -2917,51 +2934,58 @@ function authorPage(){
 
 			$('.au_btn').attr('href', getURL);
 
-			split1 = new SplitText('#getTitle', {type:"words", wordsClass:"SplitClass"})
-			target1 = split1.words
+			$('.au_text').addClass('split')
+
+			split0 = new SplitText('#getTitle', {type:"lines", linesClass:"SplitClass"})
+
+			split1 = new SplitText(split0.lines, {type:"lines", linesClass:"SplitClass"})
+			target1 = split1.lines
 			split2 = new SplitText('#getText', {type:"lines", linesClass:"SplitClass"})
 			target2 = split2.lines
 
 			contentTL.set('.au_content', {autoAlpha: 1}, 0)
 
-			.from(target1, 0.5, {y: '40%', autoAlpha: 0, ease: 'power3.out', stagger: 0.05 }, 0)
+			.from(target1, 1, {y: '100%', ease: 'power4.out', stagger: 0.1 }, 0)
 
-			.call(function(){
-
-				scroll.update();
-
-			})
-
-			.from(target2, 0.5, {y: '40', autoAlpha: 0, ease: 'power3.out', stagger: 0.05}, 0)
+			.from(target2, 1, {y: '40', autoAlpha: 0, ease: 'power4.out', stagger: 0.05}, 0)
 
 			.call(function(){
 
 				canSwitch = true
 
+				splitDone = true
+
 				scroll.update();
 
 			})
 
-			.fromTo('#getYear', 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'}, 0)
+			.fromTo('#getYear', 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power4.out'}, 0)
 
-			.fromTo('#bookURL', 1, {y: '40', autoAlpha: 0}, {y: '0', autoAlpha: 1, ease: 'power3.out'}, 0)
+			.fromTo('.au_btn', 1, {y: '40', autoAlpha: 0}, {y: '0', autoAlpha: 1, ease: 'power4.out'}, 0)
 
 
 		} else {
 
-			split1 = new SplitText('#getTitle', {type:"words", wordsClass:"SplitClass"})
-			target1 = split1.words
+			split0.revert()
+			split1.revert()
+			split2.revert()
+
+			split0 = new SplitText('#getTitle', {type:"lines", linesClass:"SplitClass"})
+			split1 = new SplitText('#getTitle > div', {type:"lines", linesClass:"SplitClass"})
+			target1 = split1.lines
 			split2 = new SplitText('#getText', {type:"lines", linesClass:"SplitClass"})
 			target2 = split2.lines
 			contentTL = new gsap.timeline();
 
+			$('.au_text').addClass('split')
+
 			contentTL
 
-			.to('#getYear', 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
+			.to('#getYear', 1, {autoAlpha: 0, ease: 'power4.in'}, 0)
 
-			.to(target1, 0.5, {y: '-40', autoAlpha: 0, ease: 'power3.in', stagger: 0.05}, 0)
+			.to(target1, 1, {y: '-100%', ease: 'power4.in', stagger: 0.1}, 0)
 
-			.to('.au_btn', 1, {y: '-40', autoAlpha: 0, ease: 'power3.in'}, 0)
+			.to('.au_btn', 1, {y: '-40', autoAlpha: 0, ease: 'power4.in'}, 0)
 
 			.call(function(){
 
@@ -2971,22 +2995,15 @@ function authorPage(){
 
 				$('.au_btn').attr('href', getURL);
 
-				split1 = new SplitText('#getTitle', {type:"words", wordsClass:"SplitClass"})
-				target1 = split1.words
+				split0 = new SplitText('#getTitle', {type:"lines", linesClass:"SplitClass"})
+				split1 = new SplitText('#getTitle > div', {type:"lines", linesClass:"SplitClass"})
+				target1 = split1.lines
 
-				gsap.from(target1, 0.5, {y: '40%', autoAlpha: 0, ease: 'power3.out', stagger: 0.05, onComplete: function(){
-
-					split1.revert()
-
-					if(scroll) {
-						scroll.update();
-					};
-
-				}})
+				gsap.from(target1, 1, {y: '100%', ease: 'power4.out', stagger: 0.1})
 
 			})
 
-			.to(target2, 0.5, {y: '-40', autoAlpha: 0, ease: 'power3.in'}, 0.05, 0)
+			.to(target2, 1, {y: '-100%', autoAlpha: 0, ease: 'power4.in'}, 0.05, 0)
 
 			.call(function(){
 
@@ -2995,23 +3012,23 @@ function authorPage(){
 				split2 = new SplitText('#getText', {type:"lines", linesClass:"SplitClass"})
 				target2 = split2.lines
 
-				gsap.from(target2, 0.5, {y: '40', autoAlpha: 0, ease: 'power3.out', stagger: 0.05, onComplete: function(){
+				gsap.from(target2, 1, {y: '40', autoAlpha: 0, ease: 'power4.out', stagger: 0.05, onComplete: function(){
 
 					canSwitch = true
 
-					split2.revert()
+					if(scroll) { scroll.update() }
 
-					if(scroll) {
-						scroll.update();
-					};
+					splitDone = true
 
 				}})
 
-
-				gsap.fromTo('#getYear', 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'})
-
-				gsap.fromTo('.au_btn', 1, {y: '40', autoAlpha: 0}, {y: '0', autoAlpha: 1, ease: 'power3.out'})
 			})
+
+			// .fromTo('#getYear', 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power4.out'}, 0)
+
+			.set('.au_btn', {y: '40'})
+
+			.to('.au_btn', 1, {y: 0, autoAlpha: 1, ease: 'power4.out'})
 
 		}
 
@@ -3047,14 +3064,14 @@ function authorPage(){
 			offsetLeft = $this.offset().left,
 			offsetTop = $this.offset().top;
 
-		sizes.width > 1000 ? getW = 135 : getW = 50
+		sizes.width > 1200 ? getW = 135 : getW = 50
 
 		if($this.hasClass('sizeA')){
 			sideBox = $('.au_side_box.sizeA[data-id='+id+']');
-			sizes.width > 1000 ? getH = 135 : getH = 50
+			sizes.width > 1200 ? getH = 135 : getH = 50
 		} else {
 			sideBox = $('.au_side_box.sizeB[data-id='+id+']');
-			sizes.width > 1000 ? getH = 175 : getH = 65
+			sizes.width > 1200 ? getH = 209 : getH = 65
 		}
 
 		sideBoxLeft = sideBox.offset().left;
@@ -3067,10 +3084,6 @@ function authorPage(){
 		var scaleY = getH / currentHeight;
 
 		scaleY = Math.min(scaleX, scaleY);
-		scaleX = scaleX;
-
-		var translationX = Math.round((getW - (currentWidth * scaleX)) / 2);
-		var translationY = Math.round((getH - (currentHeight * scaleY)) / 2);
 
 		gsap.set($this, {x: 0 - (sizes.width/2) + (getW/2) + sideBoxLeft, y: 0 - (sizes.height/2) + (getH/2) + sideBoxTop, scale: scaleY, rotate: 0 })
 
@@ -3080,7 +3093,7 @@ function authorPage(){
 
 	function authorFlic(argument) {
 
-		if(sizes.width <= 1000) {
+		if(sizes.width <= 1200) {
 
 			if ( isColsFlickity == false ) {
 
@@ -3114,11 +3127,8 @@ function authorPage(){
 				cellAlign: 'left',
 			});
 
-			authorCarousel.on( 'click', 'a', function( event ) {
-				if ( event.currentTarget != flickity.selectedElement ) {
-					event.preventDefault();
-				}
-			});
+			authorCarousel.on('dragStart', () => authorCarousel.slider.childNodes.forEach(slide => slide.style.pointerEvents = "none") );
+			authorCarousel.on('dragEnd', () => authorCarousel.slider.childNodes.forEach(slide => slide.style.pointerEvents = "all") );
 
 			authorCarousel.on( 'scroll', function( event, progress ) {
 
@@ -3143,9 +3153,7 @@ function authorPage(){
 
 				isDragging = false;
 
-				if(scroll) { scroll.start() }
-
-				$('body').removeClass('hidden')
+				startScroll()
 
 			});
 
@@ -3153,9 +3161,7 @@ function authorPage(){
 
 				isDragging = true;
 
-				if(scroll) { scroll.stop() }
-
-				$('body').addClass('hidden')
+				stopScroll()
 
 			});
 
@@ -3165,14 +3171,14 @@ function authorPage(){
 
 	function setActive(reposition){
 
-		let $this = $('.au_grid_box.active');
+		let $this = $('.au_grid_box.active'),
+			getW = $this.outerWidth(),
+			getH = $this.outerHeight();
 
 		if($this.length != 0) {
 
 			let W = $('.au_current_cover').innerWidth(),
 				H = $('.au_current_cover').innerHeight();
-
-			gsap.set($this, {width: W, height: H })
 
 			var offsetLeft = $this.offset().left,
 				offsetLeft = $this.offset().left,
@@ -3180,9 +3186,14 @@ function authorPage(){
 				getX = $('.au_current_cover').offset().left,
 				getY = $('.au_current_cover').offset().top;
 
-			gsap.set($this, {x: 0 - (sizes.width/2) + (W/2) + getX, y: 0 - (sizes.height/2) + (H/2) + getY, scale: 1, rotate: 0 })
+			var scaleX = W / getW;
+			var scaleY = H / getH;
 
-			if(sizes.width <= 1000) {
+			scaleY = Math.min(scaleX, scaleY);
+
+			gsap.set($this, {x: 0 - (sizes.width/2) + (W/2) + getX, y: 0 - (sizes.height/2) + (H/2) + getY, scale: scaleY, rotate: 0 })
+
+			if(sizes.width <= 1200) {
 
 				if(reposition) {
 
@@ -3244,7 +3255,7 @@ function authorPage(){
 					nGridWrap.scrollLeft(posX * wDiff);
 				}
 
-				// window.requestAnimationFrame(step);
+				window.requestAnimationFrame(step);
 
 			}
 		}
@@ -3255,48 +3266,60 @@ function authorPage(){
 
 		if(page == 'author') {
 
-			isStep = false;
-			galW = nGridWrap.outerWidth(true)
-			galH = nGridWrap.outerHeight(true)
-			galSW = nGridWrap[0].scrollWidth
-			galSH = nGridWrap[0].scrollHeight
-			wDiff = (galSW / galW) - 1
-			hDiff = (galSH / galH) - 1
-			mmAA = galW - (mPadd * 2)
-			mmAAr = (galW / mmAA)
-			mmBB = galH - (mPadd * 2)
-			mmBBr = (galH / mmBB)
+			if(!isAnimation) {
 
-			nGridReset();
+				isStep = false;
+				galW = nGridWrap.outerWidth(true)
+				galH = nGridWrap.outerHeight(true)
+				galSW = nGridWrap[0].scrollWidth
+				galSH = nGridWrap[0].scrollHeight
+				wDiff = (galSW / galW) - 1
+				hDiff = (galSH / galH) - 1
+				mmAA = galW - (mPadd * 2)
+				mmAAr = (galW / mmAA)
+				mmBB = galH - (mPadd * 2)
+				mmBBr = (galH / mmBB)
 
-			authorFlic();
+				$('.au_grid_box').addClass('no-transition')
 
-			if(!authorStarted) {
+				nGridReset();
 
-				authorStarted = true
+				authorFlic();
 
-				fillWrap(nGridInner)
+				if(!authorStarted) {
 
-				setBooks()
+					authorStarted = true
 
-			} else {
+					fillWrap(nGridInner)
 
-				if($('.au_grid_box.moved').length != 0) {
+					setBooks()
 
-					$('.au_grid_box').each(function(){
+				} else {
 
-						var $this = $(this)
+					if($('.au_grid_box.moved').length != 0) {
 
-						if(!$this.hasClass('active')) {
+						$('.au_grid_box').each(function(){
 
-							matchBoxes($this, true);
+							var $this = $(this)
 
-						}
+							if(!$this.hasClass('active')) {
 
-					})
+								matchBoxes($this, true);
+
+							}
+
+						})
+
+					}
 
 				}
+			}
 
+			if(splitDone) {
+				if(split0) { split0.revert() }
+				if(split1) { split1.revert() }
+				if(split2) { split2.revert() }
+				$('.au_text').removeClass('split')
 			}
 		}
 
@@ -3312,7 +3335,7 @@ function authorPage(){
 
 				if(!$this.hasClass('active')) {
 
-					if(sizes.width > 1000) {
+					if(sizes.width > 1200) {
 						matchBoxes($this, true);
 					}
 
@@ -3329,8 +3352,9 @@ function authorPage(){
 	function wheel(e){
 
 		if(page == 'author') {
-			if(!isMenu && inBound && sizes.width <= 1000 && page == 'author') {
-				flickity_handle_wheel_event(e, authorCarousel);
+			if(!isMenu && inBound && sizes.width <= 1200 && page == 'author') {
+				flickity_handle_wheel_event(e, authorCarousel, true);
+				stopScroll()
 			}
 		}
 
@@ -3340,11 +3364,7 @@ function authorPage(){
 
 	window.addEventListener( 'resize', resize);
 
-	scroll.on('scroll', (func, speed) => {
-
-		scrollFunc()
-
-	});
+	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
 	if(!isMobile) {
 
@@ -3361,7 +3381,7 @@ function authorPage(){
 
 					store_boundary()
 
-					if(sizes.width > 1000) {
+					if(sizes.width > 1200) {
 						if(is_mouse_in_area(buttonArea)){
 							$('body').css('cursor', 'pointer')
 							$('.au_text a').addClass('hover')
@@ -3379,11 +3399,13 @@ function authorPage(){
 
 							canClose = false
 
+							$('.fluid_close').css('pointer-events', 'none')
+
 							gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
 
 							inBound = true
 
-							if(sizes.width <= 1000) {
+							if(sizes.width <= 1200) {
 								stopScroll()
 							}
 
@@ -3399,9 +3421,11 @@ function authorPage(){
 
 							gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
 
+							$('.fluid_close').css('pointer-events', 'all')
+
 							inBound = false
 
-							if(sizes.width <= 1000) {
+							if(sizes.width <= 1200) {
 								startScroll()
 							}
 
@@ -3448,7 +3472,7 @@ function authorPage(){
 
 		if(!isMenu) {
 
-			if(sizes.width > 1000) {
+			if(sizes.width > 1200) {
 
 				if(is_mouse_in_area(buttonArea)){
 
@@ -3464,13 +3488,12 @@ function authorPage(){
 
 	})
 
-
 	$('.au_side_box').on('click', function () {
 
 		let $this = $(this),
 			id = $this.attr('data-id');
 
-		if(sizes.width <= 1000) {
+		if(sizes.width <= 1200) {
 
 			if($this.hasClass('sizeA')) {
 			
@@ -3509,19 +3532,29 @@ function authorPage(){
 
 				$('.author_nav_item').removeClass('active')
 
+				$('.au_grid_box').addClass('fast')
+
 				$this.addClass('active')
 
-				gsap.set('.au_grid_box', {autoAlpha: 1})
+				$('.n_grid_blocks, .au_grid_side_items').removeClass('audio physical')
 
 			if(id == 1) {
 
-				gsap.set('.au_grid_box.sizeA', {autoAlpha: 0.2})
+				$('.n_grid_blocks').addClass('physical')
 
 			} else if(id == 2) {
 
-				gsap.set('.au_grid_box.sizeB', {autoAlpha: 0.2})
+				$('.n_grid_blocks, .au_grid_side_items').addClass('audio')
 
 			}
+
+			clearTimeout(window.transition);
+
+			window.transition = setTimeout(function(){
+
+				$('.au_grid_box').removeClass('fast')
+
+			}, 400);
 
 		}
 
@@ -3529,45 +3562,49 @@ function authorPage(){
 
 	$('.au_grid_box').on('mouseenter', function () {
 
-		let $this = $(this),
-			i = $this.index(),
-			title = $this.attr('data-title');
+		if(canHover) {
 
-		if($('.au_grid_box.moved').length == 0) {
+			let $this = $(this),
+				i = $this.index(),
+				title = $this.attr('data-title');
 
-			if(sizes.width > 768 && lastHovered != i) {
+			if($('.au_grid_box.moved').length == 0) {
 
-				lastHovered = i
+				if(sizes.width > 768 && lastHovered != i) {
 
-				clearTimeout(window.navTimer);
+					clearTimeout(window.navTimer);
 
-				window.navTimer = setTimeout(function(){
+					window.navTimer = setTimeout(function(){
 
-					if(isMouseIn) {
+						if(isMouseIn) {
 
-						if(boxTL) {boxTL.kill()}
+							lastHovered = i
 
-						boxTL = new gsap.timeline()
+							if(boxTL) {boxTL.kill()}
 
-						boxTL.set('#getCurTitle span', {autoAlpha: 1})
+							boxTL = new gsap.timeline()
 
-						.to('#getCurTitle span', 0.3, {y: '-100%', ease: 'power3.in'})
+							boxTL.set('#getCurTitle span', {autoAlpha: 1})
 
-						.call(function(){
+							.to('#getCurTitle span', 0.6, {y: '-105%', ease: 'power4.in'})
 
-							$('#getCurTitle span').html(title)
+							.call(function(){
 
-						})
+								$('#getCurTitle span').html(title)
 
-						.set('#getCurTitle span', {y: '100%'})
+							})
 
-						.to('#getCurTitle span', 0.3, {y: '0%', ease: 'power3.out'})
+							.set('#getCurTitle span', {y: '105%'})
 
-					}
+							.to('#getCurTitle span', 0.6, {y: '0%', ease: 'power4.out'})
 
-				}, 300);
+						}
 
-				isMouseIn = true;
+					}, 200);
+
+					isMouseIn = true;
+
+				}
 
 			}
 
@@ -3579,27 +3616,31 @@ function authorPage(){
 
 	}).on('mouseleave', function () {
 
-		if(sizes.width > 768) {
+		if(canHover) {
 
-			clearTimeout(window.navTimer);
+			if(sizes.width > 768) {
 
-			window.navTimer = setTimeout(function(){
+				clearTimeout(window.navTimer);
 
-				if(!isMouseIn) {
+				window.navTimer = setTimeout(function(){
 
-					lastHovered = -1
+					if(!isMouseIn) {
 
-					gsap.to('#getCurTitle span', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){
+						lastHovered = -1
 
-						$('#getCurTitle span').html('')
+						gsap.to('#getCurTitle span', 0.3, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){
 
-						gsap.set('#getCurTitle span', {autoAlpha: 1})
+							$('#getCurTitle span').html('')
 
-					}})
+							gsap.set('#getCurTitle span', {autoAlpha: 1})
 
-				}
+						}})
 
-			}, 300);
+					}
+
+				}, 400);
+
+			}
 
 			isMouseIn = false;
 
@@ -3623,6 +3664,12 @@ function authorPage(){
 				if(!$this.hasClass('active')) {
 
 					isClosed = true;
+
+					$('.author_nav_item').removeClass('active').eq(0).addClass('active')
+
+					$('.n_grid_blocks').removeClass('audio physical')
+
+					$('.au_grid_box').removeClass('no-transition')
 
 					gsap.to('.au_grid_box', 0.5, {autoAlpha: 1, ease: 'power3.out'})
 
@@ -3676,67 +3723,90 @@ function authorPage(){
 
 			} else {
 
-				let oldActive = $('.au_grid_box.active'),
-					oldActiveID = oldActive.attr('data-id');
+				if(sizes.width <= 768) {
 
-				var curDivContent,
-					newDivContent;
+					scroll.scrollTo(0, {duration: 0.3})
 
-				$('.au_current_cover').removeClass('sizeA sizeB')
+					setContent($this)
 
-				if($this.hasClass('sizeA')) {
+					clearTimeout(window.switch);
 
-					$('.au_side_box.sizeA[data-id='+id+']').hide().addClass('newActive')
+					window.switch = setTimeout(function(){
 
-					$('.au_current_cover').addClass('sizeA')
+						update(false)
 
-				} else {
-
-					$('.au_side_box.sizeB[data-id='+id+']').hide().addClass('newActive')
-
-					$('.au_current_cover').addClass('sizeB')
-
-				}
-
-				if(oldActive.hasClass('sizeA')) {
-
-					$('.au_side_box.sizeA[data-id='+oldActiveID+']').show().addClass('oldActive')
+					}, 1500);
 
 				} else {
 
-					$('.au_side_box.sizeB[data-id='+oldActiveID+']').show().addClass('oldActive')
+					setContent($this)
 
+					update(true)
 				}
 
-				$('.oldActive').insertAfter('.newActive');
+				function update(val){
 
+					let oldActive = $('.au_grid_box.active'),
+						oldActiveID = oldActive.attr('data-id');
 
-				$('.au_grid_box').removeClass('moved no-transition');
-				$('.au_side_box').removeClass('newActive oldActive');
+					var curDivContent,
+						newDivContent;
 
-				oldActive.removeClass('active')
+					$('.au_current_cover').removeClass('sizeA sizeB')
 
-				$this.addClass('active')
+					if($this.hasClass('sizeA')) {
 
-				setContent($this)
+						$('.au_side_box.sizeA[data-id='+id+']').hide().addClass('newActive')
 
-				setActive(true)
+						$('.au_current_cover').addClass('sizeA')
 
-				$('.au_grid_box').each(function(i){
+					} else {
 
-					var $this = $(this);
+						$('.au_side_box.sizeB[data-id='+id+']').hide().addClass('newActive')
 
-					if(!$this.hasClass('active')) {
-
-						matchBoxes($this, true)
+						$('.au_current_cover').addClass('sizeB')
 
 					}
 
-					if(i == 16) {
-						clearBoxes()
+					if(oldActive.hasClass('sizeA')) {
+
+						$('.au_side_box.sizeA[data-id='+oldActiveID+']').show().addClass('oldActive')
+
+					} else {
+
+						$('.au_side_box.sizeB[data-id='+oldActiveID+']').show().addClass('oldActive')
+
 					}
 
-				})
+					$('.oldActive').insertAfter('.newActive');
+
+
+					$('.au_grid_box').removeClass('moved no-transition');
+					$('.au_side_box').removeClass('newActive oldActive');
+
+					oldActive.removeClass('active')
+
+					$this.addClass('active')
+
+					setActive(true)
+
+					$('.au_grid_box').each(function(i){
+
+						var $this = $(this);
+
+						if(!$this.hasClass('active')) {
+
+							matchBoxes($this, true)
+
+						}
+
+						if(i == $('.au_grid_box').length - 1) {
+							clearBoxes()
+						}
+
+					})
+
+				}
 
 			}
 
@@ -3746,37 +3816,129 @@ function authorPage(){
 
 	$('.n_grid_blocks').addClass('split')
 
+	$('.au_grid_box').append('<div class="hero_borders full_bg"> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> </div>')
+
 	if(animationTL) {animationTL.kill()}
 
 	animationTL = gsap.timeline({paused: true});
 
-	animationTL.set('.au_grid_wrap', {autoAlpha: 1})
-
-	.to('.au_grid_box', 0.5, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
+	animationTL
 
 	.call(function(){
 
-		clearTimeout(window.authorTimer);
-
-		window.authorTimer = setTimeout(function(){
-
-			$('.au_grid_box').css({"transform":""})
-
-		}, 500);
+		isAnimation = true
 
 	})
 
-	.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut'}, 1.7)
+	.set('.au_grid_wrap', {autoAlpha: 1})
+
+	.to('.au_grid_box', 1, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
 
 	.call(function(){
 
-		$('.au_grid_box').append('<div class="hero_borders full_bg"> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_v.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> <i style="background-image:url(../../images/j_border_h.png)"></i> </div>')
+		$('.au_grid_box').removeClass('no-transition')
 
-		gsap.to('.au_grid_box .hero_borders', 0.3, { autoAlpha: 1, ease: 'power3.out'})
+		$('.au_grid_box').css({"transform":""})
+
+		$('.author_nav_set').removeClass('hidden')
+
+	})
+
+	.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.7)
+
+	.call(function(){
+
+		$('.au_grid_box').addClass('no-transition')
 
 		canMove = true
 
+		isAnimation = false
+
 	})
+
+
+	function tempDrag() {
+
+		var pos1 = 0,
+			pos2 = 0,
+			pos3 = 0,
+			pos4 = 0,
+			draggableElements = document.getElementsByClassName("au_grid_box");
+
+		for(var i = 0; i < draggableElements.length; i++){
+			dragElement(draggableElements[i]);
+		}
+
+		$('.au_grid_box input').on('mousedown', function(e) {
+			e.stopPropagation();
+		})
+
+		$('.au_grid_box').each(function() {
+			let $this = $(this),
+			w = $this[0].getBoundingClientRect().width,
+			scale = (w / $this[0].offsetWidth).toFixed(2);
+
+			$this.find('input').val(scale)
+		})
+
+		$('.au_grid_box input').on('input', function(val) {
+			let $this = $(this),
+				ele = $this.closest('.au_grid_box');
+
+			gsap.set(ele, { scale: $this.val() })
+			getData()
+		})
+
+		function getData() {
+			console.clear()
+			$('.au_grid_box').each(function(){
+				let $this = $(this),
+				classname = $this.attr('class'),
+				result = classname.split(/\s+/).slice(1,3),
+				w = $this[0].getBoundingClientRect().width,
+				h = $this[0].getBoundingClientRect().height,
+				top = parseInt($this.offset().top) + $('.n_grid_wrap').scrollTop(),
+				left =  parseInt($this.offset().left),
+				x =  (3340/2 - left - (w/2)).toFixed() * -1,
+				y =  (2100/2 - top - (h/2)).toFixed() * -1,
+				scale = (w / $this[0].offsetWidth).toFixed(2);
+				console.log('.split .'+result[0]+'.'+result[1]+' { transform: translate('+x+'px, '+y+'px) scale('+scale+'); }')
+				console.log()
+			})
+		}
+
+		function dragElement(elmnt) {
+
+			elmnt.onmousedown = dragMouseDown
+
+			function dragMouseDown(e) {
+				e = e || window.event;
+				pos3 = parseInt(e.clientX);
+				pos4 = parseInt(e.clientY);
+				document.onmouseup = closeDragElement;
+				document.onmousemove = elementDrag;
+				return false;
+			}
+
+			function elementDrag(e) {
+				e = e || window.event;
+				pos1 = pos3 - parseInt(e.clientX);
+				pos2 = pos4 - parseInt(e.clientY);
+				pos3 = parseInt(e.clientX);
+				pos4 = parseInt(e.clientY);
+				gsap.set(elmnt, { left: elmnt.offsetLeft - pos1, top: elmnt.offsetTop - pos2 })
+			}
+
+			function closeDragElement() {
+				document.onmouseup = null;
+				document.onmousemove = null;
+				getData();
+			}
+		}
+
+	}
+
+	// tempDrag()
 
 }
 
