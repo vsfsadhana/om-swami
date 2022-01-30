@@ -3276,7 +3276,7 @@ function authorPage(val){
 
 			var title = $this.attr('data-title')
 
-			global.history.pushState({}, null, './author/' + toSeoUrl(title));
+			global.history.pushState({}, null, '/author/' + toSeoUrl(title));
 
 			document.title = 'Om Swami – ' + title;
 
