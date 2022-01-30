@@ -977,7 +977,6 @@ function animateEle($this, eleY, eleX) {
 
 }
 
-
 function flickity_handle_wheel_event(e, flickity_instance, stop) {
 
 	if(stop) {
@@ -1977,7 +1976,7 @@ function entrepreneurPage(){
 
 		labTL
 
-		.to(labWords, 0.5, { y: '-110%', ease: "power3.in" })
+		.to(labWords, 0.8, { y: '-110%', ease: "power4.in" })
 
 		.call(function(){
 
@@ -1987,7 +1986,7 @@ function entrepreneurPage(){
 
 		.set(labWords, { y: '110%' })
 
-		.to(labWords, 0.5, { y: '0%', ease: 'power3.out' })
+		.to(labWords, 0.8, { y: '0%', ease: 'power4.out' })
 
 	}
 
@@ -2092,7 +2091,7 @@ function entrepreneurPage(){
 
 	$('.en_col_set').on('mouseenter', function(){
 
-		if(!isColsFlickity && !isEntrepreneurActive && !$('body').hasClass('wait')) {
+		if(!isColsFlickity && !isEntrepreneurActive && !$('body').hasClass('wait') && !$('body').hasClass('progress')) {
 
 			let title = $(this).attr('data-title'),
 				index = $(this).index();
@@ -2112,7 +2111,7 @@ function entrepreneurPage(){
 
 	}).on('click', function(){
 
-		if(!isDragging && !isEntrepreneurActive && !$('body').hasClass('wait')) {
+		if(!isDragging && !isEntrepreneurActive && !$('body').hasClass('wait') && !$('body').hasClass('progress')) {
 
 			isEntrepreneurActive = true;
 
@@ -2139,9 +2138,11 @@ function entrepreneurPage(){
 
 			})
 
+			$('.en_col_set').addClass('no-tranist')
+
 			gsap.to('.en_lab_set', 0.5, {autoAlpha: 0, ease: 'power3.out'})
 
-			gsap.to('.hide', 0.5, {opacity: 0, ease: 'power3.out', onComplete: function(){
+			gsap.to('.hide', 0.5, {autoAlpha: 0, y: -50, ease: 'power3.inOut', stagger: 0.1, onComplete: function(){
 
 				let $this = $('.target'),
 					width = $this.outerWidth(),
@@ -2211,7 +2212,7 @@ function entrepreneurPage(){
 
 	$('.en_wrap').on('mouseleave', function(){
 
-		if(!isEntrepreneurActive && !$('body').hasClass('wait')) {
+		if(!isEntrepreneurActive && !$('body').hasClass('wait') && !$('body').hasClass('progress')) {
 
 			if(lastActive != 1) {
 				lastActive = -1
@@ -2233,6 +2234,33 @@ function entrepreneurPage(){
 	if(animationTL) {animationTL.kill()}
 
 	animationTL = gsap.timeline({paused: true});
+
+	animationTL
+
+	.call(function(){
+
+		$('body').addClass('progress')
+
+	})
+
+	.from('.en_lab_set', 1, {y: 50, autoAlpha: 0, ease: 'power3.out'}, 0.5)
+
+	.from('.en_col_ani', 1, {
+		x: function(index, target){
+			var	wrapWidth = sizes.width,
+			getOffset = target.offsetLeft;
+
+			return wrapWidth - (getOffset)
+		},
+	 stagger: 0.1, ease: 'power3.out'}, 0)
+
+	.call(function(){
+
+		$('.en_col_set').removeAttr('style')
+
+		$('body').removeClass('progress')
+
+	})
 
 }
 
@@ -3233,7 +3261,7 @@ function authorPage(){
 				getScale = wrapWidth / element.offsetWidth,
 				getOffset = target.offsetLeft,
 				ofVal;
-				return - (getWidth/getScale) - getOffset + (((wrapWidth - width)/2) / getScale)
+				return - (getWidth/getScale) - getOffset + (((wrapWidth - sizes.width)/2) / getScale)
 			},
 			scale: 0.5,
 			y: 300
@@ -3467,6 +3495,16 @@ function authorPage(){
 		});
 
 	}
+
+	$('.header_side').on('mouseenter', function () {
+
+		gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
+
+	}).on('mouseleave', function () {
+
+		gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut'})
+
+	})
 
 	$('body').on('click', function () {
 

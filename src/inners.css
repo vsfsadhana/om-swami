@@ -1,4 +1,4 @@
-/*!
+./*!
 	* Om Swami - Inners Stylesheet (c) 2022 <bahaasamir.me>
 */
 
@@ -1590,6 +1590,7 @@ body:not(.progress) .en_col_set:not(.no-tranist) .en_col_shape {
 	left: 0;
 	right: 0;
 	pointer-events: none;
+	visibility: hidden;
 }
 
 .en_lab_set > span,
