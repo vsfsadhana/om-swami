@@ -1242,7 +1242,7 @@ function callPage(){
 
 	} else if(page == 'author') {
 
-		authorPage()
+		dataID ? authorPage(true) : authorPage(false)
 
 	} else if(page == 'entrepreneur-inner') {
 
@@ -2785,7 +2785,7 @@ function journeyPage(){
 
 }
 
-function authorPage(){
+function authorPage(val){
 
 	var nGridWrap = $('.n_grid_wrap'),
 		nGrid = $('.n_grid'),
@@ -2874,6 +2874,8 @@ function authorPage(){
 			isClosed = true;
 
 			$('body').removeClass('opened')
+
+			$('.author_nav_set').removeClass('hidden')
 
 			$('.au_grid_box').removeClass('active moved no-transition').css({"transform":""})
 
@@ -3268,6 +3270,177 @@ function authorPage(){
 		})
 	}
 
+	function bookClick($this, id) {
+
+		if(canSwitch) {
+
+			var title = $this.attr('data-title')
+
+			global.history.pushState({}, null, toSeoUrl(title));
+
+			document.title = 'Om Swami – ' + title;
+
+			canSwitch = false
+
+			if(scroll) { scroll.stop() }
+
+			if(!$this.hasClass('moved')) {
+
+				canClose = true
+
+				if(!$this.hasClass('active')) {
+
+					isClosed = true;
+
+					$('.author_nav_item').removeClass('active').eq(0).addClass('active')
+
+					$('.n_grid_blocks').removeClass('audio physical')
+
+					$('.au_grid_box').removeClass('no-transition')
+
+					gsap.to('.au_grid_box', 0.5, {autoAlpha: 1, ease: 'power3.out'})
+
+					gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
+
+					$('body').addClass('opened')
+
+					authorFlic();
+
+					$this.addClass('active')
+
+					$('.au_current_cover').removeClass('sizeA sizeB')
+
+					if($this.hasClass('sizeA')) {
+
+						$('.au_side_box.sizeA[data-id='+id+']').hide()
+
+						$('.au_current_cover').addClass('sizeA')
+
+					} else {
+
+						$('.au_side_box.sizeB[data-id='+id+']').hide()
+
+						$('.au_current_cover').addClass('sizeB')
+
+					}
+
+					setContent($this)
+
+					$('.au_grid_box').each(function(i){
+
+						var $this = $(this);
+
+						if(!$this.hasClass('active')) {
+
+							matchBoxes($this, true)
+
+						} else {
+
+							setActive(true)
+
+						}
+
+						if(i == $('.au_grid_box').length - 1) {
+							clearBoxes()
+						}
+
+					})
+
+				}
+
+			} else {
+
+				if(sizes.width <= 768) {
+
+					scroll.scrollTo(0, {duration: 0.3})
+
+					setContent($this)
+
+					clearTimeout(window.switch);
+
+					window.switch = setTimeout(function(){
+
+						update(false)
+
+					}, 1500);
+
+				} else {
+
+					setContent($this)
+
+					update(true)
+				}
+
+				function update(val){
+
+					let oldActive = $('.au_grid_box.active'),
+						oldActiveID = oldActive.attr('data-id');
+
+					var curDivContent,
+						newDivContent;
+
+					$('.au_current_cover').removeClass('sizeA sizeB')
+
+					if($this.hasClass('sizeA')) {
+
+						$('.au_side_box.sizeA[data-id='+id+']').hide().addClass('newActive')
+
+						$('.au_current_cover').addClass('sizeA')
+
+					} else {
+
+						$('.au_side_box.sizeB[data-id='+id+']').hide().addClass('newActive')
+
+						$('.au_current_cover').addClass('sizeB')
+
+					}
+
+					if(oldActive.hasClass('sizeA')) {
+
+						$('.au_side_box.sizeA[data-id='+oldActiveID+']').show().addClass('oldActive')
+
+					} else {
+
+						$('.au_side_box.sizeB[data-id='+oldActiveID+']').show().addClass('oldActive')
+
+					}
+
+					$('.oldActive').insertAfter('.newActive');
+
+
+					$('.au_grid_box').removeClass('moved no-transition');
+					$('.au_side_box').removeClass('newActive oldActive');
+
+					oldActive.removeClass('active')
+
+					$this.addClass('active')
+
+					setActive(true)
+
+					$('.au_grid_box').each(function(i){
+
+						var $this = $(this);
+
+						if(!$this.hasClass('active')) {
+
+							matchBoxes($this, true)
+
+						}
+
+						if(i == $('.au_grid_box').length - 1) {
+							clearBoxes()
+						}
+
+					})
+
+				}
+
+			}
+
+		}
+
+	}
+
 	function step() {
 
 		if(page == 'author') {
@@ -3318,9 +3491,13 @@ function authorPage(){
 
 					authorStarted = true
 
-					fillWrap(nGridInner)
+					if(!val) {
 
-					setBooks()
+						fillWrap(nGridInner)
+
+						setBooks()
+
+					}
 
 				} else {
 
@@ -3386,6 +3563,21 @@ function authorPage(){
 			}
 		}
 
+	}
+
+	function toSeoUrl(url) {
+		return url
+		.toString()
+		.replace('<br>','')
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g,'')
+		.replace(/\s+/g,'-')
+		.toLowerCase()
+		.replace(/&/g,'-and-')
+		.replace(/[^a-z0-9\-]/g,'')
+		.replace(/-+/g,'-')
+		.replace(/^-*/,'')
+		.replace(/-*$/,'');
 	}
 
 	document.addEventListener('wheel', wheel);
@@ -3689,167 +3881,7 @@ function authorPage(){
 		let $this = $(this),
 			id = $this.attr('data-id');
 
-		if(canSwitch) {
-
-			canSwitch = false
-
-			if(scroll) { scroll.stop() }
-
-			if(!$this.hasClass('moved')) {
-
-				canClose = true
-
-				if(!$this.hasClass('active')) {
-
-					isClosed = true;
-
-					$('.author_nav_item').removeClass('active').eq(0).addClass('active')
-
-					$('.n_grid_blocks').removeClass('audio physical')
-
-					$('.au_grid_box').removeClass('no-transition')
-
-					gsap.to('.au_grid_box', 0.5, {autoAlpha: 1, ease: 'power3.out'})
-
-					gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
-
-					$('body').addClass('opened')
-
-					authorFlic();
-
-					$this.addClass('active')
-
-					$('.au_current_cover').removeClass('sizeA sizeB')
-
-					if($this.hasClass('sizeA')) {
-
-						$('.au_side_box.sizeA[data-id='+id+']').hide()
-
-						$('.au_current_cover').addClass('sizeA')
-
-					} else {
-
-						$('.au_side_box.sizeB[data-id='+id+']').hide()
-
-						$('.au_current_cover').addClass('sizeB')
-
-					}
-
-					setContent($this)
-
-					$('.au_grid_box').each(function(i){
-
-						var $this = $(this);
-
-						if(!$this.hasClass('active')) {
-
-							matchBoxes($this, true)
-
-						} else {
-
-							setActive(true)
-
-						}
-
-						if(i == $('.au_grid_box').length - 1) {
-							clearBoxes()
-						}
-
-					})
-
-				}
-
-			} else {
-
-				if(sizes.width <= 768) {
-
-					scroll.scrollTo(0, {duration: 0.3})
-
-					setContent($this)
-
-					clearTimeout(window.switch);
-
-					window.switch = setTimeout(function(){
-
-						update(false)
-
-					}, 1500);
-
-				} else {
-
-					setContent($this)
-
-					update(true)
-				}
-
-				function update(val){
-
-					let oldActive = $('.au_grid_box.active'),
-						oldActiveID = oldActive.attr('data-id');
-
-					var curDivContent,
-						newDivContent;
-
-					$('.au_current_cover').removeClass('sizeA sizeB')
-
-					if($this.hasClass('sizeA')) {
-
-						$('.au_side_box.sizeA[data-id='+id+']').hide().addClass('newActive')
-
-						$('.au_current_cover').addClass('sizeA')
-
-					} else {
-
-						$('.au_side_box.sizeB[data-id='+id+']').hide().addClass('newActive')
-
-						$('.au_current_cover').addClass('sizeB')
-
-					}
-
-					if(oldActive.hasClass('sizeA')) {
-
-						$('.au_side_box.sizeA[data-id='+oldActiveID+']').show().addClass('oldActive')
-
-					} else {
-
-						$('.au_side_box.sizeB[data-id='+oldActiveID+']').show().addClass('oldActive')
-
-					}
-
-					$('.oldActive').insertAfter('.newActive');
-
-
-					$('.au_grid_box').removeClass('moved no-transition');
-					$('.au_side_box').removeClass('newActive oldActive');
-
-					oldActive.removeClass('active')
-
-					$this.addClass('active')
-
-					setActive(true)
-
-					$('.au_grid_box').each(function(i){
-
-						var $this = $(this);
-
-						if(!$this.hasClass('active')) {
-
-							matchBoxes($this, true)
-
-						}
-
-						if(i == $('.au_grid_box').length - 1) {
-							clearBoxes()
-						}
-
-					})
-
-				}
-
-			}
-
-		}
-
+		bookClick($this, id)
 	})
 
 	$('.n_grid_blocks').addClass('split')
@@ -3860,40 +3892,68 @@ function authorPage(){
 
 	animationTL = gsap.timeline({paused: true});
 
-	animationTL
+	if(val) {
 
-	.call(function(){
+		animationTL
 
-		isAnimation = true
+		.call(function(){
 
-	})
+			let $this = $('.au_grid_box').eq(dataID-1),
+				id = $this.attr('data-id');
 
-	.set('.au_grid_wrap', {autoAlpha: 1})
+			$('body').addClass('progress')
 
-	.to('.au_grid_box', 1, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
+			bookClick($this, id)
 
-	.call(function(){
+			console.log(dataID)
 
-		$('.au_grid_box').removeClass('no-transition')
+		})
 
-		$('.au_grid_box').css({"transform":""})
+		.to('.app', 1, { autoAlpha: 1, ease: 'power3.out'})
 
-		$('.author_nav_set').removeClass('hidden')
+		.call(function(){
 
-	})
+			$('body').removeClass('progress')
 
-	.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.7)
+		})
 
-	.call(function(){
+	} else {
 
-		$('.au_grid_box').addClass('no-transition')
+		animationTL
 
-		canMove = true
+		.call(function(){
 
-		isAnimation = false
+			isAnimation = true
 
-	})
+		})
 
+		.set('.app', {autoAlpha: 1})
+
+		.to('.au_grid_box', 1, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
+
+		.call(function(){
+
+			$('.au_grid_box').removeClass('no-transition')
+
+			$('.au_grid_box').css({"transform":""})
+
+			$('.author_nav_set').removeClass('hidden')
+
+		})
+
+		.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.7)
+
+		.call(function(){
+
+			$('.au_grid_box').addClass('no-transition')
+
+			canMove = true
+
+			isAnimation = false
+
+		})
+
+	}
 
 	function tempDrag() {
 

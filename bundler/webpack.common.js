@@ -73,7 +73,6 @@ module.exports = {
             minify: true
         }),
 
-
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/entrepreneur/index.html'),
             filename: 'entrepreneur/index.html',
@@ -170,7 +169,11 @@ module.exports = {
             minify: true
         }),
 
-        new HtmlWebpackPlugin({
+
+
+
+
+       new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/contact/index.html'),
             filename: 'contact/index.html',
             chunks: ['inners'],
@@ -196,7 +199,17 @@ module.exports = {
             minify: true
         }),
 
-        new MiniCSSExtractPlugin()
+        ...['kundalini', 'a-million-thoughts', 'if-truth-be-told', 'ancient-science-of-mantras', 'the-hidden-power-of-gayatri-mantra', 'mind-full-to-minful', 'the-wellness-sense', 'the-children-of-tomorrow', 'the-last-gambit', 'heart-of-success', 'a-fistful-of-wisdom', 'fistful-of-love', 'the-book-of-kindness', 'when-all-is-not-well', 'the-big-questions-of-life', 'zen-a-way-of-living', 'gayatri-sadhana-the-ultimate-power', 'kundalini-sadhana-anant-urja-ka-srota', 'dhyan-yoga-antaratma-se-milan', 'a-guide-to-stress-free-living', 'shrimad-bhagavad-geeta-voice-of-krishna', 'jeevan-ek-ghorakh-dhanda-hai', 'the-wellness-sense-audio', 'roz-ke-mantra', 'din-ki-shuruaat'].map( (event) => {
+            return new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, `../src/author/${event}/index.html`),
+                filename: `author/${event}/index.html`,
+                chunks: ['inners'],
+                minify: true
+            })
+        }),
+
+        new MiniCSSExtractPlugin(),
+
     ],
     module:
     {
