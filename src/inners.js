@@ -374,7 +374,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
 
-	music()
+	// music()
 
 	window.onblur = function(){
 
@@ -421,6 +421,8 @@ function init() {
 
 	ajaxPageLoader.setAfterAjaxLoadingEvent((ajaxLink) => {
 
+		console.log('1')
+
 		if(!$('body').hasClass('wait')) {
 
 			splitDone = false
@@ -444,6 +446,8 @@ function init() {
 			$('.menu_items').removeClass('ready')
 
 			callPage()
+
+			console.log('2')
 
 			ajaxTL
 
@@ -1314,7 +1318,14 @@ function monkPage(){
 		contain: true,
 		cellAlign: 'left',
 		selectedAttraction: 0.08,
-		friction:  1
+		friction:  1,
+		on: {
+			ready: function() {
+				setTimeout(function(){
+					navCarousel.resize()					
+				}, 1000)
+			}
+		}
 	});
 
 	navCarousel.on( 'dragStart', function( event, pointer ) { isDragging = true })
@@ -1976,7 +1987,7 @@ function entrepreneurPage(){
 
 		labTL
 
-		.to(labWords, 0.8, { y: '-110%', ease: "power4.in" })
+		.to(labWords, 0.6, { y: '-110%', ease: "power4.in" })
 
 		.call(function(){
 
@@ -1986,7 +1997,7 @@ function entrepreneurPage(){
 
 		.set(labWords, { y: '110%' })
 
-		.to(labWords, 0.8, { y: '0%', ease: 'power4.out' })
+		.to(labWords, 0.6, { y: '0%', ease: 'power4.out' })
 
 	}
 
@@ -2460,6 +2471,8 @@ function journeyPage(){
 
 		if(page == 'journey') {
 
+			if(tabsCarousel) { tabsCarousel.resize() }
+
 			if(sizes.width > 768) {
 
 				if(isHorizontal == false || isFirstBuild) {
@@ -2533,7 +2546,7 @@ function journeyPage(){
 					$('.jus_text ._splitWords').removeClass('dirX')
 
 					if(scroll) { 
-						scroll.stop();
+						stopScroll()
 						scroll.destroy();
 					}
 
@@ -2567,6 +2580,8 @@ function journeyPage(){
 						}
 					});
 
+					startScroll()
+
 					scroll.on('scroll', (func, speed) => {
 
 						scrollVal = func.scroll.y
@@ -2586,6 +2601,7 @@ function journeyPage(){
 
 			isFirstBuild = false
 
+			pageScroll(0);
 			journeyScroll(0)
 
 		}
@@ -2593,7 +2609,6 @@ function journeyPage(){
 	} resize()
 
 	function journeyScroll(val){
-
 
 		if(isHorizontal == false) {
 
@@ -2878,6 +2893,11 @@ function authorPage(val){
 
 			isClosed = true;
 
+			global.history.pushState({}, null, '/author/');
+
+			document.title = 'Om Swami – A Bestselling Author';
+
+
 			$('body').removeClass('opened')
 
 			$('.author_nav_set').removeClass('hidden')
@@ -3016,11 +3036,11 @@ function authorPage(val){
 
 			contentTL
 
-			.to('#getYear', 1, {autoAlpha: 0, ease: 'power4.in'}, 0)
+			.to('#getYear', 0.5, {autoAlpha: 0, ease: 'power4.in'}, 0)
 
-			.to(target1, 1, {y: '-100%', ease: 'power4.in', stagger: 0.1}, 0)
+			.to(target1, 0.5, {y: '-100%', ease: 'power4.in', stagger: 0.1}, 0)
 
-			.to('.au_btn', 1, {y: '-40', autoAlpha: 0, ease: 'power4.in'}, 0)
+			.to('.au_btn', 0.5, {y: '-40', autoAlpha: 0, ease: 'power4.in'}, 0)
 
 			.call(function(){
 
@@ -3038,7 +3058,7 @@ function authorPage(val){
 
 			})
 
-			.to(target2, 1, {y: '-100%', autoAlpha: 0, ease: 'power4.in'}, 0.05, 0)
+			.to(target2, 0.5, {y: '-100%', autoAlpha: 0, ease: 'power4.in'}, 0.05, 0)
 
 			.call(function(){
 
@@ -3450,7 +3470,7 @@ function authorPage(val){
 
 		if(page == 'author') {
 
-			if(!$('body').hasClass('progress')) {
+			if(isStep) {
 
 				posX += (mX2 - posX) / damp;
 				posY += (mY2 - posY) / damp;
@@ -3462,8 +3482,8 @@ function authorPage(val){
 				}
 
 				window.requestAnimationFrame(step);
-
 			}
+
 		}
 
 	}
@@ -3474,6 +3494,7 @@ function authorPage(val){
 
 			if(!isAnimation) {
 
+				if(step){window.cancelAnimationFrame(step)}
 				isStep = false;
 				galW = nGridWrap.outerWidth(true)
 				galH = nGridWrap.outerHeight(true)
@@ -3668,7 +3689,6 @@ function authorPage(val){
 						return e.pageY - (target.offsetHeight/2);
 					}
 				})
-
 				if(!$('body').hasClass('wait') && canMove) {
 
 					mX = e.pageX - nGridWrap.parent().offset().left - nGridWrap.offset().left;
@@ -3678,6 +3698,8 @@ function authorPage(val){
 					mY2 = Math.min(Math.max(0, mY - mPadd), mmBB) * mmBBr;
 
 					if(!isStep) {
+
+						console.log('hey')
 
 						isStep = true;
 
@@ -3695,11 +3717,19 @@ function authorPage(val){
 
 	$('.header_side').on('mouseenter', function () {
 
-		gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
+		if(!isClosed) {
+
+			gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
+
+		}
 
 	}).on('mouseleave', function () {
 
-		gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut'})
+		if(!isClosed) {
+
+			gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut'})
+
+		}
 
 	})
 
@@ -3909,8 +3939,6 @@ function authorPage(val){
 			$('body').addClass('progress')
 
 			bookClick($this, id)
-
-			console.log(dataID)
 
 		})
 

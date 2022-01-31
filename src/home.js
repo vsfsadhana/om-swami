@@ -487,7 +487,7 @@ function init() {
 
 	})
 
-	.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
+	.to('.lb_set, .tip', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
 
 	.to(transitionParams, 2, {transition2: 1, ease: 'power3.inOut'}, 0)
 
@@ -551,6 +551,7 @@ function init() {
 			isMenu = true
 			isReady = false
 			canScroll = false;
+			glProgTL.pause()
 			menuTL.play()
 			$('header').addClass('opened')
 
@@ -560,6 +561,7 @@ function init() {
 			isReady = true
 			canScroll = true;
 			menuTL.reverse()
+			glProgTL.play()
 			$('header').removeClass('opened')
 		}
 
