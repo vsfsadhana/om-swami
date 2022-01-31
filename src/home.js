@@ -613,8 +613,8 @@ function FXScene( clearColor, number ) {
 		if(transitionParams.transition2 < 1) {
 
 			if(isReady) {
-				// camera.position.x += ( mouseX - camera.position.x ) * .05;
-				// camera.position.y += ( - mouseY - camera.position.y ) * .05;
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY - camera.position.y ) * .05;
 			}
 
 			if ( rtt ) {
@@ -791,7 +791,7 @@ function initPlans() {
 
 				// $('.tip').remove();
 
-				setText('author.html','Author', 'scene_a', 'scene_b')
+				setText('author','Author', 'scene_a', 'scene_b')
 
 			}}, 0)
 
@@ -850,7 +850,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('journey.html','Journey', 'scene_b', 'scene_c')
+					setText('journey','Journey', 'scene_b', 'scene_c')
 
 				}}, 0)
 
@@ -903,7 +903,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('entrepreneur.html','Entrepreneur', 'scene_c', 'scene_d')
+					setText('entrepreneur','Entrepreneur', 'scene_c', 'scene_d')
 
 				}}, 0)
 
@@ -955,7 +955,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.in", onComplete: function(){
 
-					setText('author.html','Author', 'scene_a', 'scene_b')
+					setText('author','Author', 'scene_a', 'scene_b')
 
 				}}, 0)
 
@@ -1022,7 +1022,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('monk.html','Monk', 'scene_b', 'scene_a')
+					setText('monk','Monk', 'scene_b', 'scene_a')
 
 				}}, 0)
 
@@ -1067,7 +1067,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('author.html','Author', 'scene_c', 'scene_b')
+					setText('author','Author', 'scene_c', 'scene_b')
 
 				}}, 0)
 
@@ -1119,7 +1119,7 @@ function initPlans() {
 
 				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('author.html','Author', 'scene_c', 'scene_b')
+					setText('author','Author', 'scene_c', 'scene_b')
 
 				}}, 0)
 

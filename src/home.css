@@ -1,7 +1,6 @@
 /*!
 	* Om Swami - Main GL Stylesheet (c) 2022 <bahaasamir.me>
 */
-
 body {
 	background: #1F1F1F;
 	color: #EBE5DE;
@@ -37,13 +36,24 @@ body:not(.progress) .lb_set i {
 }
 
 .tip {
+	font-size: 14px;
+	font-weight: 400;
 	text-transform: uppercase;
 	position: absolute;
 	z-index: 99;
 	right: 50px;
 	left: 50px;
-	bottom: 20px;
+	bottom: 50px;
 	justify-content: space-between;
+	color: rgb(224 214 195 / 80%);
+}
+
+.tip > span {
+	letter-spacing: 1.5px;
+}
+
+#counter {
+	letter-spacing: 4px;
 }
 
 #gl_progress {
@@ -51,7 +61,7 @@ body:not(.progress) .lb_set i {
 	position: relative;
 	height: 2px;
 	background: rgba(255,255,255,0.2);
-	margin-left: 15px;
+	margin-left: 25px;
 }
 
 #gl_progress i {
@@ -474,8 +484,9 @@ body:not(.progress) .lb_set i {
 }
 
 .lb_text span {
-	font-size: 17px;
-	margin-top: -10px;
+	font-size: 15px;
+	text-transform: uppercase;
+	margin-bottom: 5px;
 }
 
 .lb_text strong {
@@ -488,25 +499,33 @@ body:not(.progress) .lb_set i {
 
 @media (max-width: 1300px){
 	.lb_set {
-		transform: scale(0.7)
+		zoom: 0.8;
 	}
 }
 
 @media (max-width: 768px){
 	.lb_set {
-		top: 100px !important;
 		left: 50% !important;
 		margin-left: -169px;
-		transform: scale(0.7)
+		top: auto !important;
+		bottom: 180px;
+		zoom: 0.8;
+	}
+	.tip {
+		right: 25px;
+		left: 25px;
+		bottom: 30px;
+		flex-direction: column;
+		font-size: 12px;
+		letter-spacing: 1px;
+	}
+	.tip > span {
+		margin-top: 20px;
 	}
 }
 
 @media (max-width: 500px){
 	.cloud_text {
 		transform: scale(0.7)
-	}
-	.lb_set {
-		transform: scale(0.6);
-		top: 80px !important;
 	}
 }
