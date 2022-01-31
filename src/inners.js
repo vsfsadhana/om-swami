@@ -2032,8 +2032,6 @@ function entrepreneurPage(){
 				friction: 0.8
 			});
 
-			enCarousel.select(1)
-
 			if(lastActive != 1) {
 				lastActive = -1
 				updateLab($('.en_col_set').eq(1).attr('data-title'), 1)
@@ -2119,6 +2117,11 @@ function entrepreneurPage(){
 				activeURL = $(this).attr('href')
 
 			enContent(activeIndex, '#enContent', activeURL)
+
+			if(isColsFlickity) {
+
+				enCarousel.select(activeIndex)
+			}
 
 			$(this).addClass('no-tranist')
 
@@ -2256,8 +2259,10 @@ function entrepreneurPage(){
 
 	.call(function(){
 
-		$('.en_col_set').removeAttr('style')
-
+		// $('.en_col_set').removeAttr('style')
+		if(isColsFlickity) {
+			// enCarousel.select(1)
+		}
 		$('body').removeClass('progress')
 
 	})
