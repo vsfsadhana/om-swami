@@ -618,6 +618,7 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 	position: relative;
 	height: 43vw;
 	top: -0.5vw;
+	visibility: hidden;
 }
 
 .monk_nav_set {

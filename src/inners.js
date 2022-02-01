@@ -1589,6 +1589,8 @@ function monkPage(){
 
 		var activeIndex = index
 
+		$('header').removeClass('invisble')
+
 		if(val) {
 
 			$('.monk_nav_item.active').removeClass('active')
@@ -1640,15 +1642,19 @@ function monkPage(){
 
 				clearInterval(siteIntrvl);
 
-				excute()
+				gsap.to('.monk_layers', 1, {autoAlpha: 1, ease: 'power3.out' })
+
 			};
 
 		}, 50);
 
+		excute()
 
 		function excute() {
 
 			$('.monk_nav').addClass('has_close transition')
+
+			pageScroll(0)
 
 			scroll.scrollTo('.getContent', {
 				duration: val ? 0 : 400,
@@ -1659,11 +1665,11 @@ function monkPage(){
 
 					stopScroll()
 
-					pageScroll(0)
-
 					if(val) {
 
 						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+						pageScroll(0)
 
 					}
 
