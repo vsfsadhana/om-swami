@@ -4130,6 +4130,8 @@ function staticPage(){
 
 	animationTL = gsap.timeline({paused: true});
 
+	startScroll()
+
 }
 
 
