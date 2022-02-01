@@ -1305,6 +1305,8 @@ function monkPage(){
 		getActive = $('.monk_slide').eq(0),
 		navCarousel;
 
+	isHorizontal = false
+
 	stopScroll()
 
 	getActive.find('.monk_visuals').addClass('prx')
@@ -1589,13 +1591,13 @@ function monkPage(){
 
 		var activeIndex = index
 
-		$('header').removeClass('invisble')
-
 		if(val) {
 
 			$('.monk_nav_item.active').removeClass('active')
 
 			$('.monk_nav_item').eq(index).addClass('active')
+
+			$('header').removeClass('invisble')
 
 		}
 
@@ -1654,8 +1656,6 @@ function monkPage(){
 
 			$('.monk_nav').addClass('has_close transition')
 
-			pageScroll(0)
-
 			scroll.scrollTo('.getContent', {
 				duration: val ? 0 : 400,
 				disableLerp: val ? true : false,
@@ -1665,11 +1665,11 @@ function monkPage(){
 
 					stopScroll()
 
+					pageScroll(0)
+
 					if(val) {
 
 						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
-
-						pageScroll(0)
 
 					}
 
