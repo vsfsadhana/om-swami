@@ -300,6 +300,8 @@ function appendImgs(val){
 		iMGs = $('body').find('.load_img'),
 		loaded = 0;
 
+	imagesLoaded = false
+
 	altBGs.each(function(i){
 
 		var t = $(this),
@@ -526,19 +528,28 @@ function init() {
 
 			if(page != 'journey') { buildScroll(true); }
 
-			siteIntrvl = setInterval(function () {
+			if($('body').find('.load_bg').length != 0) {
 
-				if(imagesLoaded) {
+				siteIntrvl = setInterval(function () {
 
-					imagesLoaded = false;
+					if(imagesLoaded) {
 
-					clearInterval(siteIntrvl);
+						imagesLoaded = false;
 
-					ajaxTL.play()
+						clearInterval(siteIntrvl);
 
-				};
+						ajaxTL.play()
 
-			}, 50);
+					};
+
+				}, 50);
+
+			} else {
+
+				ajaxTL.play()
+
+			}
+
 
 			ajaxTL
 
