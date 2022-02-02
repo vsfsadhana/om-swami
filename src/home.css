@@ -83,6 +83,17 @@ body:not(.progress) .lb_set i {
 	right: 0;
 }
 
+.clouds_set > i {
+	z-index: 299;
+	pointer-events: none;
+	mix-blend-mode: multiply;
+	opacity: 0.3;
+}
+
+.clouds.vanish .clouds_set > i {
+	opacity: 0;
+}
+
 .clouds .site_button {
 	position: absolute;
 	left: 50%;

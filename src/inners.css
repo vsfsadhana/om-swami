@@ -123,6 +123,19 @@ body.add-transit {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	z-index: 99;
+}
+
+.container:before {
+	content: '';
+	position: absolute;
+	z-index: 9;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 1px solid #000;
+	pointer-events: none;
 }
 
 header.invisble .header_set {
@@ -984,6 +997,7 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 
 .ju_head h3 {
 	font-size: calc(var(--vh, 1vh)*17.5);
+	letter-spacing: -0.15vh;
 }
 
 .ju_head .alt_h2 {
@@ -1119,8 +1133,8 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 }
 
 .ju_text p:last-of-type {
-	margin-left: calc(var(--vh, 1vh)*-7.1);
-	max-width: calc(var(--vh, 1vh)*44.44);
+	margin-left: calc(var(--vh, 1vh)*-2);
+	max-width: calc(var(--vh, 1vh)*43.44);
 	text-align: center;
 }
 
@@ -1238,7 +1252,6 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 
 .ju_text .small {
 	font-size: calc(var(--vh, 1vh)*2.1333);
-	letter-spacing: 0;
 	letter-spacing: calc(var(--vh, 1vh)*-0.018);
 	line-height: 117%;
 }

@@ -183,7 +183,7 @@ h5 {
 
 h6 {
 	font-size: 3.1vw;
-	letter-spacing: -0.15vw;
+	/*letter-spacing: -0.15vw;*/
 }
 
 .alt_h1 {
@@ -391,9 +391,9 @@ header.light {
 	height: 100%;
 }
 
-body.isDesktop .site_button:hover .sb_inner,
-body.isDesktop .site_button.hover .sb_inner,
-body.isDesktop.site_button.active .sb_inner {
+body.isDesktop:not(.progress):not(.wait) .site_button:hover .sb_inner,
+body.isDesktop:not(.progress):not(.wait) .site_button.hover .sb_inner,
+body.isDesktop:not(.progress):not(.wait) .site_button.active .sb_inner {
 	transform: scaleX(1.15);
 }
 
@@ -611,7 +611,7 @@ header.opened .menu_label span:first-child {
 	}
 	.ju_head h3 {
 		font-size: 22vw !important;
-		letter-spacing: -0.7vw !important;
+		letter-spacing: -0.4vw !important;
 	}
 	h6,
 	.alt_h2 {

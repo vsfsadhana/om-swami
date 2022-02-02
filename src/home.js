@@ -137,7 +137,19 @@ $(window).on('load', function(){
 function appendImgs(){
 
 	var appendBGs = $('body').find('.load_bg'),
+		altBGs = $('body').find('.load_bg_alt'),
 		loaded = 0;
+
+	altBGs.each(function(i){
+
+		var t = $(this),
+			s = t.attr('data-src');
+
+		t.css({ 'background-image': 'url('+ support_format_webp(s) +')' })
+
+		t.removeClass('load_bg_alt')
+
+	});
 
 	appendBGs.each(function(i){
 

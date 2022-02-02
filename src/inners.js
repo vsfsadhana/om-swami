@@ -96,6 +96,59 @@ var page = $('body').attr('id'),
 	isColsFlickity = false,
 	isDragging = false,
 	canScroll = false,
+
+	nGridWrap,
+	nGrid,
+	nGridInner,
+	nGridSide,
+	coords = [0,0],
+	box_area = {x1:0, y1:0, x2:0, y2:0},
+	buttonArea = {x1:0, y1:0, x2:0, y2:0},
+	sideBox,
+	sideBoxLeft,
+	sideBoxTop,
+	authorCarousel,
+	contentTL,
+	lastHovered = -1,
+	mPadd = 60,
+	damp = 20,
+	mX = 0,
+	mX2 = 0,
+	posX = 0,
+	mY = 0,
+	mY2 = 0,
+	posY = 0,
+	galW,
+	galH,
+	galSW,
+	galSH,
+	wDiff,
+	hDiff,
+	mmAA,
+	mmAAr,
+	mmBB,
+	mmBBr,
+	boxTL,
+	eventFired = [],
+	isClosed = true,
+	authorStarted = false,
+	fluid = true,
+	isStep = false,
+	canHover = false,
+	canMove = false,
+	canSwitch = true,
+	canClose = false,
+	inBound = false,
+	isMouseIn = false,
+
+
+	$imgs1,
+	$imgs2,
+	slidesTotal,
+	slidesTL,
+	activeSection,
+	getActive,
+	navCarousel,
 	isClicked = false,
 	isAnimation = false,
 	canHideHeader = false,
@@ -107,6 +160,20 @@ var page = $('body').attr('id'),
 	splitLines = [],
 
 	isHorizontal,
+	tabsCarousel,
+	pos = { left: 0, x: 0 },
+	current = false,
+	isFirstBuild = true,
+	isMouseDown = false,
+	resizing = false,
+	tagSection,
+
+	labTL,
+	enCarousel,
+	lastActive = 1,
+	isEntrepreneurActive = false,
+	isFirstHover = true,
+
 	ts,
 	curX,
 	curY,
@@ -119,7 +186,6 @@ var page = $('body').attr('id'),
 	animationTL,
 	scroll,
 	scrollVal = 0,
-	scrollStopped,
 	siteIntrvl,
 	vh,
 	isSafari,
@@ -421,9 +487,11 @@ function init() {
 
 	ajaxPageLoader.setAfterAjaxLoadingEvent((ajaxLink) => {
 
-		console.log('1')
-
 		if(!$('body').hasClass('wait')) {
+
+			stopScroll()
+
+			if(scroll) {scroll.destroy(); scroll = null}
 
 			splitDone = false
 
@@ -441,13 +509,17 @@ function init() {
 
 			$('body').addClass('wait')
 
-			$('header').removeClass('opened')
+			$('body, header').removeClass('opened')
 
 			$('.menu_items').removeClass('ready')
 
-			callPage()
+			$('body').removeAttr('data-id')
 
-			console.log('2')
+			dataID = null
+
+			if(page != 'journey') { buildScroll(true); }
+
+			callPage()
 
 			ajaxTL
 
@@ -484,7 +556,6 @@ function init() {
 			})
 
 
-			if(page != 'journey') { buildScroll(true); }
 
 			onWindowResize(null, true);
 
@@ -816,7 +887,7 @@ function music(){
 
 function buildScroll(val){
 
-	if(scroll) {scroll.destroy()}
+	if(scroll) {scroll.destroy(); scroll = null;}
 
 	scroll = new LocomotiveScroll(
 	{
@@ -1135,19 +1206,15 @@ function globalFunc(){
 
 			isMenu = true
 			menuTL.timeScale(1).play()
-			if(scroll) { scroll.stop() }
 			$('header').addClass('opened')
-			$('body').addClass('hidden')
+			stopScroll()
 
 		} else {
 
 			isMenu = false
 			menuTL.timeScale(1.3).reverse()
-			if(!scrollStopped) {
-				if(scroll) { scroll.start() }
-				$('body').removeClass('hidden')
-			}
 			$('header').removeClass('opened')
+			startScroll()
 
 		}
 
@@ -1264,8 +1331,6 @@ function callPage(){
 
 function stopScroll(){
 
-	scrollStopped = true;
-
 	$('body').addClass('hidden')
 
 	scroll.stop()
@@ -1273,8 +1338,6 @@ function stopScroll(){
 }
 
 function startScroll(){
-
-	scrollStopped = false;
 
 	$('body').removeClass('hidden')
 
@@ -1297,13 +1360,17 @@ function hexToRgbA(hex,a){
 
 function monkPage(){
 
-	var $imgs1 = $('.monk_visuals i.a'),
-		$imgs2 = $('.monk_visuals i.b'),
-		slidesTotal = $('.monk_slide').length,
-		slidesTL,
-		activeSection = 0,
-		getActive = $('.monk_slide').eq(0),
-		navCarousel;
+	$imgs1 = $('.monk_visuals i.a')
+	$imgs2 = $('.monk_visuals i.b')
+	slidesTotal = $('.monk_slide').length
+	getActive = $('.monk_slide').eq(0)
+	activeSection = 0
+
+	isAnimation = false
+	isButtonLoaded = false
+	isButtonHidden = false
+	imagesLoaded = false
+	isClicked = false
 
 	isHorizontal = false
 
@@ -1312,6 +1379,8 @@ function monkPage(){
 	getActive.find('.monk_visuals').addClass('prx')
 
 	canScroll = true
+
+	if(navCarousel) {navCarousel.destroy(); navCarousel = null;}
 
 	navCarousel = new Flickity( '.monk_nav_items', {
 		prevNextButtons: false,
@@ -1711,8 +1780,10 @@ function monkPage(){
 
 	$(document).on('click', function(){
 
-		if(sizes.width > 768) {
-			clicked()
+		if(page == 'monk') {
+			if(sizes.width > 768) {
+				clicked()
+			}
 		}
 
 	})
@@ -1893,15 +1964,12 @@ function monkPage(){
 
 function entrepreneurPage(){
 
-	var labTL,
-		enCarousel,
-		lastActive = 1,
-		isEntrepreneurActive = false,
-		isFirstHover = true,
-		isColsFlickity = false;
-
+	enCarousel
+	lastActive = 1
+	isEntrepreneurActive = false
+	isFirstHover = true
+	isColsFlickity = false
 	canHideHeader = false
-
 	isHorizontal = false
 
 	function resize(){
@@ -2029,6 +2097,8 @@ function entrepreneurPage(){
 
 				enCarousel.destroy();
 
+				enCarousel = null
+
 			}
 
 		}
@@ -2091,8 +2161,14 @@ function entrepreneurPage(){
 
 	}
 
-	window.addEventListener('resize', resize)
-	document.addEventListener('wheel', wheel)
+	if(!eventFired.includes("3")) {
+
+		eventFired.push("3")
+
+		window.addEventListener('resize', resize)
+		document.addEventListener('wheel', wheel)
+
+	}
 
 	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
@@ -2174,6 +2250,8 @@ function entrepreneurPage(){
 					isColsFlickity = false;
 
 					enCarousel.destroy();
+
+					enCarousel = null;
 
 				}
 
@@ -2311,7 +2389,13 @@ function innerEntrepreneur(){
 
 	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
-	window.addEventListener('resize', resize)
+	if(!eventFired.includes("3-2")) {
+
+		eventFired.push("3-2")
+
+		window.addEventListener('resize', resize)
+
+	}
 
 }
 
@@ -2459,25 +2543,39 @@ function reloadInit(index, url){
 
 function journeyPage(){
 
-	var tagSection = $('.jus_tab'),
-		tabsCarousel,
-		pos = { left: 0, x: 0 },
-		current = false,
-		isFirstBuild = true,
-		isMouseDown = false,
-		resizing = false;
+	tagSection = $('.jus_tab')
 
 	isHorizontal = -1
+	pos = { left: 0, x: 0 }
+	current = false
+	isFirstBuild = true
+	isMouseDown = false
+	resizing = false
 
 	canHideHeader = false
 
+	if(tabsCarousel) { tabsCarousel.destroy() }
+
 	gsap.from('._in', 1, {x: 100, autoAlpha: 0, ease: 'power3.out', stagger: 0.2, delay: 1})
+
+	tabsCarousel = new Flickity( '.monk_nav_items', {
+		prevNextButtons: false,
+		accessibility: true,
+		pageDots: false,
+		contain: true,
+		cellAlign: 'left',
+	});
 
 	function resize(){
 
 		if(page == 'journey') {
 
-			if(tabsCarousel) { tabsCarousel.resize() }
+			if(tabsCarousel) {
+				clearTimeout(window.jTimer);
+				window.jTimer = setTimeout(function(){
+					tabsCarousel.resize()
+				}, 500);
+			}
 
 			if(sizes.width > 768) {
 
@@ -2490,8 +2588,9 @@ function journeyPage(){
 					$('.jus_text ._splitWords').addClass('dirX')
 
 					if(scroll) {
-						scroll.stop();
+						stopScroll()
 						scroll.destroy();
+						scroll = null
 					}
 
 					$('.journey_bg').attr('data-scroll-direction', 'horizontal')
@@ -2535,7 +2634,6 @@ function journeyPage(){
 				}
 
 				if(sizes.width == lastWindowWidth) {
-					
 					resizing = true
 					$('.monk_nav_item.active').click()
 
@@ -2554,15 +2652,16 @@ function journeyPage(){
 					if(scroll) { 
 						stopScroll()
 						scroll.destroy();
+						scroll = null
 					}
 
 					$('.journey_bg').attr('data-scroll-direction', 'vertical')
 
 					if(isFirstBuild) {
 
-						clearTimeout(window.menuTimer);
+						clearTimeout(window.jTimer);
 
-						window.menuTimer = setTimeout(function(){
+						window.jTimer = setTimeout(function(){
 
 							pageScroll(0);
 							journeyScroll(0);
@@ -2742,18 +2841,16 @@ function journeyPage(){
 
     }
 
-	document.addEventListener('mousemove', mouseMoveHandler)
-    document.addEventListener('mousedown', mouseDownHandler);
-	document.addEventListener('mouseup', mouseUpHandler)
-	window.addEventListener('resize', resize)
+	if(!eventFired.includes("4")) {
 
-	tabsCarousel = new Flickity( '.monk_nav_items', {
-		prevNextButtons: false,
-		accessibility: true,
-		pageDots: false,
-		contain: true,
-		cellAlign: 'left',
-	});
+		eventFired.push("4")
+
+		document.addEventListener('mousemove', mouseMoveHandler)
+		document.addEventListener('mousedown', mouseDownHandler);
+		document.addEventListener('mouseup', mouseUpHandler)
+		window.addEventListener('resize', resize)
+
+	}
 
 	resizing = false
 
@@ -2813,48 +2910,10 @@ function journeyPage(){
 
 function authorPage(val){
 
-	var nGridWrap = $('.n_grid_wrap'),
-		nGrid = $('.n_grid'),
-		nGridInner = $('.n_grid_inner'),
-		nGridSide= $('.au_grid_side_items'),
-		coords = [0,0],
-		box_area = {x1:0, y1:0, x2:0, y2:0},
-		buttonArea = {x1:0, y1:0, x2:0, y2:0},
-		authorStarted = false,
-		fluid = true,
-		isStep = false,
-		canHover = false,
-		canMove = false,
-		canSwitch = true,
-		isClosed = true,
-		canClose = false,
-		inBound = false,
-		isMouseIn = false,
-		sideBox,
-		sideBoxLeft,
-		sideBoxTop,
-		authorCarousel,
-		contentTL,
-		lastHovered = -1,
-		mPadd = 60,
-		damp = 20,
-		mX = 0,
-		mX2 = 0,
-		posX = 0,
-		mY = 0,
-		mY2 = 0,
-		posY = 0,
-		galW,
-		galH,
-		galSW,
-		galSH,
-		wDiff,
-		hDiff,
-		mmAA,
-		mmAAr,
-		mmBB,
-		mmBBr,
-		boxTL;
+	nGridWrap = $('.n_grid_wrap')
+	nGrid = $('.n_grid')
+	nGridInner = $('.n_grid_inner')
+	nGridSide = $('.au_grid_side_items')
 
 	canHideHeader = true
 
@@ -2891,6 +2950,29 @@ function authorPage(val){
 		return false;
 	}
 
+	function reset(){
+
+		isClosed = true;
+		authorStarted = false;
+		fluid = true;
+		isStep = false;
+		canHover = false;
+		canMove = false;
+		canSwitch = true;
+		canClose = false;
+		inBound = false;
+		isMouseIn = false;
+
+		nGridReset()
+
+		gsap.set('.fluid_close', { scale: 0})
+
+		gsap.set('.au_content', {autoAlpha: 0})
+
+	};
+
+	if(!val) { reset() }
+
 	function closeBox(){
 
 		if(!isClosed && canClose) {
@@ -2902,7 +2984,6 @@ function authorPage(val){
 			global.history.pushState({}, null, '/author/');
 
 			document.title = 'Om Swami – A Bestselling Author';
-
 
 			$('body').removeClass('opened')
 
@@ -2955,7 +3036,7 @@ function authorPage(val){
 
 			$('.au_grid_box').addClass('no-transition')
 
-			if(scroll){scroll.start()}
+			startScroll()
 
 			if(scroll){scroll.update()};
 
@@ -3474,6 +3555,7 @@ function authorPage(val){
 
 	function step() {
 
+
 		if(page == 'author') {
 
 			if(isStep) {
@@ -3562,10 +3644,10 @@ function authorPage(val){
 
 	} resize();
 
+
 	function scrollFunc(){
 
 		if($('.au_grid_box.moved').length != 0) {
-
 			$('.au_grid_box').each(function(){
 
 				var $this = $(this)
@@ -3612,74 +3694,106 @@ function authorPage(val){
 		.replace(/-*$/,'');
 	}
 
-	document.addEventListener('wheel', wheel);
-
-	window.addEventListener( 'resize', resize);
-
 	scroll.on('scroll', (func, speed) => { scrollFunc() })
 
-	if(!isMobile) {
+	if(!eventFired.includes("2")) {
 
-		$(window).on('mousemove', function(e) {
+		eventFired.push("2")
 
-			if(page == 'author') {
+		window.addEventListener( 'resize', resize);
 
-				var C = coords;
+		document.addEventListener('wheel', wheel);
 
-				C[0] = e.pageX;
-				C[1] = e.pageY;
+		if(!isMobile) {
 
-				if(!isClosed) {
+			$(window).on('mousemove', function(e) {
 
-					store_boundary()
+				if(page == 'author') {
 
-					if(sizes.width > 1200) {
-						if(is_mouse_in_area(buttonArea)){
-							$('body').css('cursor', 'pointer')
-							$('.au_text a').addClass('hover')
+					var C = coords;
+
+					C[0] = e.pageX;
+					C[1] = e.pageY;
+
+					if(!isClosed) {
+
+						store_boundary()
+
+						if(sizes.width > 1200) {
+							if(is_mouse_in_area(buttonArea)){
+								$('body').css('cursor', 'pointer')
+								$('.au_text a').addClass('hover')
+							} else {
+								$('body').css('cursor', 'default')
+								$('.au_text a').removeClass('hover')
+							}
+						}
+
+						if(is_mouse_in_area(box_area) || is_mouse_in_area(buttonArea)){
+
+							if(fluid) {
+
+								fluid = false
+
+								canClose = false
+
+								$('.fluid_close').css('pointer-events', 'none')
+
+								gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
+
+								inBound = true
+
+								if(sizes.width <= 1200) {
+									stopScroll()
+								}
+
+							}
+
 						} else {
-							$('body').css('cursor', 'default')
-							$('.au_text a').removeClass('hover')
+
+							if(!fluid) {
+
+								fluid = true
+
+								canClose = true
+
+								gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
+
+								$('.fluid_close').css('pointer-events', 'all')
+
+								inBound = false
+
+								if(sizes.width <= 1200) {
+									startScroll()
+								}
+
+							}
+
 						}
+
 					}
 
-					if(is_mouse_in_area(box_area) || is_mouse_in_area(buttonArea)){
-
-						if(fluid) {
-
-							fluid = false
-
-							canClose = false
-
-							$('.fluid_close').css('pointer-events', 'none')
-
-							gsap.to('.fluid_close', 0.5, { scale: 0, ease: 'back.inOut'})
-
-							inBound = true
-
-							if(sizes.width <= 1200) {
-								stopScroll()
-							}
-
+					gsap.to('.fluid_close', 0.3, {
+						x:function(index, target) {
+							return e.pageX - (target.offsetWidth/2);
+						},
+						y:function(index, target) {
+							return e.pageY - (target.offsetHeight/2);
 						}
+					})
+					if(!$('body').hasClass('wait') && canMove) {
 
-					} else {
+						mX = e.pageX - nGridWrap.parent().offset().left - nGridWrap.offset().left;
+						mY = e.pageY - nGridWrap.parent().offset().top - nGridWrap.offset().top;
 
-						if(!fluid) {
+						mX2 = Math.min(Math.max(0, mX - mPadd), mmAA) * mmAAr;
+						mY2 = Math.min(Math.max(0, mY - mPadd), mmBB) * mmBBr;
 
-							fluid = true
+						if(!isStep) {
 
-							canClose = true
+							isStep = true;
 
-							gsap.to('.fluid_close', 0.5, { scale: 1, ease: 'back.inOut' })
-
-							$('.fluid_close').css('pointer-events', 'all')
-
-							inBound = false
-
-							if(sizes.width <= 1200) {
-								startScroll()
-							}
+							step();
 
 						}
 
@@ -3687,37 +3801,9 @@ function authorPage(val){
 
 				}
 
-				gsap.to('.fluid_close', 0.3, {
-					x:function(index, target) {
-						return e.pageX - (target.offsetWidth/2);
-					},
-					y:function(index, target) {
-						return e.pageY - (target.offsetHeight/2);
-					}
-				})
-				if(!$('body').hasClass('wait') && canMove) {
+			});
 
-					mX = e.pageX - nGridWrap.parent().offset().left - nGridWrap.offset().left;
-					mY = e.pageY - nGridWrap.parent().offset().top - nGridWrap.offset().top;
-
-					mX2 = Math.min(Math.max(0, mX - mPadd), mmAA) * mmAAr;
-					mY2 = Math.min(Math.max(0, mY - mPadd), mmBB) * mmBBr;
-
-					if(!isStep) {
-
-						console.log('hey')
-
-						isStep = true;
-
-						step();
-
-					}
-
-				}
-
-			}
-
-		});
+		}
 
 	}
 
@@ -3857,7 +3943,7 @@ function authorPage(val){
 
 							boxTL.set('#getCurTitle span', {autoAlpha: 1})
 
-							.to('#getCurTitle span', 0.6, {y: '-105%', ease: 'power4.in'})
+							.to('#getCurTitle span', 0.4, {y: '-105%', ease: 'power4.in'})
 
 							.call(function(){
 
@@ -3867,7 +3953,7 @@ function authorPage(val){
 
 							.set('#getCurTitle span', {y: '105%'})
 
-							.to('#getCurTitle span', 0.6, {y: '0%', ease: 'power4.out'})
+							.to('#getCurTitle span', 0.4, {y: '0%', ease: 'power4.out'})
 
 						}
 
@@ -3968,7 +4054,7 @@ function authorPage(val){
 
 		.set('.app', {autoAlpha: 1})
 
-		.to('.au_grid_box', 1, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.01})
+		.to('.au_grid_box', 1, { x: 0, scale: 1, y: 0, ease: 'power3.out', stagger: -0.03})
 
 		.call(function(){
 
@@ -3980,7 +4066,7 @@ function authorPage(val){
 
 		})
 
-		.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.7)
+		.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.9)
 
 		.call(function(){
 
@@ -4039,8 +4125,6 @@ function authorPage(val){
 				x =  (3340/2 - left - (w/2)).toFixed() * -1,
 				y =  (2100/2 - top - (h/2)).toFixed() * -1,
 				scale = (w / $this[0].offsetWidth).toFixed(2);
-				console.log('.split .'+result[0]+'.'+result[1]+' { transform: translate('+x+'px, '+y+'px) scale('+scale+'); }')
-				console.log()
 			})
 		}
 
