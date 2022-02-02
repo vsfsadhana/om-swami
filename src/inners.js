@@ -485,6 +485,13 @@ function init() {
 
 	ajaxPageLoader.setDefaultTarget('#page');
 
+
+	ajaxPageLoader.setBeforeContentSettingEvent((ajaxLink) => {
+
+		gsap.to('.menu_wrap', 0.5, {autoAlpha: 0, ease: 'power3.out'})
+
+	})
+
 	ajaxPageLoader.setAfterAjaxLoadingEvent((ajaxLink) => {
 
 		if(!$('body').hasClass('wait')) {
@@ -497,7 +504,7 @@ function init() {
 
 			if(ajaxTL) { ajaxTL.kill() }
 
-			ajaxTL = new gsap.timeline();
+			ajaxTL = new gsap.timeline({paused: true});
 
 			const url = ajaxLink.getUrl();
 
@@ -519,11 +526,23 @@ function init() {
 
 			if(page != 'journey') { buildScroll(true); }
 
-			callPage()
+			siteIntrvl = setInterval(function () {
+
+				if(imagesLoaded) {
+
+					imagesLoaded = false;
+
+					clearInterval(siteIntrvl);
+
+					ajaxTL.play()
+
+				};
+
+			}, 50);
 
 			ajaxTL
 
-			.to('.menu_wrap', 1, {autoAlpha: 0, ease: 'power3.in'}, 0)
+			.call(callPage)
 
 			.to(transitionParams, 1, {transition2: 0, ease: 'power3.out', onStart: function(){
 
@@ -535,7 +554,7 @@ function init() {
 
 			}, onUpdate:function(val){
 
-				if(this.progress() >= 0.5 ) {
+				if(this.progress() >= 0.3 ) {
 
 					$('header').removeClass('active light')
 
@@ -554,8 +573,6 @@ function init() {
 				menu();
 
 			})
-
-
 
 			onWindowResize(null, true);
 

@@ -311,12 +311,9 @@ function fire() {
 
 			if(!$this.attr('target')) {
 
-				if(!isDragging) {
+				$('body').addClass('wait')
 
-					$('body').addClass('wait')
-
-					openLink(link, $this.hasClass('main_logo'))
-				}
+				openLink(link, $this.hasClass('main_logo'))
 
 				return false;
 
@@ -461,23 +458,8 @@ function init() {
 		}
 	}
 
-	menuCur.on( 'scroll', function( event, progress ) {
-
-		isDragging = true;
-
-	});
-
-	menuCur.on( 'dragStart', function( event, pointer ) {
-
-		isDragging = true;
-
-	});
-
-	menuCur.on( 'settle', function( event, index ) {
-
-		isDragging = false;
-
-	})
+	menuCur.on('dragStart', () => menuCur.slider.childNodes.forEach(slide => slide.style.pointerEvents = "none") );
+	menuCur.on('dragEnd', () => menuCur.slider.childNodes.forEach(slide => slide.style.pointerEvents = "all") );
 
 	var menuTL = new gsap.timeline({paused: true});
 
