@@ -13,11 +13,13 @@ let container, fov, controls, scene, camera, camera2, renderer, renderer2, stats
 let activeSection = 1;
 let mouseX = 0;
 let mouseY = 0;
+let mouseZ = 0;
 let isInit = false;
 let isReady = false;
 let isMenuClosed = true;
 let isMenu = false;
 let isDragging = false;
+let isExp = false;
 let canScroll = false;
 let canRenderD = true;
 let canRenderC = true;
@@ -26,24 +28,29 @@ let isMuted = false;
 let isAudio = false;
 let isFocus;
 let audio;
+let audioIntrvl;
 let foucsTO;
 let audioLevel = {
 	val: 1
 }
+let isStopped;
+let glProgTL;
 let opacityMesh;
 let transition;
 let transition2;
+let timer;
 let siteIntrvl;
 let imagesLoaded = false;
 let ts;
+let ts2;
 let isMobile;
 let sceneGroup = [];
 let clock;
 let perspective = 800
-let meshT = 800
+let meshT = [];
 let ratio = {
-	width: 1680,
-	height: 946
+	width: 1920,
+	height: 1080
 }
 let transitionParams = {
 	'sceneC' : 1,
@@ -183,7 +190,6 @@ function support_format_webp(img) {
 	if (!!(elem.getContext && elem.getContext('2d'))) { return img.substr(0, img.lastIndexOf(".")) + ".webp" } else { return img}
 }
 
-var glProgTL = new gsap.timeline({paused: true});
 
 function fire() {
 
@@ -277,19 +283,25 @@ function fire() {
 
 				$('.clouds').addClass('vanish')
 
-				isReady = true
-
 			}}, 1)
 
-			.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: "power3.out"})
-
 			.call(function(){
+
+				isReady = true
+
+				isExp = true
 
 				$('.clouds').remove()
 
 				opacityMesh.visible = false
 
 				canScroll = true;
+
+			})
+
+			.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: "power3.out"})
+
+			.call(function(){
 
 				glProgTL.play()
 
@@ -405,11 +417,7 @@ function init() {
 	loadingManager = new THREE.LoadingManager()
 	textureLoader = new THREE.TextureLoader(loadingManager)
 
-	loadingManager.onLoad = function ( ) {
-
-		imagesLoaded = true
-
-	};
+	loadingManager.onLoad = function() { imagesLoaded = true }
 
 	container = document.querySelector( '.container' );
 
@@ -451,7 +459,6 @@ function init() {
 		contain: true
 	});
 
-
 	document.onwheel = function(e) {
 		if(isMenu) {
 			flickity_handle_wheel_event(e, menuCur);
@@ -481,7 +488,7 @@ function init() {
 
 	})
 
-	.to('.lb_set, .tip', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
+	.to('.lb_inner, .tip', 1, {autoAlpha: 0, ease: 'power3.inOut'}, 0)
 
 	.to(transitionParams, 2, {transition2: 1, ease: 'power3.inOut'}, 0)
 
@@ -548,6 +555,7 @@ function init() {
 			glProgTL.pause()
 			menuTL.play()
 			$('header').addClass('opened')
+			$('.lb_set').css('pointer-events', 'none')
 
 		} else {
 
@@ -557,6 +565,7 @@ function init() {
 			menuTL.reverse()
 			glProgTL.play()
 			$('header').removeClass('opened')
+			$('.lb_set').css('pointer-events', 'all')
 		}
 
 	})
@@ -565,29 +574,57 @@ function init() {
 
 	window.onblur = function(){
 
-		if(foucsTO) { clearTimeout(foucsTO) }
+		if(audioIntrvl) {clearInterval(audioIntrvl)}
 
-		foucsTO = setTimeout(function () {
+		audioIntrvl = setInterval(function () {
 
-			isFocus = false;
+			audioLevel.val -= 0.1
 
-		}, 250)
+			if(audioLevel.val <= 0) {
 
-		if(isAudio && !isMuted) {
-			audio.pause();
-		}
+				audioLevel.val = 0
+
+				clearInterval(audioIntrvl);
+
+			} else {
+
+				if(audioLevel.val >= 0 &&  audioLevel.val <= 1) {
+
+					if(audio) { audio.volume = parseFloat((audioLevel.val).toFixed(2)) }
+				}
+			}
+
+		}, 100)
+
 	}
 
 	window.onfocus = function(){
-
-		if(foucsTO) { clearTimeout(foucsTO) }
-
-		isFocus = true;
 	
-		if(isAudio && !isMuted) {
-			audio.play();
-		}
+		if(audioIntrvl) {clearInterval(audioIntrvl)}
+
+		audioIntrvl = setInterval(function () {
+
+			audioLevel.val += 0.1
+
+			if(audioLevel.val >= 1) {
+
+				audioLevel.val = 1
+
+				clearInterval(audioIntrvl);
+
+			} else {
+
+				if(audioLevel.val >= 0 &&  audioLevel.val <= 1) {
+
+					if(audio) { audio.volume = parseFloat((audioLevel.val).toFixed(2)) }
+
+				}
+			}
+
+		}, 100)
+
 	}
+
 }
 
 function FXScene( clearColor, number ) {
@@ -608,7 +645,8 @@ function FXScene( clearColor, number ) {
 
 		if(transitionParams.transition2 < 1) {
 
-			if(isReady) {
+			if(isExp && !isMobile) {
+				camera.position.z += ( mouseZ - camera.position.z ) * .05;
 				camera.position.x += ( mouseX - camera.position.x ) * .05;
 				camera.position.y += ( - mouseY - camera.position.y ) * .05;
 			}
@@ -628,7 +666,7 @@ function FXScene( clearColor, number ) {
 
 		}
 
-	};
+	}
 
 	if(number == 4) {
 
@@ -652,6 +690,8 @@ function FXScene2( clearColor, number ) {
 
 	this.render = function ( delta, rtt ) {
 
+		camera2.lookAt( new THREE.Vector3(0, 0, 0));
+
 		if ( rtt ) {
 
 			renderer2.setRenderTarget( this.fbo );
@@ -669,7 +709,7 @@ function FXScene2( clearColor, number ) {
 
 	if(number == 1){
 
-		scene.add( new THREE.Mesh( new THREE.PlaneGeometry( 1920 , 1080 ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
+		scene.add( new THREE.Mesh( new THREE.PlaneGeometry( ratio.width , ratio.height ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
 
 	}
 }
@@ -684,7 +724,7 @@ function initPlans() {
 
 	for( let i=1; i<=20; i++ ) {
 
-		planes[i] = new THREE.PlaneGeometry(1920 , 1080 );
+		planes[i] = new THREE.PlaneGeometry(ratio.width , ratio.height );
 
 		if(i <= 6 ) {
 			filename = '1-' + i
@@ -768,10 +808,20 @@ function initPlans() {
 
 	}
 
-	opacityMesh = new THREE.Mesh( new THREE.PlaneGeometry(1920 , 1080 ), new THREE.MeshBasicMaterial({ color: 0x1F1F1F, transparent: true }) );
+	opacityMesh = new THREE.Mesh( new THREE.PlaneGeometry(ratio.width , ratio.height ), new THREE.MeshBasicMaterial({ color: 0x1F1F1F, transparent: true }) );
 	setMesh(opacityMesh, 550, 'pos')
 	setMesh(opacityMesh, 0.4, 'scale')
 	sceneGroup[1].add(opacityMesh)
+
+	glProgTL = new gsap.timeline({paused: true})
+
+	glProgTL.fromTo('#gl_progress i', 8, {scaleX: 0}, {scaleX: 1, ease: "power0.none"})
+
+	.call(function(){
+
+		getSection('next')
+
+	})
 
 	var mainTL = new gsap.timeline({paused: true});
 
@@ -782,14 +832,6 @@ function initPlans() {
 			if(mainTL) {mainTL.kill()}
 
 			mainTL = new gsap.timeline();
-
-			gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
-
-				// $('.tip').remove();
-
-				setText('author','Author', 'scene_a', 'scene_b')
-
-			}}, 0)
 
 			mainTL
 
@@ -803,24 +845,33 @@ function initPlans() {
 
 				transitionParams.transition = 1
 
-
 			})
 
-			.to(transitionParams, 2, {transition: 0, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[1].rotation, 2, {z: 0.1, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[1].position, 2, {z: 200, x: -500, ease: 'power3.inOut'}, 0)
-
-			.from(sceneGroup[2].position, 2, { x: 400, ease: 'power3.inOut'}, 0)
-
-			.from(sceneGroup[2].rotation, 2, {z: -0.2, ease: 'power3.inOut'}, 0)
-
-			.from(sceneGroup[2].position, 2, {y: 100, z: 150, ease: 'power3.inOut'}, 0.8)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
 			.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+				setText('author','Author', 'scene_a', 'scene_b')
+
+			})
+
+			.to(sceneGroup[1].position, 2, {z: 50, ease: 'power3.inOut'}, 0)
+
+			.to(transitionParams, 2, {transition: 0, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[1].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[1].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].position, 2, {y: 40, z: 50, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: 'power3.out'})
+
+			.call(function(){
 
 				setOpacity(1, 0)
 
@@ -844,22 +895,23 @@ function initPlans() {
 
 				canRenderC = true;
 
-				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+			})
 
-					setText('journey','Journey', 'scene_b', 'scene_c')
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
-				}}, 0)
+			.call(function(){
+
+				setText('journey','Journey', 'scene_b', 'scene_c')
 
 			})
 
-			.to(sceneGroup[2].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
+			.to(sceneGroup[2].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
 
-			.to(sceneGroup[2].position, 2, {y: 150, ease: 'power3.inOut'}, 1)
+			.to(sceneGroup[2].position, 2, {y: 100, ease: 'power3.inOut'}, 1)
 
 			.to(transitionParams, 1, {sceneC: 1, ease: 'power3.inOut', onUpdate: function(val){
 
 				setOpacity(3, transitionParams.sceneC)
-
 
 			}}, 1.5)
 
@@ -869,13 +921,13 @@ function initPlans() {
 
 			})
 
-			.from(sceneGroup[3].position, 2, {y: -150, ease: 'power3.inOut'}, 1)
+			.from(sceneGroup[3].position, 2, {y: -100, ease: 'power3.inOut'}, 1)
 
-			.fromTo(sceneGroup[3].position, 2, {z: 200}, {z: 5, ease: 'power3.inOut'}, 2.5)
+			.fromTo(sceneGroup[3].position, 2, {z: 100}, {z: 3, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: 'power3.out'})
 
 			.call(function(){
-
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
 
 				setActive(3)
 
@@ -883,59 +935,59 @@ function initPlans() {
 
 		},
 
-		sec4: function() {
+		// sec4: function() {
 
-			if(mainTL) {mainTL.kill()}
+		// 	if(mainTL) {mainTL.kill()}
 
-			mainTL = new gsap.timeline();
+		// 	mainTL = new gsap.timeline();
 
-			mainTL
+		// 	mainTL
 
-			.timeScale( 1.2 )
+		// 	.timeScale( 1.2 )
 
-			.call(function(){
+		// 	.call(function(){
 
-				canRenderD = true;
+		// 		canRenderD = true;
 
-				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+		// 		gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
 
-					setText('entrepreneur','Entrepreneur', 'scene_c', 'scene_d')
+		// 			setText('entrepreneur','Entrepreneur', 'scene_c', 'scene_d')
 
-				}}, 0)
+		// 		}}, 0)
 
-			})
-
-
-			.to(sceneGroup[3].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[3].position, 2, {x: -150, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 1, {sceneD: 1, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(4, transitionParams.sceneD)
+		// 	})
 
 
-			}}, 1.5)
+		// 	.to(sceneGroup[3].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
 
-			.call(function(){
+		// 	.to(sceneGroup[3].position, 2, {x: -150, ease: 'power3.inOut'}, 1)
 
-				canRenderC = false;
+		// 	.to(transitionParams, 1, {sceneD: 1, ease: 'power3.inOut', onUpdate: function(val){
 
-			})
+		// 		setOpacity(4, transitionParams.sceneD)
 
-			.from(sceneGroup[4].position, 2, {x: 250, ease: 'power3.inOut'}, 1)
 
-			.fromTo(sceneGroup[4].position, 2, {z: 350}, {z: 5, ease: 'power3.inOut'}, 2.5)
+		// 	}}, 1.5)
 
-			.call(function(){
+		// 	.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+		// 		canRenderC = false;
 
-				setActive(4)
+		// 	})
 
-			})
+		// 	.from(sceneGroup[4].position, 2, {x: 250, ease: 'power3.inOut'}, 1)
 
-		},
+		// 	.fromTo(sceneGroup[4].position, 2, {z: 350}, {z: 5, ease: 'power3.inOut'}, 2.5)
+
+		// 	.call(function(){
+
+		// 		gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+
+		// 		setActive(4)
+
+		// 	})
+
+		// },
 
 		sec1: function() {
 
@@ -949,46 +1001,67 @@ function initPlans() {
 
 			.call(function(){
 
-				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.in", onComplete: function(){
-
-					setText('author','Author', 'scene_a', 'scene_b')
-
-				}}, 0)
-
-			})
-
-			.to(transitionParams, 0.5, {sceneD: 0, ease: 'power3.in', onUpdate: function(val){
-
 				canRenderB = true;
+
+				setOpacity(1, 1)
+				setOpacity(2, 0)
 
 				resetScene(1)
 				resetScene(2)
-				resetScene(3)
-				resetScene(4)
-
 				transitionParams.transition = 1
 
-				setOpacity(4, transitionParams.sceneD)
+			})
 
-
-			}}, 0)
-
-			.to(transitionParams, 0.5, {sceneA: 1, ease: 'power3.out', onUpdate: function(val){
-
-				setOpacity(1, transitionParams.sceneA)
-
-
-			}}, 0.5)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
 			.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+				setText('monk', 'Monk', 'scene_c', 'scene_a')
 
-				setOpacity(2, 0)
+			})
+
+			.to(sceneGroup[3].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+
+			.to(sceneGroup[3].position, 2, {x: 100, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].position, 2, {x: -100, ease: 'power3.inOut'}, 1)
+
+			.to(transitionParams, 1, {sceneC: 0, ease: 'power3.inOut', onUpdate: function(val){
+
+				setOpacity(3, transitionParams.sceneC)
+
+			}}, 1.5)
+
+			.from(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+
+			.call(function(){
 
 				setActive(1)
 
+				resetScene(3)
+
+				canRenderC = false
+
 			})
+
+
+			// .from(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
+
+			// .call(function(){
+
+			// 	gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+
+			// 	setActive(1)
+
+			// 	resetScene(3)
+
+			// 	resetScene(2)
+
+			// 	canRenderC = false
+
+			// })
 
 		}
 
@@ -1016,27 +1089,33 @@ function initPlans() {
 
 				transitionParams.transition = 0
 
-				gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
-
-					setText('monk','Monk', 'scene_b', 'scene_a')
-
-				}}, 0)
-
 			})
 
-			.to(transitionParams, 2, {transition: 1, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[2].position, 2, { x: 400, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[2].rotation, 2, {z: -0.2, ease: 'power3.inOut'}, 0)
-
-			.from(sceneGroup[1].position, 2, {z: 200, x: -500, ease: 'power3.inOut'}, 0)
-
-			.from(sceneGroup[1].rotation, 2, {z: -0.1, ease: 'power3.inOut'}, 0)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
 			.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+				setText('monk','Monk', 'scene_b', 'scene_a')
+
+			})
+
+			.to(sceneGroup[2].position, 2, { y: 40, z: 50, ease: 'power3.inOut'}, 0)
+
+			.to(transitionParams, 2, {transition: 1, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[2].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[2].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].position, 2, {z: 50, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+
+			.call(function(){
 
 				setOpacity(2, 0)
 
@@ -1059,33 +1138,37 @@ function initPlans() {
 
 				canRenderB = true;
 
+				setOpacity(2, 1)
+
 				resetScene(2)
-
-				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
-
-					setText('author','Author', 'scene_c', 'scene_b')
-
-				}}, 0)
 
 			})
 
-			.to(sceneGroup[3].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[3].position, 2, {y: -150, ease: 'power3.inOut'}, 1)
-
-			.from(sceneGroup[2].position, 2, {y: 150, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 0.3, {sceneC: 0, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(3, transitionParams.sceneC)
-
-			}}, 1.7)
-
-			.from(sceneGroup[2].position, 2, {z: 200, ease: 'power3.inOut'}, 2)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
 			.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+				setText('author','Author', 'scene_c', 'scene_b')
+
+			})
+
+			.to(sceneGroup[3].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+
+			.to(sceneGroup[3].position, 2, {y: -100, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].position, 2, {y: 100, ease: 'power3.inOut'}, 1)
+
+			.to(transitionParams, 1, {sceneC: 0, ease: 'power3.inOut', onUpdate: function(val){
+
+				setOpacity(3, transitionParams.sceneC)
+
+			}}, 1.5)
+
+			.from(sceneGroup[2].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+
+			.call(function(){
 
 				setActive(2)
 
@@ -1109,43 +1192,46 @@ function initPlans() {
 
 			.call(function(){
 
-				canRenderC = true;
-
-				resetScene(3)
-
-				gsap.to('.lb_set', 0.5, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
-
-					setText('author','Author', 'scene_c', 'scene_b')
-
-				}}, 0)
+				canRenderC = true
 
 			})
 
-			.to(sceneGroup[4].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
-
-			.to(sceneGroup[4].position, 2, {x: 250, ease: 'power3.inOut'}, 1)
-
-			.from(sceneGroup[3].position, 2, {x: -150, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 0.3, {sceneD: 0, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(4, transitionParams.sceneD)
-
-			}}, 1.7)
-
-			.from(sceneGroup[3].position, 2, {z: 200, ease: 'power3.inOut'}, 2)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
 			.call(function(){
 
-				gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+				setText('journey','Journey', 'scene_a', 'scene_c')
+
+			})
+
+			.to(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+
+			.to(sceneGroup[1].position, 2, {x: -100, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[3].position, 2, {x: 100, ease: 'power3.inOut'}, 1)
+
+			.to(transitionParams, 1, {sceneC: 1, ease: 'power3.inOut', onUpdate: function(val){
+
+				setOpacity(3, transitionParams.sceneC)
+
+			}}, 1.5)
+
+			.fromTo(sceneGroup[3].position, 2, {z: 100}, {z: 3, ease: 'power3.inOut'}, 2)
+
+			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+
+			.call(function(){
 
 				setActive(3)
 
-				resetScene(4)
+				resetScene(1)
 
-				canRenderD = false
+				transitionParams.transition = 0
+
+				canRenderB = false;
 
 			})
+
 
 		}
 
@@ -1194,6 +1280,7 @@ function initPlans() {
 				glProgTL.pause()
 
 				ts = e.originalEvent.touches[0].clientY;
+				ts2 = e.originalEvent.touches[0].clientX;
 
 			}
 
@@ -1206,14 +1293,15 @@ function initPlans() {
 				glProgTL.pause()
 
 				var te = e.originalEvent.changedTouches[0].clientY;
+				var te2 = e.originalEvent.changedTouches[0].clientX;
 
-				if(ts > te + 25){
+				if(ts > te + 25 || ts2 > te2 + 25){
 
 					canScroll = false
 
 					getSection('next')
 
-				} else if(ts < te - 25){
+				} else if(ts < te - 25 || ts2 < te2 - 25){
 
 					canScroll = false
 
@@ -1227,15 +1315,9 @@ function initPlans() {
 
 	}
 
-	glProgTL.fromTo('#gl_progress i', 8, {scaleX: 0}, {scaleX: 1, ease: "power0.none"})
-
-	.call(function(){
-
-		getSection('next')
-
-	})
-
 	function getSection(dir){
+
+		isReady = false;
 
 		if(dir == 'next') {
 
@@ -1249,22 +1331,14 @@ function initPlans() {
 
 			} else if(activeSection == 3){
 
-				next.sec4()
-
-			} else if(activeSection == 4){
-
+				next.sec1()
 				// next.sec1()
-				canScroll = true
 
 			}
 
 		} else {
 
-			if(activeSection == 4){
-
-				prev.sec3()
-
-			} else if(activeSection == 3){
+			if(activeSection == 3){
 
 				prev.sec2()
 
@@ -1274,8 +1348,7 @@ function initPlans() {
 
 			} else if(activeSection == 1){
 
-				// prev.sec4()
-				canScroll = true
+				prev.sec3()
 
 			}
 
@@ -1289,8 +1362,9 @@ function setActive(number) {
 
 	activeSection = number;
 	canScroll = true
+	isReady = true;
 
-	$('#counter').html(activeSection + '/4')
+	$('#counter').html(activeSection + '/3')
 
 	glProgTL.restart()
 
@@ -1371,11 +1445,11 @@ function Transition( sceneA, sceneB, sceneC, sceneD ) {
 		fragmentShader: fragmentShader
 	});
 
-	meshT = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
+	meshT[0] = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
 
-	meshT.scale.set(sizes.width, sizes.height, 1)
+	meshT[0].scale.set(ratio.width, ratio.height, 1)
 
-	scene.add( meshT );
+	scene.add( meshT[0] );
 
 	material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
 	material.uniforms.tDiffuse2.value = sceneB.fbo.texture;
@@ -1412,14 +1486,47 @@ function Transition( sceneA, sceneB, sceneC, sceneD ) {
 
 			sceneA.render( delta, false );
 
+			if(canRenderC) {
+
+				renderer.autoClear = false;
+				renderer.clearDepth();
+				sceneC.render( delta, false );
+
+			}
+
+			if(canRenderD) {
+
+				renderer.autoClear = false;
+				renderer.clearDepth();
+				sceneD.render( delta, false );
+
+			}
+
 		} else {
 
 			sceneA.render( delta, true );
 			sceneB.render( delta, true );
 
+			if(canRenderC) {
+
+				renderer.autoClear = false;
+				renderer.clearDepth();
+				sceneC.render( delta, false );
+
+			}
+
+			if(canRenderD) {
+
+				renderer.autoClear = false;
+				renderer.clearDepth();
+				sceneD.render( delta, false );
+
+			}
+
 			renderer.setRenderTarget( null );
 			renderer.clear();
 			renderer.render( scene, camera );
+
 
 		}
 
@@ -1446,9 +1553,11 @@ function Transition2( sceneEmpty, sceneMenu ) {
 		fragmentShader: fragmentShader
 	});
 
-	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( ratio.width, ratio.height ), material );
+	meshT[1] = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
 
-	scene.add( mesh );
+	meshT[1].scale.set(ratio.width, ratio.height, 1)
+
+	scene.add( meshT[1] );
 
 
 	material.uniforms.tDiffuse1.value = sceneEmpty.fbo.texture;
@@ -1481,9 +1590,32 @@ function Transition2( sceneEmpty, sceneMenu ) {
 
 function onDocumentMouseMove( event ) {
 
-	mouseX = ( event.clientX - (sizes.width/2) ) / 30
-	mouseY = ( event.clientY - (sizes.height/2) ) / 30
+	if(!isMobile) {
 
+		isStopped = false;
+
+		if(isReady) {
+
+			mouseX = ( event.clientX - (sizes.width/2) ) / 50
+			mouseY = ( event.clientY - (sizes.height/2) ) / 50
+			mouseZ = (perspective-20)
+
+		} else {
+
+			mouseX = 0
+			mouseY = 0
+			mouseZ = perspective
+
+		}
+
+		if(timer) { clearTimeout(timer) }
+		timer=setTimeout(function(){
+			isStopped = true
+			mouseX = 0
+			mouseY = 0
+			mouseZ = perspective
+		},200)
+	}
 }
 
 function openLink(url){
@@ -1510,18 +1642,10 @@ function onWindowResize() {
 		if((sizes.width / sizes.height) > (ratio.width/ratio.height)){
 			renderer.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
 			renderer2.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
-		    camera.aspect = camera2.aspect = sizes.width/ (sizes.width / (ratio.width/ratio.height));
-		    console.log('1')
 		} else {
-			renderer.setSize( sizes.width, sizes.height );
-			renderer2.setSize( sizes.width, sizes.height );
-		    camera.aspect = camera2.aspect = sizes.width/ sizes.height;
-		    console.log('2')
+			renderer.setSize( sizes.height * (ratio.width/ratio.height), sizes.height );
+			renderer2.setSize( sizes.height * (ratio.width/ratio.height), sizes.height );
 		}
-
-		meshT.scale.set(sizes.width, sizes.height, 1)
-		camera.updateProjectionMatrix();
-		camera2.updateProjectionMatrix();
 
 	}
 
@@ -1564,7 +1688,6 @@ function onWindowResize() {
 }
 
 function animate() {
-
 
 	requestAnimationFrame( animate );
 

@@ -25,6 +25,18 @@ body {
 	transform: translate(-50%, -50%);
 }
 
+.container:before {
+	content: '';
+	position: absolute;
+	z-index: 9;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 1px solid #000;
+	pointer-events: none;
+}
+
 body:not(.progress) .cloud {
 	transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
 	-webkit-transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);

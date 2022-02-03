@@ -41,8 +41,8 @@ let container, fov, controls, scene, camera2, renderer2, loadingManager, texture
 let transition2;
 let isMenu = false;
 let ratio = {
-	width: 1680,
-	height: 946
+	width: 1920,
+	height: 1080
 }
 let transitionParams = {
     'transition2': 1,
@@ -53,7 +53,7 @@ let isMuted = true;
 let isAudio = false;
 let isFocus;
 let audio;
-let foucsTO;
+let audioIntrvl;
 let audioLevel = {
 	val: 1
 }
@@ -446,28 +446,55 @@ function init() {
 
 	window.onblur = function(){
 
-		if(foucsTO) { clearTimeout(foucsTO) }
+		if(audioIntrvl) {clearInterval(audioIntrvl)}
 
-		foucsTO = setTimeout(function () {
+		audioIntrvl = setInterval(function () {
 
-			isFocus = false;
+			audioLevel.val -= 0.1
 
-		}, 250)
+			if(audioLevel.val <= 0) {
 
-		if(isAudio && !isMuted) {
-			audio.pause();
-		}
+				audioLevel.val = 0
+
+				clearInterval(audioIntrvl);
+
+			} else {
+
+				if(audioLevel.val >= 0 &&  audioLevel.val <= 1) {
+
+					if(audio) { audio.volume = parseFloat((audioLevel.val).toFixed(2)) }
+				}
+			}
+
+		}, 100)
+
 	}
 
 	window.onfocus = function(){
-
-		if(foucsTO) { clearTimeout(foucsTO) }
-
-		isFocus = true;
 	
-		if(isAudio && !isMuted) {
-			audio.play();
-		}
+		if(audioIntrvl) {clearInterval(audioIntrvl)}
+
+		audioIntrvl = setInterval(function () {
+
+			audioLevel.val += 0.1
+
+			if(audioLevel.val >= 1) {
+
+				audioLevel.val = 1
+
+				clearInterval(audioIntrvl);
+
+			} else {
+
+				if(audioLevel.val >= 0 &&  audioLevel.val <= 1) {
+
+					if(audio) { audio.volume = parseFloat((audioLevel.val).toFixed(2)) }
+
+				}
+			}
+
+		}, 100)
+
 	}
 
 	$('.main_logo').on('click', function () {
@@ -643,7 +670,7 @@ function FXScene2( clearColor, number ) {
 
 	if(number == 1){
 
-		scene.add( new THREE.Mesh( new THREE.PlaneGeometry( 1920 , 1080 ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
+		scene.add( new THREE.Mesh( new THREE.PlaneGeometry( ratio.width , ratio.height ), new THREE.MeshBasicMaterial({ color: 0x040404 }) ) );
 
 	}
 }
@@ -722,13 +749,9 @@ function onWindowResize(e, value) {
 
 	if((sizes.width / sizes.height) > (ratio.width/ratio.height)){
 		renderer2.setSize( sizes.width, sizes.width / (ratio.width/ratio.height) );
-		camera2.aspect = sizes.width/ (sizes.width / (ratio.width/ratio.height));
 	} else {
-		renderer2.setSize( sizes.width, sizes.height );
-		camera2.aspect = sizes.width/ sizes.height;
+		renderer2.setSize( sizes.height * (ratio.width/ratio.height), sizes.height );
 	}
-
-	camera2.updateProjectionMatrix();
 
 	vh = sizes.height * 0.01;
 
@@ -3915,13 +3938,21 @@ function authorPage(val){
 
 		if(!$('body').hasClass('wait') && !$this.hasClass('active')) {
 
-				$('.author_nav_item').removeClass('active')
+			$('.author_nav_item').removeClass('active')
 
-				$('.au_grid_box').addClass('fast')
+			$('.au_grid_box').addClass('fast')
 
-				$this.addClass('active')
+			$this.addClass('active')
 
-				$('.n_grid_blocks, .au_grid_side_items').removeClass('audio physical')
+			// $('.n_grid_inner').removeClass('little')
+
+			$('.n_grid_blocks, .au_grid_side_items').removeClass('audio physical')
+
+			if(id == 1 || id == 2) {
+
+				// $('.n_grid_inner').addClass('little')
+
+			}
 
 			if(id == 1) {
 
@@ -4153,6 +4184,7 @@ function authorPage(val){
 				x =  (3340/2 - left - (w/2)).toFixed() * -1,
 				y =  (2100/2 - top - (h/2)).toFixed() * -1,
 				scale = (w / $this[0].offsetWidth).toFixed(2);
+				console.log('.split .'+result[0]+'.'+result[1]+' { transform: translate('+x+'px, '+y+'px) scale('+scale+'); }')
 			})
 		}
 
