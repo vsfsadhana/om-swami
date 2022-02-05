@@ -1263,15 +1263,17 @@ function initPlans() {
 					e.visible = false
 					e.material.opacity = 0
 				})
+				setActive(4)
 			})
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 2)
 
 			.call(function(){
 
-				setActive(4)
+				bind()
 
 			})
+
 
 		}
 	}
