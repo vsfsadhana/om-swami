@@ -1228,7 +1228,7 @@ function initPlans() {
 
 			})
 
-			.fromTo(opacityMesh[2].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'})
+			.fromTo(opacityMesh[2].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'}, 1)
 
 			.call(function(){
 				opacityMesh.forEach(function(e, i){
