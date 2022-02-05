@@ -21,9 +21,10 @@ let isMenu = false;
 let isDragging = false;
 let isExp = false;
 let canScroll = false;
-let canRenderD = true;
-let canRenderC = true;
-let canRenderB = true;
+let canRenderA = true;
+let canRenderB = false;
+let canRenderC = false;
+let canRenderD = false;
 let isMuted = false;
 let isAudio = false;
 let isFocus;
@@ -33,10 +34,11 @@ let foucsTO;
 let audioLevel = {
 	val: 1
 }
+let mainTL;
 let isStopped;
 let glProgTL;
-let opacityMesh;
-let transition;
+let opacityMesh = [];
+let transition = [];
 let transition2;
 let timer;
 let siteIntrvl;
@@ -47,15 +49,16 @@ let isMobile;
 let sceneGroup = [];
 let clock;
 let perspective = 800
-let meshT = [];
 let ratio = {
 	width: 1920,
 	height: 1080
 }
+let glParams = {
+	'transSceneA': 1,
+	'transSceneB': 1,
+	'transSceneC': 1,
+}
 let transitionParams = {
-	'sceneC' : 1,
-	'sceneD' : 1,
-	'transition': 0,
 	'transition2': 0,
 }
 let sizes = {
@@ -218,18 +221,6 @@ function fire() {
 
 		$('header').addClass('loaded')
 
-		transitionParams.transition = 1
-
-		transitionParams.sceneC = 0
-
-		canRenderC = false;
-
-		canRenderD = false;
-
-		setOpacity(3, 0)
-
-		setOpacity(4, 0)
-
 		animate()
 
 		onWindowResize()
@@ -275,7 +266,7 @@ function fire() {
 
 			.to('.clouds .site_button', 1, {autoAlpha: 0, ease: "power3.out"}, 0)
 
-			.to(opacityMesh.material, 2, {opacity: 0, ease: "power3.out"}, 1)
+			.to(opacityMesh[1].material, 2, {opacity: 0, ease: "power3.out"}, 1)
 
 			.from(sceneGroup[1].position, 2, {z: 200, ease: "power3.out", onStart: function(){
 
@@ -293,7 +284,7 @@ function fire() {
 
 				$('.clouds').remove()
 
-				opacityMesh.visible = false
+				opacityMesh[1].visible = false
 
 				canScroll = true;
 
@@ -433,15 +424,17 @@ function init() {
 
 	fov = (180 * (2 * Math.atan(ratio.height / 2 / perspective))) / Math.PI
 
-	const sceneA = new FXScene( 0x000000, '1' );
-	const sceneB = new FXScene( 0x000000, '2' );
-	const sceneC = new FXScene( 0x000000, '3' );
-	const sceneD = new FXScene( 0x000000, '4' );
+	const sceneA = new FXScene(1);
+	const sceneB = new FXScene(2);
+	const sceneC = new FXScene(3);
+	const sceneD = new FXScene(4);
 
 	const sceneEmpty = new FXScene2( 0x000000, '1' );
 	const sceneMenu = new FXScene2( 0x000000, '2' );
 
-	transition = new Transition( sceneA, sceneB, sceneC, sceneD );
+	transition[0] = new Transition( sceneA, sceneB, 0 );
+	transition[1] = new Transition( sceneB, sceneC, 1 );
+	transition[2] = new Transition( sceneC, sceneD, 2 );
 	transition2 = new Transition2( sceneEmpty, sceneMenu );
 
 	// stats = new Stats();
@@ -627,7 +620,7 @@ function init() {
 
 }
 
-function FXScene( clearColor, number ) {
+function FXScene( number ) {
 
 	const scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera( fov, ratio.width / ratio.height, 10, 10000 );
@@ -722,7 +715,7 @@ function initPlans() {
 		materials = [],
 		filename;
 
-	for( let i=1; i<=20; i++ ) {
+	for( let i=1; i<=25; i++ ) {
 
 		planes[i] = new THREE.PlaneGeometry(ratio.width , ratio.height );
 
@@ -751,12 +744,10 @@ function initPlans() {
 		} else if(i > 12 && i <= 19 ) {
 
 			sceneGroup[3].add( meshes[i] );
-			meshes[i].material.opacity = transitionParams.sceneC
 
 		} else if( i > 19) {
 
 			sceneGroup[4].add( meshes[i] );
-			meshes[i].material.opacity = transitionParams.sceneD
 
 		}
 
@@ -772,35 +763,45 @@ function initPlans() {
 				setMesh(meshes[i], 100 * (i), 'pos')
 				setMesh(meshes[i], 0.87 - (0.12 * (i - 1)), 'scale')
 
-			} else if(i == 4 || i == 10 || i == 15) {
+			} else if(i == 13 || i == 20) {
 
-				setMesh(meshes[i], 340, 'pos')
-				setMesh(meshes[i], 0.59, 'scale')
-
-			} else if(i == 6 || i == 11 || i == 17 || i == 18) {
-
-				setMesh(meshes[i], 380, 'pos')
-				setMesh(meshes[i], 0.54, 'scale')
+				setMesh(meshes[i], 100, 'pos')
+				setMesh(meshes[i], 0.87, 'scale')
 
 			} else if(i == 8 || i == 14) {
 
 				setMesh(meshes[i], 200, 'pos')
 				setMesh(meshes[i], 0.76, 'scale')
 
-			} else if(i == 9 || i == 16) {
+			} else if(i == 9 || i == 16 || i == 21) {
 
 				setMesh(meshes[i], 300, 'pos')
 				setMesh(meshes[i], 0.63, 'scale')
 
-			} else if(i == 12 || i == 19) {
+			} else if(i == 4 || i == 10 || i == 15) {
+
+				setMesh(meshes[i], 340, 'pos')
+				setMesh(meshes[i], 0.59, 'scale')
+
+			} else if(i == 6 || i == 11 || i == 17 || i == 18 || i == 22) {
+
+				setMesh(meshes[i], 380, 'pos')
+				setMesh(meshes[i], 0.54, 'scale')
+
+			} else if(i == 23) {
+
+				setMesh(meshes[i], 460, 'pos')
+				setMesh(meshes[i], 0.46, 'scale')
+
+			} else if(i == 12 || i == 19 || i == 24) {
 
 				setMesh(meshes[i], 500, 'pos')
 				setMesh(meshes[i], 0.39, 'scale')
 
-			} else if(i == 13) {
+			} else if(i == 25) {
 
-				setMesh(meshes[i], 100, 'pos')
-				setMesh(meshes[i], 0.87, 'scale')
+				setMesh(meshes[i], 540, 'pos')
+				setMesh(meshes[i], 0.35, 'scale')
 
 			}
 
@@ -808,10 +809,19 @@ function initPlans() {
 
 	}
 
-	opacityMesh = new THREE.Mesh( new THREE.PlaneGeometry(ratio.width , ratio.height ), new THREE.MeshBasicMaterial({ color: 0x1F1F1F, transparent: true }) );
-	setMesh(opacityMesh, 550, 'pos')
-	setMesh(opacityMesh, 0.4, 'scale')
-	sceneGroup[1].add(opacityMesh)
+	for( let i=1; i<=2; i++ ) {
+
+		opacityMesh[i] = new THREE.Mesh( new THREE.PlaneGeometry(ratio.width , ratio.height ), new THREE.MeshBasicMaterial({ color: 0x1F1F1F, transparent: true }) );
+		setMesh(opacityMesh[i], 550, 'pos')
+		setMesh(opacityMesh[i], 0.4, 'scale')
+		if(i == 2) {
+			opacityMesh[i].visible = false
+			opacityMesh[i].material.opacity = 0
+		}
+	}
+
+	sceneGroup[1].add(opacityMesh[1])
+	sceneGroup[4].add(opacityMesh[2])
 
 	glProgTL = new gsap.timeline({paused: true})
 
@@ -823,8 +833,6 @@ function initPlans() {
 
 	})
 
-	var mainTL = new gsap.timeline({paused: true});
-
 	var next = {
 
 		sec2: function() { 
@@ -835,15 +843,15 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.3)
 
 			.call(function(){
 
-				setOpacity(2, 1)
-
 				resetScene(2)
 
-				transitionParams.transition = 1
+				canRenderA = true
+
+				glParams.transSceneA = 1
 
 			})
 
@@ -855,26 +863,30 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[1].position, 2, {z: 50, ease: 'power3.inOut'}, 0)
+			.to('#gl_progress i', 2, {scaleX: 1, ease: "power3.inOut"}, 0)
 
-			.to(transitionParams, 2, {transition: 0, ease: 'power3.inOut'}, 1)
+			.to(sceneGroup[1].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
 
-			.to(sceneGroup[1].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+			.to(sceneGroup[1].rotation, 2, {z: 0.1, ease: 'power3.inOut'}, 1)
 
 			.to(sceneGroup[1].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
+
+			.to(glParams, 2, {transSceneA: 0, ease: 'power3.inOut'}, 1)
 
 			.from(sceneGroup[2].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
 
 			.from(sceneGroup[2].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
 
-			.from(sceneGroup[2].position, 2, {y: 40, z: 50, ease: 'power3.inOut'}, 2)
+			.from(sceneGroup[2].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
 
-			.to('.lb_set', 1, {autoAlpha: 1, ease: 'power3.out'})
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
+
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
 
 			.call(function(){
 
-				setOpacity(1, 0)
-
+				canRenderA = false
+				canRenderB = true
 				setActive(2)
 
 			})
@@ -889,11 +901,15 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.3)
 
 			.call(function(){
 
-				canRenderC = true;
+				resetScene(3)
+
+				canRenderB = true
+
+				glParams.transSceneB = 1
 
 			})
 
@@ -905,89 +921,91 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[2].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+			.to('#gl_progress i', 2, {scaleX: 1, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[2].position, 2, {y: 100, ease: 'power3.inOut'}, 1)
+			.to(sceneGroup[2].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
 
-			.to(transitionParams, 1, {sceneC: 1, ease: 'power3.inOut', onUpdate: function(val){
+			.to(sceneGroup[2].rotation, 2, {z: 0.1, ease: 'power3.inOut'}, 1)
 
-				setOpacity(3, transitionParams.sceneC)
+			.to(sceneGroup[2].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
 
-			}}, 1.5)
+			.to(glParams, 2, {transSceneB: 0, ease: 'power3.inOut'}, 1)
 
-			.call(function(){
+			.from(sceneGroup[3].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
 
-				canRenderB = false;
+			.from(sceneGroup[3].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
 
-			})
+			.from(sceneGroup[3].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
 
-			.from(sceneGroup[3].position, 2, {y: -100, ease: 'power3.inOut'}, 1)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
 
-			.fromTo(sceneGroup[3].position, 2, {z: 100}, {z: 3, ease: 'power3.inOut'}, 2)
-
-			.to('.lb_set', 1, {autoAlpha: 1, ease: 'power3.out'})
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
 
 			.call(function(){
 
+				canRenderB = false
+				canRenderC = true
 				setActive(3)
 
 			})
 
 		},
 
-		// sec4: function() {
+		sec4: function() {
 
-		// 	if(mainTL) {mainTL.kill()}
+			if(mainTL) {mainTL.kill()}
 
-		// 	mainTL = new gsap.timeline();
+			mainTL = new gsap.timeline();
 
-		// 	mainTL
+			mainTL
 
-		// 	.timeScale( 1.2 )
+			.timeScale(1.3)
 
-		// 	.call(function(){
+			.call(function(){
 
-		// 		canRenderD = true;
+				resetScene(4)
 
-		// 		gsap.to('.lb_set', 1, {autoAlpha: 0, ease: "power3.out", onComplete: function(){
+				canRenderC = true
 
-		// 			setText('entrepreneur','Entrepreneur', 'scene_c', 'scene_d')
+				glParams.transSceneC = 1
 
-		// 		}}, 0)
+			})
 
-		// 	})
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
 
+			.call(function(){
 
-		// 	.to(sceneGroup[3].position, 2, {z: 200, ease: 'power3.inOut'}, 0)
+				setText('entrepreneur','Entrepreneur', 'scene_c', 'scene_d')
 
-		// 	.to(sceneGroup[3].position, 2, {x: -150, ease: 'power3.inOut'}, 1)
+			})
 
-		// 	.to(transitionParams, 1, {sceneD: 1, ease: 'power3.inOut', onUpdate: function(val){
+			.to('#gl_progress i', 2, {scaleX: 1, ease: "power3.inOut"}, 0)
 
-		// 		setOpacity(4, transitionParams.sceneD)
+			.to(sceneGroup[3].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
 
+			.to(sceneGroup[3].rotation, 2, {z: 0.1, ease: 'power3.inOut'}, 1)
 
-		// 	}}, 1.5)
+			.to(sceneGroup[3].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
 
-		// 	.call(function(){
+			.to(glParams, 2, {transSceneC: 0, ease: 'power3.inOut'}, 1)
 
-		// 		canRenderC = false;
+			.from(sceneGroup[4].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
 
-		// 	})
+			.from(sceneGroup[4].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
 
-		// 	.from(sceneGroup[4].position, 2, {x: 250, ease: 'power3.inOut'}, 1)
+			.from(sceneGroup[4].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
 
-		// 	.fromTo(sceneGroup[4].position, 2, {z: 350}, {z: 5, ease: 'power3.inOut'}, 2.5)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
 
-		// 	.call(function(){
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
 
-		// 		gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
+			.call(function(){
 
-		// 		setActive(4)
+				setActive(4)
 
-		// 	})
+			})
 
-		// },
+		},
 
 		sec1: function() {
 
@@ -1001,70 +1019,50 @@ function initPlans() {
 
 			.call(function(){
 
-				canRenderB = true;
+				canRenderC = true
 
-				setOpacity(1, 1)
-				setOpacity(2, 0)
-
-				resetScene(1)
-				resetScene(2)
-				transitionParams.transition = 1
-
+				opacityMesh.forEach(function(e, i){
+					e.visible = true
+				})
 			})
 
-			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.out'}, 0)
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.in'}, 0)
+
+			.fromTo(opacityMesh[2].material, 1, {opacity: 0}, {opacity: 1, ease: 'power3.in'}, 0)
 
 			.call(function(){
 
 				setText('monk', 'Monk', 'scene_c', 'scene_a')
 
+				resetScene(1)
+
+				glParams.transSceneA = 1
+				glParams.transSceneB = 1
+				glParams.transSceneC = 1
+				canRenderA = true
+				canRenderB = false
+				canRenderC = false
+
 			})
 
-			.to(sceneGroup[3].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+			.fromTo(opacityMesh[1].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'})
 
-			.to(sceneGroup[3].position, 2, {x: 100, ease: 'power3.inOut'}, 1)
+			.call(function(){
+				opacityMesh.forEach(function(e, i){
+					e.visible = false
+					e.material.opacity = 0
+				})
+			})
 
-			.from(sceneGroup[1].position, 2, {x: -100, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 1, {sceneC: 0, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(3, transitionParams.sceneC)
-
-			}}, 1.5)
-
-			.from(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
-
-			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 2)
 
 			.call(function(){
 
 				setActive(1)
 
-				resetScene(3)
-
-				canRenderC = false
-
 			})
 
-
-			// .from(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
-
-			// .call(function(){
-
-			// 	gsap.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"}, 0)
-
-			// 	setActive(1)
-
-			// 	resetScene(3)
-
-			// 	resetScene(2)
-
-			// 	canRenderC = false
-
-			// })
-
 		}
-
 
 	}
 
@@ -1083,11 +1081,11 @@ function initPlans() {
 
 			.call(function(){
 
-				setOpacity(1, 1)
+				canRenderA = true
+				canRenderB = false
+				glParams.transSceneA = 0
 
 				resetScene(1)
-
-				transitionParams.transition = 0
 
 			})
 
@@ -1099,29 +1097,18 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[2].position, 2, { y: 40, z: 50, ease: 'power3.inOut'}, 0)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
-			.to(transitionParams, 2, {transition: 1, ease: 'power3.inOut'}, 1)
+			.to(glParams, 2, {transSceneA: 1, ease: 'power3.inOut'}, 0)
 
-			.to(sceneGroup[2].rotation, 2, {z: -0.15, ease: 'power3.inOut'}, 1)
-
-			.to(sceneGroup[2].position, 2, { x: 200, ease: 'power3.inOut'}, 1)
-
-			.from(sceneGroup[1].position, 2, {x: -200, ease: 'power3.inOut'}, 1)
-
-			.from(sceneGroup[1].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
-
-			.from(sceneGroup[1].position, 2, {z: 50, ease: 'power3.inOut'}, 2)
-
-			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
 			.call(function(){
-
-				setOpacity(2, 0)
 
 				setActive(1)
 
 			})
+
 		},
 
 		sec2: function() {
@@ -1132,13 +1119,13 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.4 )
+			.timeScale( 1.2 )
 
 			.call(function(){
 
-				canRenderB = true;
-
-				setOpacity(2, 1)
+				canRenderB = true
+				canRenderC = false
+				glParams.transSceneB = 0
 
 				resetScene(2)
 
@@ -1152,29 +1139,15 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[3].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[3].position, 2, {y: -100, ease: 'power3.inOut'}, 1)
+			.to(glParams, 2, {transSceneB: 1, ease: 'power3.inOut'}, 0)
 
-			.from(sceneGroup[2].position, 2, {y: 100, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 1, {sceneC: 0, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(3, transitionParams.sceneC)
-
-			}}, 1.5)
-
-			.from(sceneGroup[2].position, 2, {z: 100, ease: 'power3.inOut'}, 2)
-
-			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
 			.call(function(){
 
 				setActive(2)
-
-				resetScene(3)
-
-				canRenderC = false
 
 			})
 
@@ -1188,11 +1161,13 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.4 )
+			.timeScale( 1.2 )
 
 			.call(function(){
 
 				canRenderC = true
+
+				resetScene(3)
 
 			})
 
@@ -1204,37 +1179,73 @@ function initPlans() {
 
 			})
 
-			.to(sceneGroup[1].position, 2, {z: 100, ease: 'power3.inOut'}, 0)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
-			.to(sceneGroup[1].position, 2, {x: -100, ease: 'power3.inOut'}, 1)
+			.to(glParams, 2, {transSceneC: 1, ease: 'power3.inOut'}, 0)
 
-			.from(sceneGroup[3].position, 2, {x: 100, ease: 'power3.inOut'}, 1)
-
-			.to(transitionParams, 1, {sceneC: 1, ease: 'power3.inOut', onUpdate: function(val){
-
-				setOpacity(3, transitionParams.sceneC)
-
-			}}, 1.5)
-
-			.fromTo(sceneGroup[3].position, 2, {z: 100}, {z: 3, ease: 'power3.inOut'}, 2)
-
-			.to('.lb_set', 1, {autoAlpha: 1, ease: "power3.out"})
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
 			.call(function(){
 
 				setActive(3)
 
-				resetScene(1)
+			})
 
-				transitionParams.transition = 0
+		},
 
-				canRenderB = false;
+		sec4: function() {
+
+			if(mainTL) {mainTL.kill()}
+
+			mainTL = new gsap.timeline();
+
+			mainTL
+
+			.timeScale( 1.2 )
+
+			.call(function(){
+				opacityMesh.forEach(function(e, i){
+					e.visible = true
+				})
+			})
+
+			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.in'}, 0)
+
+			.fromTo(opacityMesh[1].material, 1, {opacity: 0}, {opacity: 1, ease: 'power3.in'}, 0)
+
+			.call(function(){
+
+				setText('entrepreneur','Entrepreneur', 'scene_a', 'scene_d')
+
+				resetScene(4)
+
+				glParams.transSceneA = 1
+				glParams.transSceneB = 1
+				glParams.transSceneC = 0
+				canRenderA = false
+				canRenderB = false
+				canRenderC = true
 
 			})
 
+			.fromTo(opacityMesh[2].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'})
+
+			.call(function(){
+				opacityMesh.forEach(function(e, i){
+					e.visible = false
+					e.material.opacity = 0
+				})
+			})
+
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 2)
+
+			.call(function(){
+
+				setActive(4)
+
+			})
 
 		}
-
 	}
 
 	if(!isMobile) {
@@ -1321,6 +1332,8 @@ function initPlans() {
 
 		if(dir == 'next') {
 
+			console.log(activeSection)
+
 			if(activeSection == 1){
 
 				next.sec2()
@@ -1331,14 +1344,21 @@ function initPlans() {
 
 			} else if(activeSection == 3){
 
+				next.sec4()
+
+			} else if(activeSection == 4){
+
 				next.sec1()
-				// next.sec1()
 
 			}
 
 		} else {
 
-			if(activeSection == 3){
+			if(activeSection == 4){
+
+				prev.sec3()
+
+			} else if(activeSection == 3){
 
 				prev.sec2()
 
@@ -1348,7 +1368,7 @@ function initPlans() {
 
 			} else if(activeSection == 1){
 
-				prev.sec3()
+				prev.sec4()
 
 			}
 
@@ -1364,7 +1384,7 @@ function setActive(number) {
 	canScroll = true
 	isReady = true;
 
-	$('#counter').html(activeSection + '/3')
+	$('#counter').html(activeSection + '/4')
 
 	glProgTL.restart()
 
@@ -1404,14 +1424,14 @@ function setMesh(element, value, type) {
 
 function setOpacity(section, value){
 
-	sceneGroup[section].traverse((child) => {
+	// sceneGroup[section].traverse((child) => {
 
-		if(child instanceof THREE.Mesh && child.material) {
+	// 	if(child instanceof THREE.Mesh && child.material) {
 
-			child.material.opacity = value
+	// 		child.material.opacity = value
 
-		}
-	})
+	// 	}
+	// })
 
 }
 
@@ -1426,110 +1446,42 @@ function initGUI() {
 
 }
 
-function Transition( sceneA, sceneB, sceneC, sceneD ) {
+function Transition( sceneA, sceneB ) {
 
 	const scene = new THREE.Scene();
 
 	const textures = textureLoader.load( support_format_webp('images/transition.png') );
 
-	const material = new THREE.ShaderMaterial(
-		{
-			uniforms: {tDiffuse1: {value: null},
-			tDiffuse2: {value: null},
-			mixRatio: {value: 0.0},
-			threshold: {value: 0.3},
-			useTexture: {value: 1},
-			tMixTexture: {value: textures}
+	this.material = new THREE.ShaderMaterial({
+		uniforms: {
+			tDiffuse1: { value: null },
+			tDiffuse2: { value: null },
+			mixRatio: { value: 0.0 },
+			threshold: { value: 0.1 },
+			useTexture: { value: 1 },
+			tMixTexture: { value: textures }
 		},
 		vertexShader: vertexShader,
 		fragmentShader: fragmentShader
 	});
 
-	meshT[0] = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
+	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), this.material );
 
-	meshT[0].scale.set(ratio.width, ratio.height, 1)
+	mesh.scale.set(ratio.width, ratio.height, 1)
 
-	scene.add( meshT[0] );
+	scene.add( mesh );
 
-	material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
-	material.uniforms.tDiffuse2.value = sceneB.fbo.texture;
-
-	this.needsTextureChange = false;
-
+	this.material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
+	this.material.uniforms.tDiffuse2.value = sceneB.fbo.texture;
 	this.render = function ( delta ) {
-
-		material.uniforms.mixRatio.value = transitionParams.transition;
-
-		if ( transitionParams.transition == 0 ) {
-
-			if(canRenderB) {
-				sceneB.render( delta, false );
-			}
-
-			if(canRenderC) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneC.render( delta, false );
-
-			}
-
-			if(canRenderD) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneD.render( delta, false );
-
-			}
-
-		} else if ( transitionParams.transition == 1 ) {
-
-			sceneA.render( delta, false );
-
-			if(canRenderC) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneC.render( delta, false );
-
-			}
-
-			if(canRenderD) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneD.render( delta, false );
-
-			}
-
-		} else {
-
-			sceneA.render( delta, true );
-			sceneB.render( delta, true );
-
-			if(canRenderC) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneC.render( delta, false );
-
-			}
-
-			if(canRenderD) {
-
-				renderer.autoClear = false;
-				renderer.clearDepth();
-				sceneD.render( delta, false );
-
-			}
-
-			renderer.setRenderTarget( null );
-			renderer.clear();
-			renderer.render( scene, camera );
-
-
-		}
-
+		transition[0].material.uniforms.mixRatio.value = glParams.transSceneA;
+		transition[1].material.uniforms.mixRatio.value = glParams.transSceneB;
+		transition[2].material.uniforms.mixRatio.value = glParams.transSceneC;
+		sceneA.render( delta, true );
+		sceneB.render( delta, true );
+		renderer.setRenderTarget( null );
+		renderer.clear();
+		renderer.render( scene, camera );
 	};
 
 }
@@ -1540,7 +1492,7 @@ function Transition2( sceneEmpty, sceneMenu ) {
 
 	const textures = textureLoader.load( support_format_webp('images/transition2.png') );
 
-	const material = new THREE.ShaderMaterial(
+	this.material = new THREE.ShaderMaterial(
 		{
 			uniforms: {tDiffuse1: {value: null},
 			tDiffuse2: {value: null},
@@ -1553,21 +1505,21 @@ function Transition2( sceneEmpty, sceneMenu ) {
 		fragmentShader: fragmentShader
 	});
 
-	meshT[1] = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), material );
+	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), this.material );
 
-	meshT[1].scale.set(ratio.width, ratio.height, 1)
+	mesh.scale.set(ratio.width, ratio.height, 1)
 
-	scene.add( meshT[1] );
+	scene.add( mesh );
 
 
-	material.uniforms.tDiffuse1.value = sceneEmpty.fbo.texture;
-	material.uniforms.tDiffuse2.value = sceneMenu.fbo.texture;
+	this.material.uniforms.tDiffuse1.value = sceneEmpty.fbo.texture;
+	this.material.uniforms.tDiffuse2.value = sceneMenu.fbo.texture;
 
 	this.needsTextureChange = false;
 
 	this.render = function ( delta ) {
 
-		material.uniforms.mixRatio.value = transitionParams.transition2;
+		this.material.uniforms.mixRatio.value = transitionParams.transition2;
 
 		if ( transitionParams.transition2 == 0 ) {
 
@@ -1699,7 +1651,18 @@ function animate() {
 
 function render() {
 
-	transition.render( clock.getDelta() );
+	if(canRenderA){
+		transition[0].render( clock.getDelta() );
+	}
+
+	if(canRenderB){
+		transition[1].render( clock.getDelta() );
+	}
+
+	if(canRenderC){
+		transition[2].render( clock.getDelta() );
+	}
+
 	if(!isMenuClosed) {
 		transition2.render( clock.getDelta() );
 	}

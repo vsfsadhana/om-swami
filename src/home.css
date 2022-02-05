@@ -552,3 +552,7 @@ body:not(.progress) .lb_set i {
 		transform: scale(0.7)
 	}
 }
+
+.dg.ac {
+	z-index: 99999 !important;
+}

@@ -7,6 +7,7 @@ const path = require('path')
 
 module.exports = {
     entry: {
+      test: path.resolve(__dirname, '../src/test.js'),
       main: path.resolve(__dirname, '../src/home.js'),
       inners: path.resolve(__dirname, '../src/inners.js')
     },
@@ -31,6 +32,13 @@ module.exports = {
             minify: true
         }),
 
+
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/test.html'),
+            filename: 'test.html',
+            chunks: ['test'],
+            minify: true
+        }),
 
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/monk/index.html'),
