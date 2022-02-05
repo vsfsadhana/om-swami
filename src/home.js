@@ -881,13 +881,19 @@ function initPlans() {
 
 			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
 
-			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
-
 			.call(function(){
 
 				canRenderA = false
 				canRenderB = true
 				setActive(2)
+
+			})
+
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
+
+			.call(function(){
+
+				bind()
 
 			})
 
@@ -939,13 +945,19 @@ function initPlans() {
 
 			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
 
-			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
-
 			.call(function(){
 
 				canRenderB = false
 				canRenderC = true
 				setActive(3)
+
+			})
+
+			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
+
+			.call(function(){
+
+				bind()
 
 			})
 
@@ -997,11 +1009,17 @@ function initPlans() {
 
 			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 2)
 
+			.call(function(){
+
+				setActive(4)
+
+			})
+
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 3)
 
 			.call(function(){
 
-				setActive(4)
+				bind()
 
 			})
 
@@ -1030,8 +1048,6 @@ function initPlans() {
 
 			.fromTo(opacityMesh[2].material, 1, {opacity: 0}, {opacity: 1, ease: 'power3.in'}, 0)
 
-			.to('#gl_progress i', 1, {scaleX: 1, ease: "power3.inOut"}, 0)
-
 			.call(function(){
 
 				setText('monk', 'Monk', 'scene_c', 'scene_a')
@@ -1056,13 +1072,19 @@ function initPlans() {
 				})
 			})
 
-			.to('#gl_progress i', 1, {scaleX: 0, ease: "power3.inOut"}, 0)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
+
+			.call(function(){
+
+				setActive(1)
+
+			})
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 2)
 
 			.call(function(){
 
-				setActive(1)
+				bind()
 
 			})
 
@@ -1217,7 +1239,7 @@ function initPlans() {
 
 			.fromTo(opacityMesh[1].material, 1, {opacity: 0}, {opacity: 1, ease: 'power3.in'}, 0)
 
-			.to('#gl_progress i', 1, {scaleX: 1, ease: "power3.inOut"}, 0)
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
 			.call(function(){
 
@@ -1242,8 +1264,6 @@ function initPlans() {
 					e.material.opacity = 0
 				})
 			})
-
-			.to('#gl_progress i', 1, {scaleX: 0, ease: "power3.inOut"}, 1)
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 2)
 
@@ -1386,11 +1406,14 @@ function initPlans() {
 
 }
 
+function bind() {
+	canScroll = true
+	isReady = true;
+}
+
 function setActive(number) {
 
 	activeSection = number;
-	canScroll = true
-	isReady = true;
 
 	$('#counter').html(activeSection + '/4')
 
