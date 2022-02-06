@@ -656,6 +656,8 @@ function init() {
 
 	if(page == 'home') {
 		initGL()
+	} else {
+		if(!audio) {music()}
 	}
 
 	// stats = new Stats();
@@ -666,8 +668,6 @@ function init() {
 	document.addEventListener( 'mousemove', onDocumentMouseMove );
 	window.addEventListener( 'resize', onWindowResize );
 	window.addEventListener( 'orientationchange', onOrientationChange);
-
-	music()
 
 	window.onblur = function(){
 
@@ -2394,6 +2394,8 @@ function music(){
 	}
 
 	$('.equalizer').click(function(){
+
+		console.log('hey')
 
 		if(!$('body').hasClass('wait')) {
 
