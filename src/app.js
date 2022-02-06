@@ -954,6 +954,8 @@ function init() {
 
 		.call(function(){
 
+			isPageReady = true
+
 			isMenuClosed = true
 
 			isMenu = false
@@ -1097,6 +1099,8 @@ function init() {
 					$('#page').html(contactHTML);
 					break;
 				}
+
+				if(page != 'journey') { buildScroll(true); }
 
 				appendImgs(false)				
 
@@ -2926,7 +2930,7 @@ function monkPage(){
 
 		$(window).on('mousewheel DOMMouseScroll', function (e) {
 
-			if(canScroll) {
+			if(canScroll && page == 'monk') {
 
 				var direction = (function () {
 
@@ -2946,7 +2950,7 @@ function monkPage(){
 
 		$(window).on('touchstart', function (e){
 
-			if(canScroll) {
+			if(canScroll && page == 'monk') {
 
 				ts = e.originalEvent.touches[0].clientX;
 
@@ -2956,7 +2960,7 @@ function monkPage(){
 
 		$(window).on('touchend', function (e){
 
-			if(canScroll) {
+			if(canScroll && page == 'monk') {
 
 				var te = e.originalEvent.changedTouches[0].clientX;
 
@@ -3253,7 +3257,7 @@ function monkPage(){
 
 	$('a, .header_side, .monk_nav_set').on('mouseenter', function(){
 
-		if(!isButtonHidden && !isClicked && !isMenu) {
+		if(!isButtonHidden && !isClicked && !isMenu && page == 'monk') {
 
 			isButtonHidden = true;
 
@@ -3262,7 +3266,7 @@ function monkPage(){
 
 	}).on('mouseleave', function(){
 
-		if(isButtonHidden && !isClicked && !isMenu) {
+		if(isButtonHidden && !isClicked && !isMenu && page == 'monk') {
 
 			isButtonHidden = false;
 
