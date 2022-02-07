@@ -30,8 +30,6 @@ import enContent4 from './entrepreneur/life-coaching/views.html'
 import enContent5 from './entrepreneur/wildr/views.html'
 import enContent6 from './entrepreneur/sri-badrika-ashram/views.html'
 
-var Flickity = require('flickity');
-
 gsap.registerPlugin(SplitText)
 gsap.config({ nullTargetWarn: false })
 
@@ -100,6 +98,7 @@ let fragmentShader = `
 	
 var page = $('body').attr('id'),
 	dataID = $('body').attr('data-id'),
+	Flickity = require('flickity'),
 	ajaxPageLoader,
 	lastWindowWidth = 0,
 	isPageReady = false,
@@ -633,7 +632,7 @@ function menuGL() {
 	container = document.querySelector( '.container' );
 
 	renderer2 = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-	renderer2.setPixelRatio( window.devicePixelRatio );
+	// renderer2.setPixelRatio( window.devicePixelRatio );
 	renderer2.setSize( ratio.width, ratio.height );
 	container.appendChild( renderer2.domElement );
 
@@ -1184,7 +1183,7 @@ function initGL() {
 		loadingManager.onLoad = function() { imagesLoaded = true }
 
 		renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-		renderer.setPixelRatio( window.devicePixelRatio );
+		// renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( ratio.width, ratio.height );
 		container.appendChild( renderer.domElement );
 
