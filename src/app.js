@@ -2763,7 +2763,15 @@ function callPage(){
 
 	if(page == 'monk') {
 
-		monkPage()
+		if(dataID) {
+
+			monkPage(true, dataID)
+
+		} else {
+
+			monkPage()
+
+		}
 
 	} else if(page == 'entrepreneur') {
 
@@ -2820,7 +2828,22 @@ function hexToRgbA(hex,a){
 	throw new Error('Bad Hex');
 }
 
-function monkPage(){
+function toSeoUrl(url) {
+	return url
+	.toString()
+	.replace('<br>','')
+	.normalize('NFD')
+	.replace(/[\u0300-\u036f]/g,'')
+	.replace(/\s+/g,'-')
+	.toLowerCase()
+	.replace(/&/g,'-and-')
+	.replace(/[^a-z0-9\-]/g,'')
+	.replace(/-+/g,'-')
+	.replace(/^-*/,'')
+	.replace(/-*$/,'');
+}
+
+function monkPage(val, id){
 
 	$imgs1 = $('.monk_visuals i.a')
 	$imgs2 = $('.monk_visuals i.b')
@@ -2842,143 +2865,13 @@ function monkPage(){
 
 	canScroll = true
 
-	if(navCarousel) {navCarousel.destroy(); navCarousel = null;}
-
-	navCarousel = new Flickity( '.monk_nav_items', {
-		prevNextButtons: false,
-		accessibility: true,
-		pageDots: false,
-		contain: true,
-		cellAlign: 'left',
-		selectedAttraction: 0.08,
-		friction:  1,
-		on: {
-			ready: function() {
-				setTimeout(function(){
-					navCarousel.resize()					
-				}, 1000)
-			}
-		}
-	});
-
-	navCarousel.on( 'dragStart', function( event, pointer ) { isDragging = true })
-	navCarousel.on( 'settle', function( event, index ) { isDragging = false })
-
-	$('.arrow').on( 'click', function() {
-
-		if(canScroll) {
-
-			if($(this).hasClass('next')) {
-
-				nextSlide()
-
-			} else {
-
-				prevSlide()
-
-			}
-		}
-
-		if(isClicked && canHideHeader) {
-
-			canHideHeader = false;
-
-			if($(this).hasClass('next')) {
-
-				nextSlide(isClicked)
-
-			} else {
-
-				prevSlide(isClicked)
-
-			}
-		}
-
-	});
-
-	$('.monk_nav_item').click(function(){
-
-		var index = $(this).index()
-
-		if(!$(this).hasClass('active') && !isDragging) {
-
-			if(canScroll) {
-
-				setSlide(index, -1)
-
-			}
-			if(isClicked && canHideHeader) {
-
-				canHideHeader = false;
-
-				gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(index, true) } })
-				
-				navCarousel.select(index);
-
-			}
-
-		}
-
-	})
-
-	$('a, .header_side, .monk_nav_set').click(function(e){
-
-		e.stopPropagation();
-
-	})
-
-	if(!isMobile) {
-
-		$(window).on('mousewheel DOMMouseScroll', function (e) {
-
-			if(canScroll && page == 'monk') {
-
-				var direction = (function () {
-
-					var delta = (e.type === 'DOMMouseScroll' ? e.originalEvent.detail * -40 : e.originalEvent.wheelDelta);
-
-					return delta > 0 ? 0 : 1;
-
-				}());
-
-				direction == 1 ? nextSlide() : prevSlide()
-
-			}
-
-		});
-
-	} else {
-
-		$(window).on('touchstart', function (e){
-
-			if(canScroll && page == 'monk') {
-
-				ts = e.originalEvent.touches[0].clientX;
-
-			}
-
-		});
-
-		$(window).on('touchend', function (e){
-
-			if(canScroll && page == 'monk') {
-
-				var te = e.originalEvent.changedTouches[0].clientX;
-
-				if(ts > te + 25){
-
-					nextSlide()
-
-				} else if(ts < te - 25){
-
-					prevSlide()
-
-				}
-
-			}
-
-		});
-
+	if(val) {
+		canScroll = false;
+		isClicked = true;
+		gsap.set('.explore_btn', { scale: 0 })
+		$('.getContent').show()
+		startScroll()
+		loadContent(id-1, true);
 	}
 
 	function nextSlide(val){
@@ -3132,6 +3025,12 @@ function monkPage(){
 
 		}
 
+		var title = $('.monk_nav_item.active').find('.item_lable').html();
+
+		global.history.pushState({}, null, '/monk/' + toSeoUrl(title));
+
+		document.title = title
+
 		if(!index) {
 
 			activeIndex = $('.monk_nav_item.active').index()
@@ -3240,6 +3139,82 @@ function monkPage(){
 
 	}
 
+	if(navCarousel) {navCarousel.destroy(); navCarousel = null;}
+
+	navCarousel = new Flickity( '.monk_nav_items', {
+		prevNextButtons: false,
+		accessibility: true,
+		pageDots: false,
+		contain: true,
+		cellAlign: 'left',
+		selectedAttraction: 0.08,
+		friction:  1,
+		on: {
+			ready: function() {
+				setTimeout(function(){
+					navCarousel.resize()					
+				}, 1000)
+			}
+		}
+	});
+
+	navCarousel.on( 'dragStart', function( event, pointer ) { isDragging = true })
+	navCarousel.on( 'settle', function( event, index ) { isDragging = false })
+
+	if(!isMobile) {
+
+		$(window).on('mousewheel DOMMouseScroll', function (e) {
+
+			if(canScroll && page == 'monk') {
+
+				var direction = (function () {
+
+					var delta = (e.type === 'DOMMouseScroll' ? e.originalEvent.detail * -40 : e.originalEvent.wheelDelta);
+
+					return delta > 0 ? 0 : 1;
+
+				}());
+
+				direction == 1 ? nextSlide() : prevSlide()
+
+			}
+
+		});
+
+	} else {
+
+		$(window).on('touchstart', function (e){
+
+			if(canScroll && page == 'monk') {
+
+				ts = e.originalEvent.touches[0].clientX;
+
+			}
+
+		});
+
+		$(window).on('touchend', function (e){
+
+			if(canScroll && page == 'monk') {
+
+				var te = e.originalEvent.changedTouches[0].clientX;
+
+				if(ts > te + 25){
+
+					nextSlide()
+
+				} else if(ts < te - 25){
+
+					prevSlide()
+
+				}
+
+			}
+
+		});
+
+	}
+
 	$(document).on('click', function(){
 
 		if(page == 'monk') {
@@ -3247,6 +3222,69 @@ function monkPage(){
 				clicked()
 			}
 		}
+
+	})
+
+	$('.arrow').on( 'click', function() {
+
+		if(canScroll) {
+
+			if($(this).hasClass('next')) {
+
+				nextSlide()
+
+			} else {
+
+				prevSlide()
+
+			}
+		}
+
+		if(isClicked && canHideHeader) {
+
+			canHideHeader = false;
+
+			if($(this).hasClass('next')) {
+
+				nextSlide(isClicked)
+
+			} else {
+
+				prevSlide(isClicked)
+
+			}
+		}
+
+	});
+
+	$('.monk_nav_item').click(function(){
+
+		var index = $(this).index()
+
+		if(!$(this).hasClass('active') && !isDragging) {
+
+			if(canScroll) {
+
+				setSlide(index, -1)
+
+			}
+			if(isClicked && canHideHeader) {
+
+				canHideHeader = false;
+
+				gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(index, true) } })
+				
+				navCarousel.select(index);
+
+			}
+
+		}
+
+	})
+
+	$('a, .header_side, .monk_nav_set').click(function(e){
+
+		e.stopPropagation();
 
 	})
 
@@ -3287,6 +3325,10 @@ function monkPage(){
 			isButtonHidden = false
 
 			isClicked = false
+
+			global.history.pushState({}, null, '/monk/');
+
+			document.title = 'Om Swami - Unconventional Monk'
 
 			let newSlideIndex = getActive.index()
 
@@ -5139,21 +5181,6 @@ function authorPage(val){
 			}
 		}
 
-	}
-
-	function toSeoUrl(url) {
-		return url
-		.toString()
-		.replace('<br>','')
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g,'')
-		.replace(/\s+/g,'-')
-		.toLowerCase()
-		.replace(/&/g,'-and-')
-		.replace(/[^a-z0-9\-]/g,'')
-		.replace(/-+/g,'-')
-		.replace(/^-*/,'')
-		.replace(/-*$/,'');
 	}
 
 	scroll.on('scroll', (func, speed) => { scrollFunc() })

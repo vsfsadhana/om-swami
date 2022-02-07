@@ -38,6 +38,15 @@ module.exports = {
             minify: true
         }),
 
+        ...['millionaire-turned-monk', 'expert-meditator', 'unconventional-monk', 'om-swami-in-own-words'].map( (page) => {
+            return new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, `../src/monk/${page}/index.html`),
+                filename: `monk/${page}/index.html`,
+                chunks: ['main'],
+                minify: true
+            })
+        }),
+
         ...['serial-entrepreneur', 'black-lotus-app', 'life-coaching', 'sadhana-app', 'sri-badrika-ashram', 'wildr'].map( (page) => {
             return new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, `../src/entrepreneur/${page}/index.html`),
