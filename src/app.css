@@ -149,6 +149,7 @@ body.add-transit {
 	bottom: 0;
 	left: 0;
 	border: 1px solid #000;
+	border-bottom: none;
 	pointer-events: none;
 }
 
