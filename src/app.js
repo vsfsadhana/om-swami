@@ -406,7 +406,9 @@ function appendImgs(val){
 
 				} else {
 
-					initGL()
+					if(page == 'home') {
+						initGL()
+					}
 					loaded = true
 
 				}
