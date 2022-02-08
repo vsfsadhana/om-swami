@@ -68,8 +68,8 @@ body.isDesktop:not(.wait) .input_check {
 
 /* Transitions */
 body:not(.progress) .cloud {
-	transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
-	-webkit-transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	transition: all 1200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	-webkit-transition: all 1200ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 body:not(.progress) .nav_item_svg path,

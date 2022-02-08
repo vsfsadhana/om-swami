@@ -398,7 +398,7 @@ function appendImgs(val){
 
 						init();
 
-						gsap.to('.clouds_set', 1, {autoAlpha: 1, ease: "power3.out", delay: 0.5, onComplete: launchGL})
+						gsap.to('.clouds_set', 1.5, {autoAlpha: 1, ease: "power3.out", delay: 0.5, onComplete: launchGL})
 
 					} else {
 
@@ -520,13 +520,13 @@ function launchGL(){
 
 			vanishTL
 
-			.staggerTo('.cloud_text p > span > span', 1, {autoAlpha: 0, y: '-100%', ease: "power3.out"}, 0.1, 0)
+			.staggerTo('.cloud_text p > span > span', 1, {autoAlpha: 0, y: '-100%', ease: "power3.out"}, 0.05, 0)
 
 			.to('.clouds .site_button', 1, {autoAlpha: 0, ease: "power3.out"}, 0)
 
-			.to(opacityMesh[1].material, 2, {opacity: 0, ease: "power3.out"}, 1)
+			.to(opacityMesh[1].material, 3, {opacity: 0, ease: "power3.out"}, 1)
 
-			.from(sceneGroup[1].position, 2, {z: 200, ease: "power3.out", onStart: function(){
+			.from(sceneGroup[1].position, 3, {z: 200, ease: "power3.out", onStart: function(){
 
 				$('body').removeClass('progress')
 
@@ -550,7 +550,7 @@ function launchGL(){
 
 			})
 
-			.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: "power3.out"})
+			.to('.lb_set, header, .tip', 1, {autoAlpha: 1, ease: "power3.out"}, 3)
 
 			.call(function(){
 
@@ -1215,11 +1215,11 @@ function initGL() {
 
 	glProgTL = new gsap.timeline({paused: true})
 
-	glProgTL.fromTo('#gl_progress i', 8, {scaleX: 0}, {scaleX: 1, ease: "power0.none"})
+	glProgTL.fromTo('#gl_progress i', 5, {scaleX: 0}, {scaleX: 1, ease: "power0.none"})
 
 	.call(function(){
 
-		// getSection('next')
+		getSection('next')
 
 	})
 
@@ -1439,7 +1439,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale(1.3)
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1503,7 +1503,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale(1.3)
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1567,7 +1567,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale(1.3)
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1629,7 +1629,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1698,7 +1698,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1746,7 +1746,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1794,7 +1794,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.5)
 
 			.call(function(){
 
@@ -1840,7 +1840,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale( 1.2 )
+			.timeScale(1.5)
 
 			.call(function(){
 				opacityMesh.forEach(function(e, i){
@@ -1924,6 +1924,26 @@ function initPlans() {
 			}
 
 		});
+
+		document.onkeydown = function(e) {
+
+			if(glActive && canScroll) {
+
+				if(e.which == 37 || e.which == 38) {
+					glProgTL.pause()
+					canScroll = false
+					getSection('prev');
+				}
+
+				if(e.which == 39 || e.which == 40) {
+					glProgTL.pause()
+					canScroll = false
+					getSection('next');
+				}
+
+			}
+
+		}
 
 	} else {
 
@@ -2195,9 +2215,9 @@ function onDocumentMouseMove( event ) {
 
 		if(isReady) {
 
-			mouseX = ( event.clientX - (sizes.width/2) ) / 50
-			mouseY = ( event.clientY - (sizes.height/2) ) / 50
-			mouseZ = (perspective-20)
+			mouseX = ( event.clientX - (sizes.width/2) ) / 100
+			mouseY = ( event.clientY - (sizes.height/2) ) / 100
+			mouseZ = (perspective-15)
 
 		} else {
 
