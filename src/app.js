@@ -4123,8 +4123,6 @@ function journeyPage(){
 						},
 					});
 
-					console.log('Hey')
-
 					if(isFirstBuild) {
 
 						pageScroll(0);
