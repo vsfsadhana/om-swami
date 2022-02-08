@@ -3103,7 +3103,7 @@ body.opened .author_nav_set,
 		align-items: center;
 	}
 	.en_sec_col h2 > span:last-child > .small {
-		bottom: 0;
+		bottom: 0 !important;
 		position: relative;
 		right: 0 !important;
 		left: 0 !important;

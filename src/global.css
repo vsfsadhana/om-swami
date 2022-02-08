@@ -316,6 +316,10 @@ header.loaded {
 	z-index: 99;
 }
 
+.site_button:not(.menu_button) {
+	width: 144px;
+}
+
 .menu_layer {
 	z-index: -99;
 	opacity: 0.4;
