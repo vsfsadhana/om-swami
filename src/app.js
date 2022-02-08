@@ -180,6 +180,8 @@ var page = $('body').attr('id'),
 	isButtonLoaded = false,
 	isButtonHidden = false,
 	loaded = false,
+	switched = false,
+	isEnd = false,
 	pageTitle,
 	splitWords = [],
 	splitLines = [],
@@ -2553,6 +2555,44 @@ function pageScroll(val){
 
 	}
 
+	if(page == 'monk') {
+
+		if(val != 0 ) {
+
+			if(isClicked && !isMobile) {
+
+				if ((window.innerHeight + val.scroll.y) >= parseInt($('#page').height())) {
+
+					if(!switched && !isEnd) {
+
+						switched = true;
+
+					}
+
+					clearTimeout(window.end);
+
+					window.end = setTimeout(function() {
+
+						if(switched && isEnd) {
+
+							nextSlide(true)
+
+						}
+
+						if(switched) {
+							isEnd = true;
+						}
+
+					}, 50);
+
+				}
+
+			}
+
+		}
+
+	}
+
 	if(scrollVal > 100) {
 
 		if(canHideHeader && page != 'author') {
@@ -2914,120 +2954,6 @@ function monkPage(val, id){
 		loadContent(id-1, true);
 	}
 
-	function nextSlide(val){
-
-		let currentSlide = $('.monk_nav_item.active').index(),
-			newSlide;
-
-		currentSlide == slidesTotal - 1 ? newSlide = 0 : newSlide = currentSlide + 1
-
-		if(!val) {
-			setSlide(newSlide, -1)
-		} else {
-			gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
-		}
-
-	}
-
-	function prevSlide(val){
-
-		let currentSlide = $('.monk_nav_item.active').index(),
-			newSlide;
-
-		currentSlide == 0 ? newSlide = slidesTotal - 1 : newSlide = currentSlide - 1
-
-		if(!val) {
-			setSlide(newSlide, 1)
-		} else {
-			gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
-		}
-
-	}
-
-	function setSlide(newSlideIndex, dir){
-
-		let curSlide = $('.monk_slide.active'),
-			curVis1 = curSlide.find($imgs1),
-			curVis2 = curSlide.find($imgs2),
-			newSlide = $('.monk_slide').eq(newSlideIndex),
-			newVis1 = newSlide.find($imgs1),
-			newVis2 = newSlide.find($imgs2);
-
-		canScroll = false
-
-		navCarousel.select(newSlideIndex);
-
-		$('.monk_nav_item.active').removeClass('active')
-
-		$('.monk_nav_item').eq(newSlideIndex).addClass('active')
-
-		if(slidesTL) { slidesTL.kill() }
-
-		slidesTL = new gsap.timeline()
-
-		slidesTL
-
-		.to('.monk_nav_progress i', 1, {scaleX: ( ( (sizes.width / (slidesTotal - 1) ) * newSlideIndex) ) / sizes.width, ease: 'power3.out'}, 0)
-
-		.to(curSlide.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
-
-		.staggerTo(curSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * dir + '%', ease: 'power3.in'}, 0.1 * -dir, 0.3)
-
-		.to(curSlide.find('.monk_text .mobile_explore'), 0.7, {y: 20 * dir, autoAlpha: 0, ease: 'power3.in'}, 0.3)
-
-		.to(curVis1, 1, {x: -100, autoAlpha: 0, ease: 'power3.in'}, 0)
-
-		.to(curVis2, 1, {
-			x: function(index, target){
-				let val;
-				sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
-				return val;
-			},
-			y: function(index, target){
-				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = 100 * dir : val = 0;
-				return val;
-			},
-			autoAlpha: 0, ease: 'power3.in'
-		}, 0)
-
-		.set('.monk_slide', {autoAlpha: 0}, 1)
-
-		.set(newSlide, {autoAlpha: 1}, 1)
-
-		.fromTo(newVis1, 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 1)
-
-		.fromTo(newVis2, 1, {
-			x: function(index, target){
-				let val;
-				sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
-				return val;
-			},
-			y: function(index, target){
-				let val;
-				sizes.width <= 768 && newSlideIndex != 3 ? val = -100 * dir : val = 0;
-				return val;
-			},
-			autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
-		}, 1)
-
-		.fromTo(newSlide.find('.monk_text ._ele.alt_h2 i'), 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'}, 1.3)
-
-		.fromTo(newSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * -dir + '%'}, {y: '0%', ease: 'power3.out', stagger: 0.1 * -dir}, 1)
-
-		.fromTo(newSlide.find('.monk_text .mobile_explore'), 0.7, {y: 20 * -dir, autoAlpha: 0}, {y: 0, autoAlpha: 1, ease: 'power3.out'}, 1.5)
-
-		.call(function(){
-
-			$('.monk_slide.active').removeClass('active').find('.monk_visuals').removeClass('prx')
-
-			newSlide.addClass('active').find('.monk_visuals').addClass('prx')
-
-			canScroll = true
-
-		})
-
-	}
 
 	function clicked(){
 
@@ -3049,135 +2975,6 @@ function monkPage(val, id){
 
 	}
 
-	function loadContent(index, val){
-
-		loaded = false;
-
-		var activeIndex = index
-
-		if(val) {
-
-			$('.monk_nav_item.active').removeClass('active')
-
-			$('.monk_nav_item').eq(index).addClass('active')
-
-			$('header').removeClass('invisble')
-
-		}
-
-		var title = $('.monk_nav_item.active').find('.item_lable').html();
-
-		global.history.pushState({}, null, '/monk/' + toSeoUrl(title));
-
-		document.title = title
-
-		if(!index) {
-
-			activeIndex = $('.monk_nav_item.active').index()
-
-		}
-
-		getActive = $('.monk_slide').eq(activeIndex)
-
-		$('body').addClass('wait').attr('data-id', activeIndex+1)
-
-		switch(activeIndex) {
-			case 0:
-			$('.getContent').html(monkContent1);
-			break;
-			case 1:
-			$('.getContent').html(monkContent2);
-			break;
-			case 2:
-			$('.getContent').html(monkContent3);
-			break;
-			case 3:
-			$('.getContent').html(monkContent4);
-			break;
-		}
-
-		appendImgs(false)
-
-		scroll.update()
-
-		gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
-
-		if(!val) {
-			gsap.set('.getContent', {autoAlpha: 1})
-		}
-
-		siteIntrvl = setInterval(function () {
-
-			if(loaded) {
-
-				loaded = false;
-
-				clearInterval(siteIntrvl);
-
-				gsap.to('.monk_layers', 1, {autoAlpha: 1, ease: 'power3.out' })
-
-			};
-
-		}, 50);
-
-		excute()
-
-		function excute() {
-
-			$('.monk_nav').addClass('has_close transition')
-
-			scroll.scrollTo('.getContent', {
-				duration: val ? 0 : 400,
-				disableLerp: val ? true : false,
-				callback: function(){
-
-					canScroll = false;
-
-					stopScroll()
-
-					pageScroll(0)
-
-					if(val) {
-
-						gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
-
-					}
-
-					setTimeout(function(){
-
-						navCarousel.resize();
-
-						$('#monkSlides').hide();
-
-						scroll.scrollTo(0, {duration: 0, disableLerp: true})
-
-						scroll.update()
-
-						setTimeout(function(){
-
-							startScroll()
-
-							$('.monk_visuals').removeClass('prx')
-
-							$('body').removeClass('wait')
-
-							canHideHeader = true
-
-							isDragging = false
-
-							$('.monk_nav').removeClass('transition')
-
-						}, 500)
-
-					}, 1000)
-
-				}
-
-			})
-
-		}
-
-	}
 
 	if(navCarousel) {navCarousel.destroy(); navCarousel = null;}
 
@@ -3486,7 +3283,7 @@ function monkPage(val, id){
 
 	.from(getActive.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: '150%', ease: 'power3.out', stagger: 0.1}, 0)
 
-	.fromTo(getActive.find($imgs1), 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out', delay: 1}, 0)
+	.fromTo(getActive.find($imgs1), 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 0)
 
 	.fromTo(getActive.find($imgs2), 1, {
 		x: function(index, target){
@@ -3499,10 +3296,260 @@ function monkPage(val, id){
 			sizes.width <= 768 ? val = 100 : val = 0;
 			return val;
 		},
-		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out', delay: 1
+		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
 	}, 0)
 
 	.from(getActive.find('.monk_text .mobile_explore'), 0.7, {y: 20, autoAlpha: 0, ease: 'power3.out', delay: 1.5}, 0.5)
+
+}
+
+function nextSlide(val){
+
+	let currentSlide = $('.monk_nav_item.active').index(),
+		newSlide;
+
+	isEnd = false
+	switched = false
+
+	currentSlide == slidesTotal - 1 ? newSlide = 0 : newSlide = currentSlide + 1
+
+	if(!val) {
+		setSlide(newSlide, -1)
+	} else {
+		gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
+	}
+
+}
+
+function prevSlide(val){
+
+	let currentSlide = $('.monk_nav_item.active').index(),
+		newSlide;
+
+	currentSlide == 0 ? newSlide = slidesTotal - 1 : newSlide = currentSlide - 1
+
+	if(!val) {
+		setSlide(newSlide, 1)
+	} else {
+		gsap.to('.getContent', 0.5, {autoAlpha: 0, ease: 'power3.out', onComplete: function(){ loadContent(newSlide, true) } })
+	}
+
+}
+
+function setSlide(newSlideIndex, dir){
+
+	let curSlide = $('.monk_slide.active'),
+		curVis1 = curSlide.find($imgs1),
+		curVis2 = curSlide.find($imgs2),
+		newSlide = $('.monk_slide').eq(newSlideIndex),
+		newVis1 = newSlide.find($imgs1),
+		newVis2 = newSlide.find($imgs2);
+
+	canScroll = false
+
+	navCarousel.select(newSlideIndex);
+
+	$('.monk_nav_item.active').removeClass('active')
+
+	$('.monk_nav_item').eq(newSlideIndex).addClass('active')
+
+	if(slidesTL) { slidesTL.kill() }
+
+	slidesTL = new gsap.timeline()
+
+	slidesTL
+
+	.to('.monk_nav_progress i', 1, {scaleX: ( ( (sizes.width / (slidesTotal - 1) ) * newSlideIndex) ) / sizes.width, ease: 'power3.out'}, 0)
+
+	.to(curSlide.find('.monk_text ._ele.alt_h2 i'), 0.5, {autoAlpha: 0, ease: 'power3.in'}, 0)
+
+	.staggerTo(curSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * dir + '%', ease: 'power3.in'}, 0.1 * -dir, 0.3)
+
+	.to(curSlide.find('.monk_text .mobile_explore'), 0.7, {y: 20 * dir, autoAlpha: 0, ease: 'power3.in'}, 0.3)
+
+	.to(curVis1, 1, {x: -100, autoAlpha: 0, ease: 'power3.in'}, 0)
+
+	.to(curVis2, 1, {
+		x: function(index, target){
+			let val;
+			sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
+			return val;
+		},
+		y: function(index, target){
+			let val;
+			sizes.width <= 768 && newSlideIndex != 3 ? val = 100 * dir : val = 0;
+			return val;
+		},
+		autoAlpha: 0, ease: 'power3.in'
+	}, 0)
+
+	.set('.monk_slide', {autoAlpha: 0}, 1)
+
+	.set(newSlide, {autoAlpha: 1}, 1)
+
+	.fromTo(newVis1, 1, {x: -100, autoAlpha: 0}, {x: 0, autoAlpha: 1, ease: 'power3.out'}, 1)
+
+	.fromTo(newVis2, 1, {
+		x: function(index, target){
+			let val;
+			sizes.width > 768 || newSlideIndex == 3 ? val = 100 : val = 0;
+			return val;
+		},
+		y: function(index, target){
+			let val;
+			sizes.width <= 768 && newSlideIndex != 3 ? val = -100 * dir : val = 0;
+			return val;
+		},
+		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
+	}, 1)
+
+	.fromTo(newSlide.find('.monk_text ._ele.alt_h2 i'), 1, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.out'}, 1.3)
+
+	.fromTo(newSlide.find('.monk_text ._ele:not(.alt_h2) i'), 0.7, {y: 150 * -dir + '%'}, {y: '0%', ease: 'power3.out', stagger: 0.1 * -dir}, 1)
+
+	.fromTo(newSlide.find('.monk_text .mobile_explore'), 0.7, {y: 20 * -dir, autoAlpha: 0}, {y: 0, autoAlpha: 1, ease: 'power3.out'}, 1.5)
+
+	.call(function(){
+
+		$('.monk_slide.active').removeClass('active').find('.monk_visuals').removeClass('prx')
+
+		newSlide.addClass('active').find('.monk_visuals').addClass('prx')
+
+		canScroll = true
+	})
+
+}
+
+function loadContent(index, val){
+
+	loaded = false;
+
+	var activeIndex = index
+
+	if(val) {
+
+		$('.monk_nav_item.active').removeClass('active')
+
+		$('.monk_nav_item').eq(index).addClass('active')
+
+		$('header').removeClass('invisble')
+
+	}
+
+	var title = $('.monk_nav_item.active').find('.item_lable').html();
+
+	global.history.pushState({}, null, '/monk/' + toSeoUrl(title));
+
+	document.title = title
+
+	if(!index) {
+
+		activeIndex = $('.monk_nav_item.active').index()
+
+	}
+
+	getActive = $('.monk_slide').eq(activeIndex)
+
+	$('body').addClass('wait').attr('data-id', activeIndex+1)
+
+	switch(activeIndex) {
+		case 0:
+		$('.getContent').html(monkContent1);
+		break;
+		case 1:
+		$('.getContent').html(monkContent2);
+		break;
+		case 2:
+		$('.getContent').html(monkContent3);
+		break;
+		case 3:
+		$('.getContent').html(monkContent4);
+		break;
+	}
+
+	appendImgs(false)
+
+	scroll.update()
+
+	gsap.to('.monk_nav_progress', 0.5, {autoAlpha: 0, ease: 'power3.out'})
+
+	if(!val) {
+		gsap.set('.getContent', {autoAlpha: 1})
+	}
+
+	siteIntrvl = setInterval(function () {
+
+		if(loaded) {
+
+			loaded = false;
+
+			clearInterval(siteIntrvl);
+
+			gsap.to('.monk_layers', 1, {autoAlpha: 1, ease: 'power3.out' })
+
+		};
+
+	}, 50);
+
+	excute()
+
+	function excute() {
+
+		$('.monk_nav').addClass('has_close transition')
+
+		scroll.scrollTo('.getContent', {
+			duration: val ? 0 : 400,
+			disableLerp: val ? true : false,
+			callback: function(){
+
+				canScroll = false;
+
+				stopScroll()
+
+				pageScroll(0)
+
+				if(val) {
+
+					gsap.to('.getContent', 0.5, {autoAlpha: 1, ease: 'power3.out' })
+
+				}
+
+				setTimeout(function(){
+
+					navCarousel.resize();
+
+					$('#monkSlides').hide();
+
+					scroll.scrollTo(0, {duration: 0, disableLerp: true})
+
+					scroll.update()
+
+					setTimeout(function(){
+
+						startScroll()
+
+						$('.monk_visuals').removeClass('prx')
+
+						$('body').removeClass('wait')
+
+						canHideHeader = true
+
+						isDragging = false
+
+						$('.monk_nav').removeClass('transition')
+
+					}, 500)
+
+					isEnd = false
+					switched = false
+
+				}, 1000)
+
+			}
+
+		})
+
+	}
 
 }
 
