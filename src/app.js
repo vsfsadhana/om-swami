@@ -1217,7 +1217,7 @@ function initGL() {
 
 	.call(function(){
 
-		// getSection('next')
+		getSection('next')
 
 	})
 
