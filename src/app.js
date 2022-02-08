@@ -142,6 +142,8 @@ var page = $('body').attr('id'),
 	mY = 0,
 	mY2 = 0,
 	posY = 0,
+	next,
+	prev,
 	galW,
 	galH,
 	galSW,
@@ -1427,7 +1429,7 @@ function initPlans() {
 	sceneGroup[1].add(opacityMesh[1])
 	sceneGroup[4].add(opacityMesh[2])
 
-	var next = {
+	next = {
 
 		sec2: function() { 
 
@@ -1686,7 +1688,7 @@ function initPlans() {
 
 	}
 
-	var prev = {
+	prev = {
 
 		sec1: function() { 
 
@@ -1949,51 +1951,49 @@ function initPlans() {
 
 	}
 
-	function getSection(dir){
+}
 
-		isReady = false;
+function getSection(dir){
 
-		if(dir == 'next') {
+	isReady = false;
 
-			console.log(activeSection)
+	if(dir == 'next') {
 
-			if(activeSection == 1){
+		if(activeSection == 1){
 
-				next.sec2()
+			next.sec2()
 
-			} else if(activeSection == 2){
+		} else if(activeSection == 2){
 
-				next.sec3()
+			next.sec3()
 
-			} else if(activeSection == 3){
+		} else if(activeSection == 3){
 
-				next.sec4()
+			next.sec4()
 
-			} else if(activeSection == 4){
+		} else if(activeSection == 4){
 
-				next.sec1()
+			next.sec1()
 
-			}
+		}
 
-		} else {
+	} else {
 
-			if(activeSection == 4){
+		if(activeSection == 4){
 
-				prev.sec3()
+			prev.sec3()
 
-			} else if(activeSection == 3){
+		} else if(activeSection == 3){
 
-				prev.sec2()
+			prev.sec2()
 
-			} else if(activeSection == 2){
+		} else if(activeSection == 2){
 
-				prev.sec1()
+			prev.sec1()
 
-			} else if(activeSection == 1){
+		} else if(activeSection == 1){
 
-				prev.sec4()
-
-			}
+			prev.sec4()
 
 		}
 
