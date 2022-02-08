@@ -4587,7 +4587,7 @@ function authorPage(val){
 					$('.au_grid_side_items').removeClass('audio physical')
 				}
 
-			}, 800);
+			}, 900);
 
 		}
 
@@ -4605,7 +4605,7 @@ function authorPage(val){
 
 			if(scroll){scroll.update()};
 
-		}, 800);
+		}, 900);
 
 	}
 
@@ -5563,10 +5563,13 @@ function authorPage(val){
 
 	}).on('click', function () {
 
-		let $this = $(this),
-			id = $this.attr('data-id');
+		if(!isAnimation) {
 
-		bookClick($this, id)
+			let $this = $(this),
+				id = $this.attr('data-id');
+
+			bookClick($this, id)
+		}
 	})
 
 	$('.n_grid_blocks').addClass('split')

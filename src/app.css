@@ -15,6 +15,7 @@ div[data-scroll-section],
 #getCurTitle span,
 .line_texture,
 .fluid_btn,
+.fluid_close svg,
 .n_grid_wrap,
 .au_grid_box,
 .hero_borders,
@@ -1277,6 +1278,10 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 	pointer-events: none;
 }
 
+.fluid_close svg {
+	width: 88px;
+}
+
 .fluid_btn svg {
 	position: relative;
 	z-index: 99;
@@ -2037,9 +2042,9 @@ body:not(.progress) .en_col_set:not(.no-tranist) .en_col_shape {
 
 /* Author  */
 body:not(.progress) .n_grid_blocks.split .au_grid_box:not(.no-transition) {
-	transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
-	-moz-transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
-	-webkit-transition: all 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	transition: all 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	-moz-transition: all 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	-webkit-transition: all 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 body:not(.progress) .n_grid_blocks.split .au_grid_box.no-transition.fast {
@@ -2388,6 +2393,11 @@ input[type=range] {
 	right: 0;
 	bottom: 0;
 	z-index: 999;
+}
+
+.ext svg {
+	width: 12px;
+	margin-left: 5px;
 }
 
 body.opened .author_nav_set,
