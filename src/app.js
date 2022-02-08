@@ -2935,6 +2935,8 @@ function monkPage(val, id){
 	isButtonLoaded = false
 	isButtonHidden = false
 	loaded = false
+	isEnd = false
+	switched = false
 	isClicked = false
 
 	isHorizontal = false
