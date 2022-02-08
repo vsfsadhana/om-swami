@@ -1219,7 +1219,7 @@ function initGL() {
 
 	.call(function(){
 
-		getSection('next')
+		// getSection('next')
 
 	})
 
@@ -1730,6 +1730,12 @@ function initPlans() {
 
 			})
 
+			.call(function(){
+
+				bind()
+
+			})
+
 		},
 
 		sec2: function() {
@@ -1772,6 +1778,12 @@ function initPlans() {
 
 			})
 
+			.call(function(){
+
+				bind()
+
+			})
+
 		},
 
 		sec3: function() {
@@ -1809,6 +1821,12 @@ function initPlans() {
 			.call(function(){
 
 				setActive(3)
+
+			})
+
+			.call(function(){
+
+				bind()
 
 			})
 
