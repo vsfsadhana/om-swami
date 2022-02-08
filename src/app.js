@@ -4107,16 +4107,23 @@ function journeyPage(){
 						smooth: true,
 						direction: 'horizontal',
 						scrollFromAnywhere: true,
+						getDirection: true,
 						lerp: 0.08,
 						smartphone: {
+							smooth: true,
+							direction: 'horizontal',
 							breakpoint: 0,
-							smooth: true
+							getDirection: true,
 						},
 						tablet: {
+							smooth: true,
+							direction: 'horizontal',
 							breakpoint: 0,
-							smooth: true
+							getDirection: true,
 						},
 					});
+
+					console.log('Hey')
 
 					if(isFirstBuild) {
 
@@ -4146,6 +4153,7 @@ function journeyPage(){
 				}
 
 			} else {
+
 
 				if(isHorizontal == true || isFirstBuild) {
 
@@ -4319,7 +4327,11 @@ function journeyPage(){
 
 		if(isHorizontal && !isMenu) {
 
-			pos = { left: scrollVal, x: (e.clientX * 1.5) }
+			if(isMobile) {
+				pos = { left: scrollVal, x: (e.touches[0].clientX * 1.5) }
+			} else {
+				pos = { left: scrollVal, x: (e.clientX * 1.5) }
+			}
 
 			isMouseDown = true
 
@@ -4327,13 +4339,18 @@ function journeyPage(){
 
     }
 
+	var dx = 0;
+
 	const mouseMoveHandler = function (e) {
 
 		if(isHorizontal && !isMenu) {
 
 			if(isMouseDown) {
-				const dx = pos.left - ( (e.clientX * 1.5) - pos.x)
-
+				if(isMobile) {
+					dx = pos.left - ( (e.touches[0].clientX * 1.5) - pos.x)
+				} else {
+					dx = pos.left - ( (e.clientX * 1.5) - pos.x)
+				}
 				scroll.scrollTo(dx, { duration: 1 })
 			}
 
@@ -4351,9 +4368,15 @@ function journeyPage(){
 
 		eventFired.push("4")
 
-		document.addEventListener('mousemove', mouseMoveHandler)
-		document.addEventListener('mousedown', mouseDownHandler);
-		document.addEventListener('mouseup', mouseUpHandler)
+		if(isMobile) {
+			document.addEventListener('touchmove', mouseMoveHandler)
+			document.addEventListener('touchstart', mouseDownHandler);
+			document.addEventListener('touchend', mouseUpHandler)
+		} else {
+			document.addEventListener('mousemove', mouseMoveHandler)
+			document.addEventListener('mousedown', mouseDownHandler);
+			document.addEventListener('mouseup', mouseUpHandler)
+		}
 		window.addEventListener('resize', resize)
 
 	}
