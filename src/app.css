@@ -3560,21 +3560,6 @@ body.opened .author_nav_set,
 
 }
 
-@media (max-width: 700px){
-	.sub_nav {
-		width: 100%;
-		left: auto;
-		bottom: 20px;
-		top: auto;
-	}
-	.sub_nav ul {
-		justify-content: flex-start;
-	}
-	.sub_nav li:last-child {
-		margin-left: auto
-	}
-}
-
 @media (max-width: 500px){
 	.cloud_text {
 		transform: scale(0.7)

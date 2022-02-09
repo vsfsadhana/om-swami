@@ -662,7 +662,7 @@ function init() {
 	if(page == 'home') {
 		initGL()
 	} else {
-		if(!audio) {music()}
+		// if(!audio) {music()}
 	}
 
 	// stats = new Stats();
@@ -724,6 +724,81 @@ function init() {
 			}
 
 		}, 100)
+
+	}
+
+	var cdTL,
+		yVal;
+
+	$('.sub_nav li').eq(2).find('a').on('mouseenter click', function(e){
+
+		if(e.type == 'click') {
+
+			if(isMobile) {
+
+				if(!$(this).parent().hasClass('active')) {
+					$(this).parent().addClass('active')
+					play()
+				} else {
+					$(this).parent().removeClass('active')
+					reverse()
+				}
+			}
+
+		} else {
+			if(!isMobile) {
+				play()
+			}
+		}
+
+	})
+
+	$('.sub_nav li').eq(2).mouseleave(function(){
+
+		reverse()
+
+	})
+
+	function play(){
+
+		if(cdTL) { cdTL.kill() }
+
+		cdTL = new gsap.timeline()
+
+		if(sizes.width < 768) {
+
+			cdTL.set('.cd_inner', {autoAlpha: 1, y: 0})
+
+			.set('.cd_link_inner', {autoAlpha: 1, y: '0%', stagger: -0.1})
+
+		} else {
+
+			cdTL.set('.cd_inner', {autoAlpha: 1, y: 0})
+
+			.set('.cd_link_inner', {autoAlpha: 1, y: '0%', stagger: 0.1})
+
+		}
+	}
+
+	function reverse(){
+
+		if(cdTL) { cdTL.kill() }
+
+		cdTL = new gsap.timeline()
+
+		if(sizes.width < 768) {
+
+			cdTL.set('.cd_inner', {autoAlpha: 0, y: -10})
+
+			.set('.cd_link_inner', {autoAlpha: 0, y: '-100%', stagger: 0.05})
+
+		} else {
+
+			cdTL.set('.cd_inner', {autoAlpha: 0, y: 10})
+
+			.set('.cd_link_inner', {autoAlpha: 0, y: '100%', stagger: -0.05})
+
+		}
 
 	}
 
@@ -1022,6 +1097,8 @@ function init() {
 					glProgTL.play()
 					$('.lb_set').css('pointer-events', 'all')
 				}
+
+				$('.sub_nav li').removeClass('hover')
 
 				isMenu = false
 				menuTL.timeScale(1.3).reverse()
@@ -2322,6 +2399,20 @@ function onWindowResize(e, value) {
 
 	}
 
+
+	if(sizes.width < 768) {
+
+		gsap.set('.cd_inner', {autoAlpha: 0, y: -10})
+
+		gsap.set('.cd_link_inner', {autoAlpha: 0, y: '-100%'})
+
+	} else {
+
+		gsap.set('.cd_inner', {autoAlpha: 0, y: 10})
+
+		gsap.set('.cd_link_inner', {autoAlpha: 0, y: '100%'})
+
+	}
 
 	clearTimeout(window.scrollUpdate);
 
