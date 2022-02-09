@@ -197,7 +197,7 @@ var page = $('body').attr('id'),
 
 	labTL,
 	enCarousel,
-	lastActive = 1,
+	lastActive = 5,
 	isEntrepreneurActive = false,
 	isFirstHover = true,
 
@@ -3690,7 +3690,7 @@ function loadContent(index, val){
 function entrepreneurPage(){
 
 	enCarousel
-	lastActive = 1
+	lastActive = 5
 	isEntrepreneurActive = false
 	isFirstHover = true
 	isColsFlickity = false
@@ -3814,7 +3814,7 @@ function entrepreneurPage(){
 
 			if ( isColsFlickity == true ) {
 
-				lastActive = 1
+				lastActive = 5
 
 				$('.en_col_set').removeClass('bigger').css('width', '')
 
@@ -4066,16 +4066,16 @@ function entrepreneurPage(){
 
 	})
 
-	.from('.en_lab_set', 1, {y: 50, autoAlpha: 0, ease: 'power3.out'}, 0.5)
+	.from('.en_lab_set', 1, {y: 50, autoAlpha: 0, ease: 'power3.out'}, 1)
 
-	.from('.en_col_ani', 1, {
+	.from('.en_col_ani', 2, {
 		x: function(index, target){
 			var	wrapWidth = sizes.width,
 			getOffset = target.offsetLeft;
 
 			return wrapWidth - (getOffset)
 		},
-	 stagger: 0.1, ease: 'power3.out'}, 0)
+	 stagger: 0.1, ease: 'power4.inOut'}, 0)
 
 	.call(function(){
 
@@ -4209,7 +4209,7 @@ function enContent(index, wrap, url){
 		$(wrap).html(enContent1);
 		break;
 		case 1:
-		$(wrap).html(enContent2);
+		$(wrap).html(enContent5);
 		break;
 		case 2:
 		$(wrap).html(enContent3);
@@ -4218,10 +4218,10 @@ function enContent(index, wrap, url){
 		$(wrap).html(enContent4);
 		break;
 		case 4:
-		$(wrap).html(enContent5);
+		$(wrap).html(enContent6);
 		break;
 		case 5:
-		$(wrap).html(enContent6);
+		$(wrap).html(enContent2);
 		break;
 	}
 
@@ -5790,6 +5790,8 @@ function authorPage(val){
 
 		.call(function(){
 
+			$('body').addClass('wait')
+
 			isAnimation = true
 
 		})
@@ -5811,6 +5813,8 @@ function authorPage(val){
 		.to(nGridInner, 1.5, { scale: 1, ease: 'power3.inOut', onStart: function(){ canHover = true; } }, 1.9)
 
 		.call(function(){
+
+			$('body').removeClass('wait')
 
 			$('.au_grid_box').addClass('no-transition')
 
