@@ -1221,7 +1221,12 @@ function initGL() {
 
 	.call(function(){
 
-		getSection('next')
+		if(canScroll) {
+
+			canScroll = false
+
+			getSection('next')
+		}
 
 	})
 
@@ -1248,7 +1253,7 @@ function FXScene( number ) {
 			if(transitionParams.transition2 < 1) {
 
 				if(isExp && !isMobile) {
-					camera.position.z += ( mouseZ - camera.position.z ) * .05;
+					camera.position.z += ( mouseZ - camera.position.z ) * .02;
 					camera.position.x += ( mouseX - camera.position.x ) * .05;
 					camera.position.y += ( - mouseY - camera.position.y ) * .05;
 				}
@@ -1631,7 +1636,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale(1.5)
+			.timeScale(1.2)
 
 			.call(function(){
 
@@ -1661,7 +1666,7 @@ function initPlans() {
 
 			})
 
-			.fromTo(opacityMesh[1].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'})
+			.fromTo(opacityMesh[1].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'}, 2)
 
 			.call(function(){
 				opacityMesh.forEach(function(e, i){
@@ -1720,9 +1725,21 @@ function initPlans() {
 
 			})
 
-			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
+			.to(sceneGroup[2].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
 
-			.to(glParams, 2, {transSceneA: 1, ease: 'power3.inOut'}, 0)
+			.to(sceneGroup[2].rotation, 2, {z: -0.1, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[2].position, 2, {x: 200, ease: 'power3.inOut'}, 1)
+
+			.to(glParams, 2, {transSceneA: 1, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].position, 2, { x: -200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[1].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
+
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
@@ -1770,7 +1787,19 @@ function initPlans() {
 
 			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
-			.to(glParams, 2, {transSceneB: 1, ease: 'power3.inOut'}, 0)
+			.to(sceneGroup[3].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
+
+			.to(sceneGroup[3].rotation, 2, {z: -0.1, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[3].position, 2, {x: 200, ease: 'power3.inOut'}, 1)
+
+			.to(glParams, 2, {transSceneB: 1, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].position, 2, { x: -200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[2].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
@@ -1816,7 +1845,19 @@ function initPlans() {
 
 			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
-			.to(glParams, 2, {transSceneC: 1, ease: 'power3.inOut'}, 0)
+			.to(sceneGroup[4].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 0)
+
+			.to(sceneGroup[4].rotation, 2, {z: -0.1, ease: 'power3.inOut'}, 1)
+
+			.to(sceneGroup[4].position, 2, {x: 200, ease: 'power3.inOut'}, 1)
+
+			.to(glParams, 2, {transSceneC: 1, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[3].position, 2, { x: -200, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[3].rotation, 2, {z: 0.15, ease: 'power3.inOut'}, 1)
+
+			.from(sceneGroup[3].position, 2, {y: 30, z: 70, ease: 'power3.inOut'}, 2)
 
 			.to('.lb_set', 2, {autoAlpha: 1, ease: 'power3.out'}, 1)
 
@@ -1842,7 +1883,7 @@ function initPlans() {
 
 			mainTL
 
-			.timeScale(1.5)
+			.timeScale(1.2)
 
 			.call(function(){
 				opacityMesh.forEach(function(e, i){
@@ -1853,8 +1894,6 @@ function initPlans() {
 			.to('.lb_set', 1, {autoAlpha: 0, ease: 'power3.in'}, 0)
 
 			.fromTo(opacityMesh[1].material, 1, {opacity: 0}, {opacity: 1, ease: 'power3.in'}, 0)
-
-			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
 			.call(function(){
 
@@ -1871,7 +1910,9 @@ function initPlans() {
 
 			})
 
-			.fromTo(opacityMesh[2].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'}, 1)
+			.fromTo(opacityMesh[2].material, 1, {opacity: 1}, {opacity: 0, ease: 'power3.out'}, 2)
+
+			.to('#gl_progress i', 2, {scaleX: 0, ease: "power3.inOut"}, 0)
 
 			.call(function(){
 				opacityMesh.forEach(function(e, i){
@@ -2219,7 +2260,7 @@ function onDocumentMouseMove( event ) {
 
 			mouseX = ( event.clientX - (sizes.width/2) ) / 100
 			mouseY = ( event.clientY - (sizes.height/2) ) / 100
-			mouseZ = (perspective-15)
+			mouseZ = (perspective-20)
 
 		} else {
 
