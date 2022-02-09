@@ -5957,6 +5957,41 @@ function staticPage(){
 	})
 
 
+	var dropdownTL;
+
+	$('.dropdown').click(function(){
+
+		var $this = $(this);
+
+		if(faqTL) {faqTL.kill()}
+
+		faqTL = new gsap.timeline()
+
+		if(!$this.hasClass('active')) {
+
+			$this.addClass('active')
+
+			$('.dropdown_set').stop().slideDown(200)
+			faqTL.fromTo('.dropdown_set li', 0.5, {autoAlpha: 0}, {autoAlpha: 1, ease: 'power3.Out'}, 0)
+
+		} else {
+
+			$this.removeClass('active')
+
+			$('.dropdown_set').stop().slideUp(200)
+			faqTL.to('.dropdown_set li', 0.5, {autoAlpha: 0, ease: 'power3.Out'}, 0)
+		}
+
+	})
+
+	$('.dropdown_set li').click(function(){
+
+		var val = $(this).html()
+
+		$('.dropdown input').val(val)
+
+	})
+
 	$('.input_check').click(function(){
 		var checkBox = $(this).find('.checkbox')
 
@@ -5968,5 +6003,7 @@ function staticPage(){
 	animationTL = gsap.timeline({paused: true});
 
 	startScroll()
+
+	pageScroll(0);
 
 }

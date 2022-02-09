@@ -319,7 +319,7 @@ header.loaded {
 	z-index: 99;
 }
 
-.site_button:not(.menu_button) {
+.site_button:not(.menu_button):not(.submit) {
 	width: 144px;
 }
 
