@@ -2605,11 +2605,13 @@ function buildScroll(val){
 		smooth: true,
 		scrollFromAnywhere: true,
 		getDirection: true,
-		smartphone: {
+		tablet: {
+			// smooth: false,
 			smooth: page == 'author' ? true : false,
 			lerp: 0
 		},
-		tablet: {
+		smartphone: {
+			// smooth: false,
 			smooth: page == 'author' ? true : false,
 			lerp: 0
 		}
@@ -5027,7 +5029,6 @@ function authorPage(val){
 						var $this = $(this)
 
 						if(!$this.hasClass('active')) {
-
 							matchBoxes($this, true);
 
 						}
@@ -5068,11 +5069,15 @@ function authorPage(val){
 			let W = $('.au_current_cover').innerWidth(),
 				H = $('.au_current_cover').innerHeight();
 
-			var offsetLeft = $this.offset().left,
-				offsetLeft = $this.offset().left,
-				offsetTop = $this.offset().top,
-				getX = $('.au_current_cover').offset().left,
-				getY = $('.au_current_cover').offset().top;
+			var offset = $('.au_current_cover').offset(),
+				getX = offset.left,
+				getY = offset.top;
+
+			if(isMobile && sizes.width < 820) {
+				getY = offset.top - $(window).scrollTop()
+			}
+
+			// console.log(parseInt(getY))
 
 			var scaleX = W / getW;
 			var scaleY = H / getH;
@@ -5210,7 +5215,7 @@ function authorPage(val){
 
 				if(sizes.width <= 768) {
 
-					scroll.scrollTo(0, {duration: 0.3})
+					$('.au_grid_box').addClass('fast');
 
 					setContent($this)
 
@@ -5220,7 +5225,9 @@ function authorPage(val){
 
 						update(false)
 
-					}, 1500);
+						$('.au_grid_box').removeClass('fast');
+
+					}, 800);
 
 				} else {
 
@@ -5238,6 +5245,7 @@ function authorPage(val){
 						newDivContent;
 
 					$('.au_current_cover').removeClass('sizeA sizeB')
+
 
 					if($this.hasClass('sizeA')) {
 
