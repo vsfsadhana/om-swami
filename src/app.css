@@ -2649,6 +2649,11 @@ body.opened .author_nav_set,
 	position: relative;
 }
 
+.input_set.error,
+.input_set.error .dropdown_set {
+	border-color: #a30000;
+}
+
 .input_set.dropdown {
 	z-index: 99;
 }
@@ -2705,6 +2710,15 @@ body.opened .author_nav_set,
 
 .inner_input_set {
 	position: relative;
+}
+
+.success {
+	position: absolute;
+	visibility: hidden;
+}
+
+.success svg {
+	width: 20px;
 }
 
 .dropdown_set {

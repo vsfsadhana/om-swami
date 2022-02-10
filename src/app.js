@@ -662,7 +662,7 @@ function init() {
 	if(page == 'home') {
 		initGL()
 	} else {
-		if(!audio) {music()}
+		// if(!audio) {music()}
 	}
 
 	// stats = new Stats();
@@ -5962,6 +5962,79 @@ function staticPage(){
 
 	})
 
+	$('input, textarea').on('keyup', function(){
+
+		var val = $(this).val();
+
+		if(val.length > 0) {
+
+			$(this).closest('.input_set').removeClass('error');
+
+		}
+
+	})
+
+	var canSubmit = true
+
+	$('#submit').click(function(){
+
+		var input = $('input, textarea');
+
+		if(!$('body').hasClass('wait')) {
+
+			input.each(function(){
+
+				var val = $(this).val()
+
+				if(val.length == 0) {
+
+					$(this).closest('.input_set').addClass('error');
+
+					canSubmit = false
+
+				} else {
+
+					canSubmit = true
+
+				}
+
+			})
+		}
+
+
+		$(this).closest('form').submit()
+
+	})
+
+	$("form").submit(function(e){
+		e.preventDefault();
+		var action = $(this).attr("action");
+		if(canSubmit) {
+			$('body').addClass('wait')
+			$.ajax({
+				type: "POST",
+				url: action,
+				crossDomain: true,
+				data: new FormData(this),
+				dataType: "json",
+				processData: false,
+				contentType: false,
+				headers: {
+				  "Accept": "application/json"
+				}
+			}).done(function() {
+				$('body').removeClass('wait')
+				$('input, textarea').val('')
+				$('.dropdown input').val('Please select')
+				gsap.to('#submit .micro', 1, {autoAlpha: 0, ease: 'power3.in'})
+				gsap.to('#submit .success', 1, {autoAlpha: 1, ease: 'power3.out', delay: 1})
+				gsap.to('#submit .success', 1, {autoAlpha: 0, ease: 'power3.in', delay: 3})
+				gsap.to('#submit .micro', 1, {autoAlpha: 1, ease: 'power3.out', delay: 4})
+			}).fail(function() {
+				$('body').removeClass('wait')
+			});
+		}
+	});
 
 	var dropdownTL;
 
@@ -5994,7 +6067,7 @@ function staticPage(){
 
 		var val = $(this).html()
 
-		$('.dropdown input').val(val)
+		$('.dropdown input').val(val).closest('.input_set').removeClass('error');
 
 	})
 
