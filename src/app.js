@@ -769,13 +769,13 @@ function init() {
 
 			cdTL.set('.cd_inner', {autoAlpha: 1, y: 0})
 
-			.set('.cd_link_inner', {autoAlpha: 1, y: '0%', stagger: -0.1})
+			.set('.cd_link_inner', {y: '0%', stagger: -0.08})
 
 		} else {
 
 			cdTL.set('.cd_inner', {autoAlpha: 1, y: 0})
 
-			.set('.cd_link_inner', {autoAlpha: 1, y: '0%', stagger: 0.1})
+			.set('.cd_link_inner', {y: '0%', stagger: 0.08})
 
 		}
 	}
@@ -788,15 +788,15 @@ function init() {
 
 		if(sizes.width < 768) {
 
-			cdTL.set('.cd_inner', {autoAlpha: 0, y: -10})
+			cdTL.set('.cd_inner', {autoAlpha: 0, y: -20})
 
-			.set('.cd_link_inner', {autoAlpha: 0, y: '-100%', stagger: 0.05})
+			.set('.cd_link_inner', {y: '-150%', stagger: 0.04})
 
 		} else {
 
-			cdTL.set('.cd_inner', {autoAlpha: 0, y: 10})
+			cdTL.set('.cd_inner', {autoAlpha: 0, y: 20})
 
-			.set('.cd_link_inner', {autoAlpha: 0, y: '100%', stagger: -0.05})
+			.set('.cd_link_inner', {y: '150%', stagger: -0.04})
 
 		}
 
@@ -2402,15 +2402,15 @@ function onWindowResize(e, value) {
 
 	if(sizes.width < 768) {
 
-		gsap.set('.cd_inner', {autoAlpha: 0, y: -10})
+		gsap.set('.cd_inner', {autoAlpha: 0, y: -20})
 
-		gsap.set('.cd_link_inner', {autoAlpha: 0, y: '-100%'})
+		gsap.set('.cd_link_inner', {y: '-150%'})
 
 	} else {
 
-		gsap.set('.cd_inner', {autoAlpha: 0, y: 10})
+		gsap.set('.cd_inner', {autoAlpha: 0, y: 20})
 
-		gsap.set('.cd_link_inner', {autoAlpha: 0, y: '100%'})
+		gsap.set('.cd_link_inner', {y: '150%'})
 
 	}
 
@@ -2606,14 +2606,12 @@ function buildScroll(val){
 		scrollFromAnywhere: true,
 		getDirection: true,
 		tablet: {
-			// smooth: false,
 			smooth: page == 'author' ? true : false,
-			lerp: 0
+			lerp: page == 'author' ? 1 : 0
 		},
 		smartphone: {
-			// smooth: false,
 			smooth: page == 'author' ? true : false,
-			lerp: 0
+			lerp: page == 'author' ? 1 : 0
 		}
 	});
 
