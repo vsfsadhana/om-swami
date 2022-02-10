@@ -3816,7 +3816,7 @@ function entrepreneurPage(){
 
 				lastActive = 5
 
-				$('.en_col_set').removeClass('bigger').css('width', '')
+				// $('.en_col_set').removeClass('bigger').css('width', '')
 
 				isColsFlickity = false;
 
@@ -3870,15 +3870,15 @@ function entrepreneurPage(){
 				$('.en_col_set').each(function(i){
 					let $this = $(this);
 					if( i != index ) {
-						gsap.to($this, 0.3, {width: parseFloat(20 * sizes.height) / 100, ease: 'power3.out' })
+						// gsap.to($this, 0.3, {width: parseFloat(20 * sizes.height) / 100, ease: 'power3.out' })
 					}
 				})
 
-				gsap.to(selected, 0.7, {width: parseFloat(40 * sizes.height) / 100, ease: 'power4.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
-					enCarousel.resize()
-					$('.en_col_set').removeClass('bigger').css('width', '')
-					selected.addClass('bigger')
-				} })
+				// gsap.to(selected, 0.7, {width: parseFloat(40 * sizes.height) / 100, ease: 'power4.out', onUpdate: function(){enCarousel.resize()}, onComplete: function(){
+					// enCarousel.resize()
+					// $('.en_col_set').removeClass('bigger').css('width', '')
+					// selected.addClass('bigger')
+				// } })
 
 			})
 

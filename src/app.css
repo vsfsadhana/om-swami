@@ -1882,8 +1882,7 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 	height: calc(var(--vh, 1vh)*60.3703);
 }
 
-body:not(.progress) .en_col_set:not(.no-tranist),
-body:not(.progress) .en_col_set:not(.no-tranist) .en_col_shape {
+body:not(.progress) .en_col_set:not(.no-tranist) {
 	transition: all 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2007,6 +2006,24 @@ body:not(.progress) .en_col_set:not(.no-tranist) .en_col_shape {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.en_col_set.left_align .en_col_shape svg {
+	transform: translateX(12vh);
+	top: 1vh;
+}
+
+.en_col_set.left_less_align .en_col_shape svg {
+	transform: translateX(5vh);
+	top: 1vh;
+}
+
+.en_col_shape svg {
+	height: 80%;
+	width: auto;
+	max-width: unset;
+	flex-shrink: 0;
+	position: relative;
 }
 
 .en_col_shape img {
@@ -2881,7 +2898,7 @@ body.opened .author_nav_set,
 		left: 20%;
 	}
 	.en_col_set {
-		width: calc(var(--vh, 1vh)*20);
+		width: calc(var(--vh, 1vh)*24);
 		margin: 0 20px;
 		transition: none !important;
 		-moz-transition: none !important;
