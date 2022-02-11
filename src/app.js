@@ -662,7 +662,7 @@ function init() {
 	if(page == 'home') {
 		initGL()
 	} else {
-		// if(!audio) {music()}
+		if(!audio) {music()}
 	}
 
 	// stats = new Stats();
