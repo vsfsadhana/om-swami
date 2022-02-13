@@ -2114,7 +2114,7 @@ body:not(.progress) .n_grid_blocks.split .au_grid_box.fast {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	overflow: scroll;
+	/*overflow: scroll;*/
 }
 
 .isMobile:not(.opened) .n_grid_wrap {
