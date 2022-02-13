@@ -5834,11 +5834,27 @@ function authorPage(val){
 
 	function tempDrag() {
 
+		if(animationTL) {animationTL.kill()}
+
+		animationTL = gsap.timeline({paused: true});
+
 		var pos1 = 0,
 			pos2 = 0,
 			pos3 = 0,
 			pos4 = 0,
 			draggableElements = document.getElementsByClassName("au_grid_box");
+
+		reset()
+
+		stopScroll()
+
+		$('.n_grid_blocks').addClass('split')
+
+		$('.au_grid_box').addClass('no-transition')
+
+		gsap.set('.app', {autoAlpha: 1})
+
+		$('.author_nav_set').removeClass('hidden')
 
 		for(var i = 0; i < draggableElements.length; i++){
 			dragElement(draggableElements[i]);
