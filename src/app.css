@@ -2618,18 +2618,18 @@ body.opened .author_nav_set,
 	color: rgb(55 54 54 / 30%);
 }
 
-.faq_footer p a {
+.links a {
 	white-space: nowrap;
 	display: inline-flex;
+	margin-left: 13px;
 }
 
 .faq_footer p a span {
 	letter-spacing: 0.3px;
 	display: block;
-	margin-right: 13px;
 }
 
-.faq_footer p a svg {
+.faq_footer .links svg {
 	width: 35px;
 }
 .input_check {
