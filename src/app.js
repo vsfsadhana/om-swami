@@ -3433,7 +3433,7 @@ function monkPage(val, id){
 		autoAlpha: 0}, {x: 0, y: 0, autoAlpha: 1, ease: 'power3.out'
 	}, 0)
 
-	.from(getActive.find('.monk_text .mobile_explore'), 0.7, {y: 20, autoAlpha: 0, ease: 'power3.out', delay: 1.5}, 0.5)
+	.from(getActive.find('.monk_text .mobile_explore'), 0.7, {y: 20, autoAlpha: 0, ease: 'power3.out'}, 0.5)
 
 }
 

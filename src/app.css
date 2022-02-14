@@ -1306,6 +1306,10 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 	pointer-events: none;
 }
 
+body.isMobile .explore_btn {
+	visibility: hidden !important;
+}
+
 .fluid_close svg {
 	width: 88px;
 }
@@ -1340,6 +1344,7 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 .mobile_explore {
 	margin-top: 4vw;
 }
+
 
 #monk .getContent {
 	margin-bottom: 5vw;
@@ -3939,7 +3944,7 @@ body.opened .author_nav_set,
 }
 
 @media (min-width: 769px){
-	.mobile_explore {
+	body.isDesktop .mobile_explore {
 		visibility: hidden !important;
 	}
 }
