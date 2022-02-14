@@ -5564,7 +5564,7 @@ function authorPage(val){
 
 	$('body').on('click', function (e) {
 
-		if(!isMenu) {
+		if(!isMenu && !isAnimation) {
 
 			if(sizes.width > 1200) {
 
