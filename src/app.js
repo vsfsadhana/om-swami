@@ -4667,7 +4667,7 @@ function authorPage(val){
 
 	function store_boundary() {
 		var B = nGridSide,
-			G = $('.au_content a'),
+			G = $('.book_url'),
 			GO = G.offset(),
 			O = B.offset();
 		box_area = { 
@@ -5562,11 +5562,18 @@ function authorPage(val){
 
 	})
 
-	$('body').on('click', function () {
+	$('body').on('click', function (e) {
 
 		if(!isMenu) {
 
 			if(sizes.width > 1200) {
+
+				var C = coords;
+
+				C[0] = e.pageX;
+				C[1] = e.pageY;
+
+				store_boundary()
 
 				if(is_mouse_in_area(buttonArea)){
 

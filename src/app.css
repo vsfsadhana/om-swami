@@ -1306,7 +1306,8 @@ body:not(#monk) .en_sec_col:nth-child(3) {
 	pointer-events: none;
 }
 
-body.isMobile .explore_btn {
+body.isMobile .explore_btn,
+body.isMobile .fluid_close {
 	visibility: hidden !important;
 }
 
