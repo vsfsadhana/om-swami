@@ -3427,6 +3427,7 @@ body.opened .author_nav_set,
 	}
 	.monk_section .en_sec_col:nth-child(2) {
 		margin-top: 80px;
+		z-index: 199;
 	}
 	.monk_section .en_quote {
 		position: relative;
