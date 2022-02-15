@@ -53,6 +53,11 @@ body#contact .body_texture {
 	mix-blend-mode: unset;
 }
 
+body#author {
+	position: fixed;
+	overscroll-behavior-y: none;
+}
+
 body.isDesktop:not(.wait) .monk_slide,
 body.isDesktop:not(.wait) .arrow,
 body.isDesktop:not(.wait) .monk_nav_item,
@@ -2672,7 +2677,13 @@ body.opened .author_nav_set,
 
 .input_footer_set {
 	margin-top: 30px;
-	justify-content: space-between;
+	flex-direction: column;
+}
+
+.input_footer_set p {
+	font-size: 15px;
+	margin-top: 15px;
+	visibility: hidden;
 }
 
 .inner_input_set {
@@ -3148,7 +3159,7 @@ body.opened .author_nav_set,
 		margin-top: 20px;
 	}
 	body#author main {
-		overflow: auto;
+		/*overflow: auto;*/
 	}
 	body:not(#author) *:not(.journey_bg)[data-scroll] {
 		transform: none !important;

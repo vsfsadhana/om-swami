@@ -5139,7 +5139,7 @@ function authorPage(val){
 
 			global.history.pushState({}, null, '/author/' + toSeoUrl(title));
 
-			document.title = 'Om Swami – ' + title;
+			document.title = 'Om Swami – ' + title.toString().replace('<br>','');
 
 			canSwitch = false
 
@@ -6049,6 +6049,7 @@ function staticPage(){
 				$('body').removeClass('wait')
 				$('input, textarea').val('')
 				$('.dropdown input').val('Please select')
+				gsap.to('.input_footer_set p', 1, {autoAlpha: 1, ease: 'power3.out'})
 				gsap.to('#submit .micro', 1, {autoAlpha: 0, ease: 'power3.in'})
 				gsap.to('#submit .success', 1, {autoAlpha: 1, ease: 'power3.out', delay: 1})
 				gsap.to('#submit .success', 1, {autoAlpha: 0, ease: 'power3.in', delay: 3})
