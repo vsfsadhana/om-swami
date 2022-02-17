@@ -4,6 +4,256 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require('path')
+const SitemapPlugin = require('sitemap-webpack-plugin').default;
+
+const paths = [
+  {
+    path: '/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/contact/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/faq/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/monk/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/monk/expert-meditator/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/monk/unconventional-monk/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/monk/om-swami-in-own-words/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/monk/millionaire-turned-monk/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/journey/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/wildr/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/sri-badrika-ashram/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/life-coaching/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/serial-entrepreneur/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/entrepreneur/black-lotus-app/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/a-fistful-of-wisdom/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/kundalini/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/a-million-thoughts/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/if-truth-be-told/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/ancient-science-of-mantras/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-hidden-power-of-gayatri-mantra/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/mind-full-to-mindful/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-wellness-sense/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-children-of-tomorrow/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-last-gambit/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/heart-of-success/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/fistful-of-love/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-book-of-kindness/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/when-all-is-not-well/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-big-questions-of-life/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/zen-a-way-of-living/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/gayatri-sadhana-the-ultimate-power/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/kundalini-sadhana-anant-urja-ka-srota/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/dhyan-yoga-antaratma-se-milan/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/a-guide-to-stress-free-living/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/shrimad-bhagavad-geeta-voice-of-krishna/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/jeevan-ek-ghorakh-dhanda-hai/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/the-wellness-sense-audio/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/roz-ke-mantra/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  },
+  {
+    path: '/author/din-ki-shuruaat/',
+    lastmod: '2022-02-16',
+    priority: 1,
+    changefreq: 'daily'
+  }
+];
 
 module.exports = {
     entry: {
@@ -18,6 +268,15 @@ module.exports = {
     devtool: 'source-map',
     plugins:
     [
+
+        new SitemapPlugin({
+          base: 'https://omswami.com/',
+          paths,
+          options: {
+            filename: 'sitemap.xml'
+          }
+        }),
+
         new CopyWebpackPlugin({
             patterns: [
                 { from: path.resolve(__dirname, '../static') }
